@@ -1,20 +1,57 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler';
+import React from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import {
+  useFonts,
+  IMFellEnglish_400Regular,
+  IMFellEnglish_400Regular_Italic,
+} from '@expo-google-fonts/im-fell-english';
+import {
+  CrimsonText_400Regular,
+  CrimsonText_400Regular_Italic,
+  CrimsonText_600SemiBold,
+} from '@expo-google-fonts/crimson-text';
+
+import WelcomeScreen from './src/screens/WelcomeScreen';
+import TutorialScreen from './src/screens/TutorialScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import ReadingScreen from './src/screens/ReadingScreen';
+import QuizSelectScreen from './src/screens/QuizSelectScreen';
+import QuizScreen from './src/screens/QuizScreen';
+import AchievementsScreen from './src/screens/AchievementsScreen';
+
+const Stack = createStackNavigator();
 
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts({
+    IMFellEnglish_400Regular,
+    IMFellEnglish_400Regular_Italic,
+    CrimsonText_400Regular,
+    CrimsonText_400Regular_Italic,
+    CrimsonText_600SemiBold,
+  });
+
+  if (!fontsLoaded && !fontError) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ede8d8' }}>
+        <ActivityIndicator color="#2c4a2e" size="large" />
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Welcome" component={WelcomeScreen} />
+        <Stack.Screen name="Tutorial" component={TutorialScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Reading" component={ReadingScreen} />
+        <Stack.Screen name="QuizSelect" component={QuizSelectScreen} />
+        <Stack.Screen name="Quiz" component={QuizScreen} />
+        <Stack.Screen name="Achievements" component={AchievementsScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

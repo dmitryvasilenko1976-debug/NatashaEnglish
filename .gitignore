@@ -6,8 +6,19 @@ node_modules/
 # Expo
 .expo/
 dist/
+dist2/
+dist3/
+dist4/
+dist5/
+dist6/
 web-build/
 expo-env.d.ts
+
+# Source PDFs (large binary files)
+pdfs/
+
+# Vercel
+.vercel/
 
 # Native
 .kotlin/
@@ -32,6 +43,9 @@ yarn-error.*
 
 # local env files
 .env*.local
+
+# API keys — never commit
+src/config.js
 
 # typescript
 *.tsbuildinfo
