@@ -17,10 +17,18 @@ function speakWord(word) {
   }
 }
 
-function masteryDiamonds(count) {
-  if (count < 3) return null;
-  const filled = count >= 50 ? 5 : count >= 30 ? 4 : count >= 20 ? 3 : count >= 10 ? 2 : 1;
-  return '◆'.repeat(filled) + '◇'.repeat(5 - filled);
+const MASTERY_NAMES = ['Незнакомое', 'Замеченное', 'Знакомое', 'Изученное', 'Освоенное', 'Мастерское'];
+
+function getMasteryLevel(wordData, lookupCount) {
+  const reps = wordData?.repetitions || 0;
+  if (reps >= 8) return 5;
+  if (reps >= 5) return 4;
+  if (reps >= 3) return 3;
+  const lc = lookupCount || 0;
+  if (lc >= 20) return 3;
+  if (lc >= 10) return 2;
+  if (lc >= 3)  return 1;
+  return 0;
 }
 
 export default function WordDrawer({ visible, wordData, word, loading, isSaved, onSave, onClose, mastery }) {
@@ -68,13 +76,23 @@ export default function WordDrawer({ visible, wordData, word, loading, isSaved, 
                 )}
               </View>
 
-              {mastery > 0 && (
-                <View style={styles.masteryRow}>
-                  {masteryDiamonds(mastery) && (
-                    <Text style={styles.masteryDiamonds}>{masteryDiamonds(mastery)}</Text>
-                  )}
+              {(() => {
+                const level = getMasteryLevel(wordData, mastery);
+                const diamonds = '◆'.repeat(level) + '◇'.repeat(5 - level);
+                return level > 0 ? (
+                  <View style={styles.masteryRow}>
+                    <Text style={styles.masteryDiamonds}>{diamonds}</Text>
+                    <Text style={styles.masteryLevel}>{MASTERY_NAMES[level]}</Text>
+                    {mastery > 0 && <Text style={styles.masteryCount}>· {mastery}×</Text>}
+                  </View>
+                ) : mastery > 0 ? (
                   <Text style={styles.masteryCount}>Встречено {mastery} раз</Text>
-                </View>
+                ) : null;
+              })()}
+              {wordData?.nextReview && (
+                <Text style={styles.nextReview}>
+                  Повторение: {wordData.nextReview}
+                </Text>
               )}
 
               <Text style={styles.transcription}>{wordData.transcription}</Text>
@@ -271,9 +289,20 @@ const styles = StyleSheet.create({
     color: colors.gold,
     letterSpacing: 2,
   },
+  masteryLevel: {
+    fontFamily: 'CrimsonText_600SemiBold',
+    fontSize: 12,
+    color: colors.gold,
+  },
   masteryCount: {
     fontFamily: 'CrimsonText_400Regular_Italic',
     fontSize: 12,
     color: colors.inkFaint,
+  },
+  nextReview: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 11,
+    color: colors.inkFaint,
+    marginBottom: 6,
   },
 });

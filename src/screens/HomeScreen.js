@@ -15,6 +15,7 @@ import {
   getSavedWords, getProgress, getGameData, saveGameData, updateStreakWithInfo,
 } from '../services/storageService';
 import { getLevelInfo, getDailyQuests, updateLoginStreak, buyStreakShield, updateLeagueRivals, getWeeklyQuest } from '../services/gamificationService';
+import { getWordsForReview } from '../services/storageService';
 import { pickAndParsePDF } from '../services/pdfService';
 import { sampleArticle } from '../data/sampleArticle';
 import { colors } from '../theme/colors';
@@ -36,6 +37,7 @@ export default function HomeScreen({ navigation }) {
   const [loginBonus, setLoginBonus] = useState(null);
   const [leaguePosition, setLeaguePosition] = useState(null);
   const [weeklyQuest, setWeeklyQuest] = useState(null);
+  const [reviewCount, setReviewCount] = useState(0);
   const xpRef = useRef(0);
   const isFirstLoad = useRef(true);
 
@@ -109,6 +111,9 @@ export default function HomeScreen({ navigation }) {
 
     // Weekly quest
     setWeeklyQuest(getWeeklyQuest(updatedGame));
+
+    // Review badge (non-blocking)
+    getWordsForReview().then(words => setReviewCount(words.length)).catch(() => {});
 
     if (streakBroken) setStreakLost({ days: previousStreak });
     if (gemsEarned > 0) setLoginBonus({ gems: gemsEarned, day: bonusDay });
@@ -205,6 +210,19 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           )}
         </View>
+      )}
+
+      {reviewCount > 0 && (
+        <TouchableOpacity
+          style={styles.reviewBanner}
+          onPress={() => navigation.navigate('Review')}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.reviewBannerText}>
+            📚 {reviewCount} слов к повторению · Свиток Памяти
+          </Text>
+          <Ionicons name="chevron-forward" size={14} color={colors.gold} />
+        </TouchableOpacity>
       )}
 
       <OrnamentDivider style={styles.topDivider} />
@@ -522,5 +540,21 @@ const styles = StyleSheet.create({
     fontFamily: 'CrimsonText_600SemiBold',
     fontSize: 12,
     color: colors.gold,
+  },
+  reviewBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#2a4a28',
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gold + '40',
+  },
+  reviewBannerText: {
+    fontFamily: 'CrimsonText_400Regular',
+    fontSize: 13,
+    color: '#d4e8c8',
+    flex: 1,
   },
 });

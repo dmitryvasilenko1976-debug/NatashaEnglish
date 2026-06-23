@@ -306,6 +306,30 @@ export function updateLoginStreak(game) {
   return { game, gemsEarned: bonusGems, bonusDay: ls.current };
 }
 
+// ── Word mastery levels (SM-2 + lookup count) ─────────────────────────────────
+
+// 0 Незнакомое, 1 Замеченное, 2 Знакомое, 3 Изученное, 4 Освоенное, 5 Мастерское
+export function getMasteryLevel(wordData, lookupCount) {
+  const reps = wordData?.repetitions || 0;
+  if (reps >= 8) return 5;
+  if (reps >= 5) return 4;
+  if (reps >= 3) return 3;
+  const lc = lookupCount || 0;
+  if (lc >= 20) return 3;
+  if (lc >= 10) return 2;
+  if (lc >= 3)  return 1;
+  return 0;
+}
+
+export const MASTERY_NAMES = ['Незнакомое', 'Замеченное', 'Знакомое', 'Изученное', 'Освоенное', 'Мастерское'];
+
+// Returns true if every saved word in article has reached Изученное (level 3+)
+export function isArticleMastered(wordsObj) {
+  const entries = Object.values(wordsObj);
+  if (entries.length < 3) return false;
+  return entries.every(w => getMasteryLevel(w, 0) >= 3);
+}
+
 // ── Achievement checker ───────────────────────────────────────────────────────
 
 export function checkNewAchievements(gameData) {

@@ -158,6 +158,75 @@ export async function saveGameData(data) {
   await AsyncStorage.setItem('gamification', JSON.stringify(data));
 }
 
+// ── SM-2 Spaced Repetition ────────────────────────────────────────────────────
+
+// grade: 0=Again, 2=Hard, 4=Good, 5=Easy
+export function sm2Update(srs, grade) {
+  const ef = Math.max(1.3, srs.easeFactor || 2.5);
+  const reps = srs.repetitions || 0;
+  let newInterval, newEF, newReps;
+
+  if (grade <= 1) {
+    newInterval = 1;
+    newEF = Math.max(1.3, ef - 0.15);
+    newReps = 0;
+  } else {
+    newReps = reps + 1;
+    if (reps === 0)      newInterval = 1;
+    else if (reps === 1) newInterval = 6;
+    else                 newInterval = Math.round((srs.interval || 1) * ef);
+    newEF = ef;
+    if (grade === 2) {
+      newEF = Math.max(1.3, ef - 0.15);
+      newInterval = Math.max(1, Math.round(newInterval * 0.7));
+    } else if (grade === 5) {
+      newEF = Math.min(2.7, ef + 0.1);
+      newInterval = Math.round(newInterval * 1.3);
+    }
+  }
+
+  const nextDate = new Date(Date.now() + newInterval * 86400000);
+  return {
+    interval: newInterval,
+    easeFactor: Math.max(1.3, newEF),
+    repetitions: newReps,
+    nextReview: nextDate.toISOString().split('T')[0],
+    lastGrade: grade,
+  };
+}
+
+// All saved words across all articles where nextReview <= today (or never reviewed)
+export async function getWordsForReview() {
+  const today = new Date().toISOString().split('T')[0];
+  const articles = await getArticles();
+  const result = [];
+  for (const article of articles) {
+    const words = await getSavedWords(article.id);
+    for (const [word, data] of Object.entries(words)) {
+      if (!data.nextReview || data.nextReview <= today) {
+        result.push({ word, data, articleId: article.id, articleTitle: article.title });
+      }
+    }
+  }
+  return result.sort(() => Math.random() - 0.5);
+}
+
+export async function updateWordSRS(articleId, word, grade) {
+  const words = await getSavedWords(articleId);
+  if (!words[word]) return null;
+  const current = words[word];
+  const srs = {
+    interval:      current.interval      || 0,
+    easeFactor:    current.easeFactor    || 2.5,
+    repetitions:   current.repetitions   || 0,
+    nextReview:    current.nextReview    || null,
+  };
+  const updated = sm2Update(srs, grade);
+  words[word] = { ...current, ...updated };
+  await AsyncStorage.setItem(`words_${articleId}`, JSON.stringify(words));
+  return words[word];
+}
+
 // Returns { hearts, minutesUntilNext } — calculates auto-restored hearts
 export function getRestoredHearts(game) {
   const quiz = game.quiz || { hearts: 3, lastHeartRestore: null };
