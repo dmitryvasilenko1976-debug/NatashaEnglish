@@ -6,8 +6,9 @@ function cleanWord(raw) {
   return raw.replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, '').toLowerCase();
 }
 
-export default function SentenceBlock({ sentence, selectedWord, savedWords, onWordPress }) {
+export default function SentenceBlock({ sentence, selectedWord, savedWords, onWordPress, wordMastery }) {
   const words = sentence.split(' ');
+  const mastery = wordMastery || {};
 
   return (
     <View style={styles.block}>
@@ -20,17 +21,24 @@ export default function SentenceBlock({ sentence, selectedWord, savedWords, onWo
 
           const isSaved = !!savedWords[clean];
           const isSelected = selectedWord === clean;
+          const lookups = mastery[clean] || 0;
+          const isFamiliar = !isSaved && lookups >= 10 && lookups < 20;
+          const isKnown = !isSaved && lookups >= 20;
 
           return (
             <TouchableOpacity key={i} onPress={() => onWordPress(clean, sentence)} activeOpacity={0.7}>
               <View style={[
                 styles.wordWrap,
                 isSaved && !isSelected && styles.savedWrap,
+                isFamiliar && !isSelected && styles.familiarWrap,
+                isKnown && !isSelected && styles.knownWrap,
                 isSelected && styles.selectedWrap,
               ]}>
                 <Text style={[
                   styles.word,
                   isSaved && !isSelected && styles.wordSaved,
+                  isFamiliar && !isSelected && styles.wordFamiliar,
+                  isKnown && !isSelected && styles.wordKnown,
                   isSelected && styles.wordSelected,
                 ]}>
                   {raw}{' '}
@@ -78,6 +86,22 @@ const styles = StyleSheet.create({
   },
   wordSaved: {
     color: colors.inkMuted,
+  },
+  familiarWrap: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.inkFaint,
+    borderStyle: 'dotted',
+  },
+  wordFamiliar: {
+    color: colors.inkFaint,
+  },
+  knownWrap: {
+    borderBottomWidth: 1.5,
+    borderBottomColor: colors.goldLight,
+    borderStyle: 'solid',
+  },
+  wordKnown: {
+    color: colors.goldLight,
   },
   wordSelected: {
     fontFamily: 'IMFellEnglish_400Regular_Italic',

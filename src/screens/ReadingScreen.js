@@ -14,6 +14,7 @@ import OrnamentDivider from '../components/OrnamentDivider';
 import {
   getArticles, getSavedWords, saveWord,
   getProgress, saveProgress,
+  getWordMastery, incrementWordMastery,
 } from '../services/storageService';
 import { explainWord, extractContext as deriveContext } from '../services/anthropicService';
 import { addXP } from '../services/gamificationService';
@@ -48,6 +49,7 @@ export default function ReadingScreen({ route, navigation }) {
   const [pendingAchievements, setPendingAchievements] = useState([]);
   const [xpBursts, setXpBursts] = useState([]);
   const [showHint, setShowHint] = useState(true);
+  const [wordMastery, setWordMastery] = useState({});
 
   const slideX = useRef(new Animated.Value(0)).current;
   const currentIdxRef = useRef(0);
@@ -93,6 +95,8 @@ export default function ReadingScreen({ route, navigation }) {
     currentIdxRef.current = prog;
     const words = await getSavedWords(articleId);
     setSavedWords(words);
+    const mastery = await getWordMastery();
+    setWordMastery(mastery);
   }
 
   function animateTo(newIdx, direction) {
@@ -123,20 +127,24 @@ export default function ReadingScreen({ route, navigation }) {
     setSelectedWord(clean);
     setDrawerVisible(true);
 
+    const newCount = await incrementWordMastery(clean);
+    setWordMastery(prev => ({ ...prev, [clean]: newCount }));
+
     const cached = savedWords[clean];
     if (cached) {
       const { contextBefore, contextAfter } = deriveContext(clean, sentence);
       setWordData({ ...cached, contextBefore, contextAfter });
       setDrawerLoading(false);
-      const result = await addXP(1);
+      const result = await addXP(1, { wordsLookedUp: 1 });
       showXPBurst(1);
       if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
+      if (result.newlyCompletedQuests?.length > 0) showXPBurst(result.newlyCompletedQuests.reduce((s, k) => s, 0));
       return;
     }
 
     setWordData(null);
     setDrawerLoading(true);
-    const result = await addXP(1);
+    const result = await addXP(1, { wordsLookedUp: 1 });
     showXPBurst(1);
     if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
 
@@ -155,7 +163,7 @@ export default function ReadingScreen({ route, navigation }) {
     await saveWord(articleId, selectedWord, wordData);
     const updated = await getSavedWords(articleId);
     setSavedWords(updated);
-    const result = await addXP(5, { wordsTotal: 1 });
+    const result = await addXP(5, { wordsTotal: 1, wordsSaved: 1 });
     showXPBurst(5);
     if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
   }
@@ -167,7 +175,7 @@ export default function ReadingScreen({ route, navigation }) {
     const next = idx + 1;
     animateTo(next, 1);
     await saveProgress(articleId, next);
-    const result = await addXP(2);
+    const result = await addXP(2, { sentencesRead: 1 });
     showXPBurst(2);
     if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
     if (next === art.sentences.length - 1) {
@@ -241,6 +249,7 @@ export default function ReadingScreen({ route, navigation }) {
             selectedWord={selectedWord}
             savedWords={savedWords}
             onWordPress={handleWordPress}
+            wordMastery={wordMastery}
           />
 
           {showHint && currentIdx === 0 && (
@@ -290,6 +299,7 @@ export default function ReadingScreen({ route, navigation }) {
         isSaved={!!savedWords[selectedWord]}
         onSave={handleSaveWord}
         onClose={() => setDrawerVisible(false)}
+        mastery={selectedWord ? (wordMastery[selectedWord] || 0) : 0}
       />
 
       {pendingAchievements.length > 0 && (

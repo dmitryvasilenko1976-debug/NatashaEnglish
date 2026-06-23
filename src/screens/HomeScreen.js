@@ -9,10 +9,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import ArticleCard from '../components/ArticleCard';
 import OrnamentDivider from '../components/OrnamentDivider';
 import AchievementModal from '../components/AchievementModal';
+import DailyQuestsPanel from '../components/DailyQuestsPanel';
 import {
   getArticles, saveArticle, deleteArticle,
   getSavedWords, getProgress, getGameData, saveGameData, updateStreak,
 } from '../services/storageService';
+import { getLevelInfo, getDailyQuests } from '../services/gamificationService';
 import { pickAndParsePDF } from '../services/pdfService';
 import { sampleArticle } from '../data/sampleArticle';
 import { colors } from '../theme/colors';
@@ -24,6 +26,8 @@ export default function HomeScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [xp, setXp] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [levelInfo, setLevelInfo] = useState(null);
+  const [dailyQuests, setDailyQuests] = useState([]);
   const [pendingAchievements, setPendingAchievements] = useState([]);
 
   useFocusEffect(
@@ -57,6 +61,8 @@ export default function HomeScreen({ navigation }) {
     await saveGameData(game);
     setXp(game.xp);
     setStreak(game.streak.current);
+    setLevelInfo(getLevelInfo(game.xp));
+    setDailyQuests(getDailyQuests(game));
   }
 
   async function handleAddScroll() {
@@ -111,6 +117,9 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
         <Text style={styles.appTitle}>Свитки</Text>
         <View style={styles.topRight}>
+          {levelInfo && (
+            <Text style={styles.levelText}>{levelInfo.title}</Text>
+          )}
           <Text style={styles.xpText}>✦ {xp} XP</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Achievements')} style={styles.iconBtn}>
             <Ionicons name="trophy-outline" size={20} color="#c4a96a" />
@@ -133,7 +142,21 @@ export default function HomeScreen({ navigation }) {
         style={[{ flex: 1 }, Platform.OS === 'web' && { overflowY: 'scroll' }]}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
-          <Text style={styles.listHeader}>Свитки</Text>
+          <>
+            {levelInfo && (
+              <View style={styles.levelBar}>
+                <View style={styles.levelBarBg}>
+                  <View style={[styles.levelBarFill, { width: `${Math.round(levelInfo.progress * 100)}%` }]} />
+                </View>
+                <Text style={styles.levelBarLabel}>
+                  {levelInfo.title} {levelInfo.subtitle}
+                  {levelInfo.nextXP ? `  →  ${levelInfo.nextXP - xp} XP до следующего` : '  ✦ Максимальный уровень'}
+                </Text>
+              </View>
+            )}
+            <DailyQuestsPanel quests={dailyQuests} />
+            <Text style={styles.listHeader}>Свитки</Text>
+          </>
         }
         renderItem={({ item }) => (
           <ArticleCard
@@ -202,6 +225,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#c4a96a',
   },
+  levelText: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 10,
+    color: '#d4b870',
+    letterSpacing: 0.5,
+    marginRight: 4,
+  },
   iconBtn: {
     padding: 4,
   },
@@ -226,12 +256,36 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 24,
   },
+  levelBar: {
+    marginHorizontal: 12,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  levelBarBg: {
+    height: 4,
+    backgroundColor: colors.parchmentBorder,
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: 4,
+  },
+  levelBarFill: {
+    height: 4,
+    backgroundColor: colors.gold,
+    borderRadius: 2,
+  },
+  levelBarLabel: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 11,
+    color: colors.inkFaint,
+    textAlign: 'center',
+  },
   listHeader: {
     fontFamily: 'IMFellEnglish_400Regular',
     fontSize: 13,
     color: colors.inkFaint,
     marginHorizontal: 20,
     marginBottom: 10,
+    marginTop: 8,
     letterSpacing: 1,
   },
   addBtn: {

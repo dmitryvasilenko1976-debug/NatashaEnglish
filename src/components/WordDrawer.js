@@ -17,7 +17,13 @@ function speakWord(word) {
   }
 }
 
-export default function WordDrawer({ visible, wordData, word, loading, isSaved, onSave, onClose }) {
+function masteryDiamonds(count) {
+  if (count < 3) return null;
+  const filled = count >= 50 ? 5 : count >= 30 ? 4 : count >= 20 ? 3 : count >= 10 ? 2 : 1;
+  return '◆'.repeat(filled) + '◇'.repeat(5 - filled);
+}
+
+export default function WordDrawer({ visible, wordData, word, loading, isSaved, onSave, onClose, mastery }) {
   const slideY = useRef(new Animated.Value(300)).current;
 
   useEffect(() => {
@@ -61,6 +67,15 @@ export default function WordDrawer({ visible, wordData, word, loading, isSaved, 
                   </TouchableOpacity>
                 )}
               </View>
+
+              {mastery > 0 && (
+                <View style={styles.masteryRow}>
+                  {masteryDiamonds(mastery) && (
+                    <Text style={styles.masteryDiamonds}>{masteryDiamonds(mastery)}</Text>
+                  )}
+                  <Text style={styles.masteryCount}>Встречено {mastery} раз</Text>
+                </View>
+              )}
 
               <Text style={styles.transcription}>{wordData.transcription}</Text>
 
@@ -243,5 +258,22 @@ const styles = StyleSheet.create({
   },
   saveBtnDoneText: {
     color: '#eeeeee',
+  },
+  masteryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 6,
+  },
+  masteryDiamonds: {
+    fontFamily: 'CrimsonText_400Regular',
+    fontSize: 13,
+    color: colors.gold,
+    letterSpacing: 2,
+  },
+  masteryCount: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 12,
+    color: colors.inkFaint,
   },
 });

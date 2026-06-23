@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // 'articles'          → JSON array [{id, title, tag, sentences[], addedAt}]
 // 'words_{articleId}' → JSON object {word: {baseForm, transcription, ...savedAt}}
 // 'progress_{id}'     → string with current sentence index
-// 'gamification'      → {xp, streak: {current, lastDate, max}, achievements: {}, stats: {}}
+// 'gamification'      → {xp, streak, achievements, stats, daily}
+// 'word_mastery'      → {[word]: lookupCount}
 
 let bundledArticles = null;
 function getBundled() {
@@ -21,8 +22,6 @@ export async function getArticles() {
     const json = await AsyncStorage.getItem('articles');
     if (!json) return bundled;
     const stored = JSON.parse(json);
-    // Bundled articles always win for existing IDs (updated by precompute + rebuild).
-    // Custom articles added via UI (different IDs) are appended.
     const bundledIds = new Set(bundled.map((a) => a.id));
     const custom = stored.filter((a) => !bundledIds.has(a.id));
     return custom.length > 0 ? [...bundled, ...custom] : bundled;
@@ -73,18 +72,74 @@ export async function saveProgress(articleId, index) {
   await AsyncStorage.setItem(`progress_${articleId}`, String(index));
 }
 
+// ── Word Mastery (global lookup counts across all articles) ───────────────────
+
+export async function getWordMastery() {
+  try {
+    const json = await AsyncStorage.getItem('word_mastery');
+    return json ? JSON.parse(json) : {};
+  } catch {
+    return {};
+  }
+}
+
+export async function incrementWordMastery(word) {
+  const key = word.toLowerCase().replace(/[^a-zA-Z'-]/g, '');
+  if (!key) return 0;
+  try {
+    const mastery = await getWordMastery();
+    const count = (mastery[key] || 0) + 1;
+    mastery[key] = count;
+    await AsyncStorage.setItem('word_mastery', JSON.stringify(mastery));
+    return count;
+  } catch {
+    return 0;
+  }
+}
+
 // ── Gamification ──────────────────────────────────────────────────────────────
+
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function defaultDaily() {
+  return {
+    date: todayStr(),
+    sentencesRead: 0,
+    wordsLookedUp: 0,
+    wordsSaved: 0,
+    bonusGranted: [],
+  };
+}
 
 const defaultGame = () => ({
   xp: 0,
   streak: { current: 0, lastDate: null, max: 0 },
   achievements: {},
   stats: { wordsTotal: 0, articlesTotal: 0, quizCorrect: 0 },
+  daily: defaultDaily(),
 });
 
 export async function getGameData() {
-  const json = await AsyncStorage.getItem('gamification');
-  return json ? { ...defaultGame(), ...JSON.parse(json) } : defaultGame();
+  try {
+    const json = await AsyncStorage.getItem('gamification');
+    const base = defaultGame();
+    const stored = json ? JSON.parse(json) : {};
+    const game = { ...base, ...stored };
+    game.streak = { ...base.streak, ...(stored.streak || {}) };
+    game.stats   = { ...base.stats,  ...(stored.stats  || {}) };
+    // Reset daily on a new day
+    const today = todayStr();
+    if (!game.daily || game.daily.date !== today) {
+      game.daily = defaultDaily();
+    } else {
+      game.daily = { ...defaultDaily(), ...game.daily };
+    }
+    return game;
+  } catch {
+    return defaultGame();
+  }
 }
 
 export async function saveGameData(data) {
@@ -94,20 +149,12 @@ export async function saveGameData(data) {
 export function updateStreak(gameData) {
   const today = new Date().toISOString().split('T')[0];
   const last = gameData.streak.lastDate;
-
   if (last === today) return gameData;
-
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  if (last === yesterday) {
-    gameData.streak.current += 1;
-  } else {
-    gameData.streak.current = 1;
-  }
-
+  gameData.streak.current = last === yesterday ? gameData.streak.current + 1 : 1;
   if (gameData.streak.current > (gameData.streak.max || 0)) {
     gameData.streak.max = gameData.streak.current;
   }
-
   gameData.streak.lastDate = today;
   return gameData;
 }
