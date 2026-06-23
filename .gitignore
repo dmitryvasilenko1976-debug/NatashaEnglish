@@ -20,6 +20,9 @@ pdfs/
 # Vercel
 .vercel/
 
+# ChatGPT export/import working files
+chatgpt-input/
+
 # Native
 .kotlin/
 *.orig.*

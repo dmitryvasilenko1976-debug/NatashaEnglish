@@ -10,6 +10,9 @@
  *
  * Sentence extraction is done in code (no LLM call). LM Studio is used only
  * to generate word explanations for words not already in the cache.
+ *
+ * Alternative: use scripts/export-words-for-chatgpt.js + scripts/import-chatgpt-words.js
+ * to fill wordCache.json via ChatGPT web interface.
  */
 
 const fs = require('fs');

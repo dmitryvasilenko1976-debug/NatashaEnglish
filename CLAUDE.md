@@ -10,7 +10,7 @@ Built for Natasha: offline-first, no cloud, no accounts.
 - **Runtime**: Expo SDK ~54 / React Native 0.81 / React 19
 - **Navigation**: `@react-navigation/stack`
 - **Storage**: `AsyncStorage` (all data on device)
-- **Word explanations**: precomputed via LM Studio → `wordCache.json` (bundled)
+- **Word explanations**: precomputed via LM Studio → `wordCache.json` (bundled); or via ChatGPT web using export/import scripts
 - **PDF parsing**: `pdf-parse` v2 (`PDFParse` class, not the v1 function API)
 
 ---
@@ -64,19 +64,32 @@ Use this when:
 - Sentences feel too short or incomplete
 - Chronic Cough article is missing from the UI
 
-### Step 2 — Full precompute (needs LM Studio running on port 1234)
+### Step 2 — Fill word cache via ChatGPT web (recommended)
 
-Parses PDFs → sentences → word explanations → writes both `articles.json` and `wordCache.json`.
-Incremental: already-cached words are skipped.
+Export new words → ChatGPT explains them → import results into wordCache.json.
+
+```bash
+# 1. Generate the input file and prompt
+node scripts/export-words-for-chatgpt.js
+
+# 2. Open chatgpt.com, paste chatgpt-input/PROMPT.txt, attach chatgpt-input/words-to-explain.json
+# 3. Save ChatGPT's response as chatgpt-input/chatgpt-response.json
+
+# 4. Import into wordCache.json
+node scripts/import-chatgpt-words.js
+```
+
+Use this when:
+- New PDFs were added and you want word explanations
+- wordCache.json is missing or outdated
+- You have a ChatGPT Plus subscription
+
+### Step 2 (alt) — Full precompute via LM Studio (needs LM Studio on port 1234)
 
 ```bash
 # Start LM Studio with medgemma-4b-it first, then:
 node precompute.js
 ```
-
-Use this when:
-- New PDFs were added and you want word explanations too
-- wordCache.json is missing or outdated
 
 ---
 
