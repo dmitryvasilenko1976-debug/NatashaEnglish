@@ -26,10 +26,33 @@ function extractContext(word, sentence) {
 
 export { extractContext };
 
+// Try morphological variants so "admission" finds "admissions", "indicated" finds "indicate", etc.
+function lookupInCache(cache, key) {
+  if (cache[key]) return cache[key];
+  const k = key;
+  const tries = [
+    k + 's',                                           // admission → admissions
+    k + 'es',                                          // bench → benches
+    k.endsWith('s')   ? k.slice(0, -1)   : null,      // admissions → admission
+    k.endsWith('es')  ? k.slice(0, -2)   : null,      // branches → branch
+    k.endsWith('ed')  ? k.slice(0, -1)   : null,      // indicated → indicate
+    k.endsWith('ed')  ? k.slice(0, -2)   : null,      // infected → infect
+    k.endsWith('ing') ? k.slice(0, -3)   : null,      // treating → treat
+    k.endsWith('ing') ? k.slice(0, -3) + 'e' : null,  // indicating → indicate
+    k.endsWith('ly')  ? k.slice(0, -2)   : null,      // severely → severe
+    k.endsWith('ly')  ? k.slice(0, -4)   : null,      // critically → critic? skip if bad
+    k.endsWith('tion') ? k.slice(0, -3) + 'e' : null, // indication → indicate (approx)
+  ].filter(Boolean);
+  for (const t of tries) {
+    if (cache[t]) return cache[t];
+  }
+  return null;
+}
+
 export async function explainWord(word, sentence) {
   const cache = getCache();
   const key = word.toLowerCase().replace(/[^a-zA-Z'-]/g, '');
-  const result = cache[key];
+  const result = lookupInCache(cache, key);
   if (!result) throw new Error(`Слово "${word}" не найдено в словаре`);
   // Always override context with the actual sentence being read
   const { contextBefore, contextAfter } = sentence
