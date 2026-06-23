@@ -155,6 +155,10 @@ export function getDailyQuests(game) {
 export async function addXP(amount, statUpdates = {}) {
   const game = await getGameData();
 
+  // Ensure daily object exists (missing on first-ever launch before getGameData resets it)
+  if (!game.daily) game.daily = { date: '', sentencesRead: 0, wordsLookedUp: 0, wordsSaved: 0, bonusGranted: [], firstSentenceBonusUsed: false };
+  if (!game.daily.bonusGranted) game.daily.bonusGranted = [];
+
   // ── Epoch I bonuses ───────────────────────────────────────────────────────
   let earnedXP = amount;
   let isCrit = false;
@@ -180,8 +184,6 @@ export async function addXP(amount, statUpdates = {}) {
   }
 
   // Daily counters
-  if (!game.daily) game.daily = { date: '', sentencesRead: 0, wordsLookedUp: 0, wordsSaved: 0, bonusGranted: [] };
-  if (!game.daily.bonusGranted) game.daily.bonusGranted = [];
 
   const dailyKeys = ['sentencesRead', 'wordsLookedUp', 'wordsSaved'];
   for (const key of dailyKeys) {

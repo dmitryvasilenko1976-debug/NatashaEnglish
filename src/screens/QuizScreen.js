@@ -19,10 +19,10 @@ function shuffle(arr) {
 function buildQuestions(words) {
   const entries = Object.entries(words);
   if (entries.length < 2) return [];
-  return shuffle(entries).map(([word, data], i) => {
+  return shuffle(entries).map(([word, data]) => {
     const correct = data.translation;
     const distractors = entries
-      .filter((_, j) => j !== i)
+      .filter(([w]) => w !== word)   // filter by word key, not by shuffled index
       .map(([, d]) => d.translation)
       .filter(Boolean);
     const wrongOpts = shuffle(distractors).slice(0, 3);
