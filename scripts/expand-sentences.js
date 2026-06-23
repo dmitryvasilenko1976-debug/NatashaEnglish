@@ -131,7 +131,7 @@ function extractSentences(rawText) {
     sentences.push(s);
   }
 
-  return sentences.slice(0, 55);
+  return sentences.slice(0, 250);
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
