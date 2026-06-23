@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, Alert, Platform,
+  SafeAreaView, StatusBar, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -18,9 +18,15 @@ import { explainWord } from '../services/anthropicService';
 import { addXP } from '../services/gamificationService';
 import { colors } from '../theme/colors';
 
+// SVG fractalNoise parchment texture (web only)
+const PARCHMENT_BG = Platform.OS === 'web'
+  ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E")`
+  : null;
+
 export default function ReadingScreen({ route, navigation }) {
   const { articleId } = route.params;
   const scrollRef = useRef(null);
+  const sentenceYRef = useRef({});
 
   const [article, setArticle] = useState(null);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -37,15 +43,38 @@ export default function ReadingScreen({ route, navigation }) {
     loadArticle();
   }, [articleId]);
 
+  // Auto-scroll to active sentence
+  useEffect(() => {
+    const y = sentenceYRef.current[currentIdx];
+    if (y !== undefined && scrollRef.current) {
+      scrollRef.current.scrollTo({ y: Math.max(0, y - 24), animated: true });
+    }
+  }, [currentIdx]);
+
+  // Keyboard navigation (web)
+  const handleNextRef = useRef();
+  const handleBackRef = useRef();
+  useEffect(() => {
+    handleNextRef.current = handleNext;
+    handleBackRef.current = handleBack;
+  });
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const onKey = (e) => {
+      if (e.key === 'ArrowRight') handleNextRef.current?.();
+      else if (e.key === 'ArrowLeft') handleBackRef.current?.();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   async function loadArticle() {
     const list = await getArticles();
     const found = list.find(a => a.id === articleId);
     if (!found) return;
     setArticle(found);
-
     const prog = await getProgress(articleId);
     setCurrentIdx(prog);
-
     const words = await getSavedWords(articleId);
     setSavedWords(words);
   }
@@ -81,7 +110,7 @@ export default function ReadingScreen({ route, navigation }) {
     try {
       const data = await explainWord(clean, sentence);
       setWordData(data);
-    } catch (e) {
+    } catch {
       setWordData(null);
     } finally {
       setDrawerLoading(false);
@@ -93,7 +122,6 @@ export default function ReadingScreen({ route, navigation }) {
     await saveWord(articleId, selectedWord, wordData);
     const updated = await getSavedWords(articleId);
     setSavedWords(updated);
-
     const result = await addXP(5, { wordsTotal: 1 });
     showXPBurst(5);
     if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
@@ -124,11 +152,8 @@ export default function ReadingScreen({ route, navigation }) {
   }
 
   function handleGoBack() {
-    if (navigation.canGoBack()) {
-      navigation.goBack();
-    } else {
-      navigation.navigate('Home');
-    }
+    if (navigation.canGoBack()) navigation.goBack();
+    else navigation.navigate('Home');
   }
 
   if (!article) return null;
@@ -148,9 +173,9 @@ export default function ReadingScreen({ route, navigation }) {
         <Text style={styles.topTitle} numberOfLines={1}>{article.title}</Text>
         <TouchableOpacity
           onPress={() => navigation.navigate('Quiz', { articleId })}
-          style={styles.iconBtn}
+          style={styles.quizBtn}
         >
-          <Ionicons name="color-wand-outline" size={22} color="#c4a96a" />
+          <Text style={styles.quizBtnText}>Квиз</Text>
         </TouchableOpacity>
       </View>
 
@@ -159,45 +184,70 @@ export default function ReadingScreen({ route, navigation }) {
         <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
       </View>
 
-      {/* Navigation row */}
-      <View style={styles.navRow}>
-        <TouchableOpacity style={styles.navBtn} onPress={handleBack} disabled={currentIdx === 0}>
-          <Text style={[styles.navBtnText, currentIdx === 0 && styles.navBtnDisabled]}>← Назад</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.progress}>{currentIdx + 1} / {total}</Text>
-
-        <TouchableOpacity style={styles.navBtn} onPress={handleNext} disabled={currentIdx === total - 1}>
-          <Text style={[styles.navBtnText, currentIdx === total - 1 && styles.navBtnDisabled]}>Вперёд →</Text>
-        </TouchableOpacity>
-      </View>
-
       <OrnamentDivider />
 
-      <ScrollView
-        ref={scrollRef}
-        style={[styles.scroll, Platform.OS === 'web' && { overflowY: 'scroll' }]}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {showHint && currentIdx === 0 && (
-          <View style={styles.hintBox}>
-            <Text style={styles.hintText}>💡 Нажми на любое слово чтобы узнать его значение</Text>
-          </View>
-        )}
+      {/* Content */}
+      <View style={styles.contentFrame}>
+        <View style={styles.marginLine} />
+        <ScrollView
+          ref={scrollRef}
+          style={[
+            styles.scroll,
+            Platform.OS === 'web' && {
+              overflowY: 'scroll',
+              backgroundImage: PARCHMENT_BG,
+              backgroundRepeat: 'repeat',
+            },
+          ]}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {showHint && currentIdx === 0 && (
+            <View style={styles.hintBox}>
+              <Text style={styles.hintText}>Нажми на слово — узнай значение. Стрелки ← → для навигации.</Text>
+            </View>
+          )}
 
-        {article.sentences.map((sentence, idx) => (
-          <SentenceBlock
-            key={idx}
-            sentence={sentence}
-            isActive={idx === currentIdx}
-            isRead={idx < currentIdx}
-            selectedWord={idx === currentIdx ? selectedWord : null}
-            savedWords={savedWords}
-            onWordPress={(clean, s) => handleWordPress(clean, s)}
-          />
-        ))}
-        <View style={{ height: 40 }} />
-      </ScrollView>
+          {article.sentences.map((sentence, idx) => (
+            <View
+              key={idx}
+              onLayout={(e) => { sentenceYRef.current[idx] = e.nativeEvent.layout.y; }}
+            >
+              <SentenceBlock
+                sentence={sentence}
+                isActive={idx === currentIdx}
+                isRead={idx < currentIdx}
+                selectedWord={idx === currentIdx ? selectedWord : null}
+                savedWords={savedWords}
+                onWordPress={(clean, s) => handleWordPress(clean, s)}
+              />
+            </View>
+          ))}
+          <View style={{ height: 24 }} />
+        </ScrollView>
+      </View>
+
+      {/* Bottom navigation */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity
+          style={styles.navArrow}
+          onPress={handleBack}
+          disabled={currentIdx === 0}
+          activeOpacity={0.6}
+        >
+          <Text style={[styles.navArrowGlyph, currentIdx === 0 && styles.navArrowDisabled]}>‹</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.pageCounter}>{currentIdx + 1} / {total}</Text>
+
+        <TouchableOpacity
+          style={styles.navArrow}
+          onPress={handleNext}
+          disabled={currentIdx === total - 1}
+          activeOpacity={0.6}
+        >
+          <Text style={[styles.navArrowGlyph, currentIdx === total - 1 && styles.navArrowDisabled]}>›</Text>
+        </TouchableOpacity>
+      </View>
 
       {xpBursts.map(b => (
         <XPBurst
@@ -230,19 +280,20 @@ export default function ReadingScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: colors.parchmentDark,
+    backgroundColor: colors.parchment,
   },
   topBar: {
     backgroundColor: colors.forestGreen,
     borderBottomWidth: 2,
     borderBottomColor: colors.gold,
     paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingVertical: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
   iconBtn: {
     padding: 6,
+    minWidth: 36,
   },
   topTitle: {
     flex: 1,
@@ -252,58 +303,53 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginHorizontal: 4,
   },
-  progressBarBg: {
-    height: 3,
-    backgroundColor: '#d4c9a8',
-  },
-  progressBarFill: {
-    height: 3,
-    backgroundColor: colors.forestGreen,
-  },
-  navRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#f5f0e4',
-    borderBottomWidth: 1,
-    borderBottomColor: colors.goldLight,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-  },
-  navBtn: {
-    backgroundColor: colors.parchmentDark,
+  quizBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderWidth: 1,
-    borderColor: colors.gold,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderColor: '#c4a96a70',
     borderRadius: 3,
+    minWidth: 36,
+    alignItems: 'center',
   },
-  navBtnText: {
-    fontFamily: 'CrimsonText_400Regular',
-    fontSize: 13,
-    color: colors.forestGreen,
-  },
-  navBtnDisabled: {
-    color: '#ccc',
-  },
-  progress: {
+  quizBtnText: {
     fontFamily: 'CrimsonText_400Regular_Italic',
     fontSize: 13,
-    color: colors.inkFaint,
+    color: '#c4a96a',
+  },
+  progressBarBg: {
+    height: 5,
+    backgroundColor: '#e0d8c4',
+  },
+  progressBarFill: {
+    height: 5,
+    backgroundColor: colors.gold,
+  },
+  contentFrame: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  marginLine: {
+    width: 1.5,
+    backgroundColor: '#d4b87028',
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 9,
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    paddingTop: 8,
+    paddingTop: 10,
+    paddingBottom: 8,
   },
   hintBox: {
     marginHorizontal: 16,
-    marginBottom: 8,
+    marginBottom: 10,
     backgroundColor: '#fffbe6',
     borderWidth: 1,
-    borderColor: colors.goldLight,
-    borderRadius: 4,
+    borderColor: colors.goldFaint,
+    borderRadius: 3,
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
@@ -312,5 +358,37 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: colors.inkMuted,
     textAlign: 'center',
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderTopWidth: 1,
+    borderTopColor: '#d4b87030',
+    backgroundColor: colors.parchment,
+  },
+  navArrow: {
+    width: 52,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navArrowGlyph: {
+    fontSize: 40,
+    color: colors.gold,
+    fontFamily: 'CrimsonText_400Regular',
+    lineHeight: 48,
+    includeFontPadding: false,
+  },
+  navArrowDisabled: {
+    color: '#d4c9a860',
+  },
+  pageCounter: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 14,
+    color: colors.inkFaint,
+    letterSpacing: 0.5,
   },
 });

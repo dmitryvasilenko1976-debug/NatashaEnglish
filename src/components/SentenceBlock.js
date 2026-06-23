@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { colors } from '../theme/colors';
 
 function cleanWord(raw) {
@@ -15,16 +15,24 @@ export default function SentenceBlock({ sentence, isActive, isRead, selectedWord
         {words.map((raw, i) => {
           const clean = cleanWord(raw);
           if (!clean) {
-            return <Text key={i} style={[styles.word, isRead && styles.wordRead]}>{raw} </Text>;
+            return <Text key={i} style={styles.word}>{raw} </Text>;
           }
 
           const isSaved = !!savedWords[clean];
           const isSelected = selectedWord === clean;
 
           return (
-            <TouchableOpacity key={i} onPress={() => onWordPress(clean, sentence)} activeOpacity={0.7}>
-              <View style={[styles.wordWrap, isSaved && styles.savedWrap, isSelected && styles.selectedWrap]}>
-                <Text style={[styles.word, isRead && styles.wordRead, isSelected && styles.selectedWord]}>
+            <TouchableOpacity key={i} onPress={() => onWordPress(clean, sentence)} activeOpacity={0.75}>
+              <View style={[
+                styles.wordWrap,
+                isSaved && !isSelected && styles.savedWrap,
+                isSelected && styles.selectedWrap,
+              ]}>
+                <Text style={[
+                  styles.word,
+                  isSaved && !isSelected && styles.wordSaved,
+                  isSelected && styles.wordSelected,
+                ]}>
                   {raw}{' '}
                 </Text>
               </View>
@@ -38,19 +46,21 @@ export default function SentenceBlock({ sentence, isActive, isRead, selectedWord
 
 const styles = StyleSheet.create({
   block: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 3,
-    marginHorizontal: 12,
-    marginBottom: 4,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    paddingLeft: 23,
+    marginHorizontal: 8,
+    marginBottom: 3,
+    borderRadius: 2,
+    borderLeftWidth: 3,
+    borderLeftColor: 'transparent',
   },
   active: {
-    backgroundColor: colors.forestGreenLight,
-    borderWidth: 1,
-    borderColor: colors.forestGreen,
+    backgroundColor: '#fffbf0',
+    borderLeftColor: colors.gold,
   },
   read: {
-    opacity: 0.65,
+    opacity: 0.5,
   },
   words: {
     flexDirection: 'row',
@@ -58,29 +68,29 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   wordWrap: {
-    borderBottomWidth: 1.5,
-    borderBottomColor: '#2c4a2e',
-    borderStyle: 'dotted',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   savedWrap: {
+    borderBottomWidth: 1,
     borderBottomColor: colors.gold,
+    borderStyle: 'solid',
   },
   selectedWrap: {
-    borderBottomWidth: 2,
-    borderStyle: 'solid',
-    borderBottomColor: colors.forestGreen,
+    backgroundColor: '#d4e8d4',
+    borderRadius: 3,
+    paddingHorizontal: 2,
   },
   word: {
     fontFamily: 'CrimsonText_400Regular',
-    fontSize: 15,
-    lineHeight: 26,
+    fontSize: 18,
+    lineHeight: 33,
     color: colors.ink,
+    ...(Platform.OS === 'web' && { letterSpacing: 0.15 }),
   },
-  wordRead: {
-    color: colors.ink,
+  wordSaved: {
+    color: colors.inkMuted,
   },
-  selectedWord: {
+  wordSelected: {
     fontFamily: 'CrimsonText_600SemiBold',
     color: colors.forestGreen,
   },
