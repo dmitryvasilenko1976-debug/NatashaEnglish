@@ -62,53 +62,109 @@ async function extractRawText(filePath) {
 }
 
 // ── Sentence cleaner / extractor ─────────────────────────────────────────────
-const JUNK_PREFIXES = [
-  /^author disclosure/i,
-  /^patient information/i,
-  /^cme this clinical/i,
-  /^illustration by/i,
-  /^downloaded from/i,
-  /^copyright/i,
-  /^all other rights/i,
-  /^for information about the sort/i,
-  /^a = consistent/i,
-  /^b = inconsistent/i,
-  /^information from reference/i,
-  /^evidence\s*(rating)?$/i,
-  /^clinical recommendation$/i,
-];
 
 function isJunk(s) {
-  return JUNK_PREFIXES.some((re) => re.test(s));
+  // ── Author bios ───────────────────────────────────────────────────────────────
+  // "Hartman, MD, is an associate professor..." / "SMITH, DO, is program director..."
+  if (/\b(MD|DO|PhD|MPH),?\s+is\s+\w/i.test(s)) return true;
+  // Author name lists with 2+ credential markers: "Kuckel, MD, ...; Recidoro, DO..."
+  if ((s.match(/,\s*(MD|DO|PhD|MPH|FAAFP|FRCPC|CAQSM|FACP|FACEP)\b/g) || []).length >= 2) return true;
+  // Single-credential author line: "Kuckel, MD, Naval Hospital Jacksonville..."
+  if (/^[A-Z][a-z]+,\s*(MD|DO|PhD|MPH|FAAFP|FRCPC|CAQSM)\b/.test(s)) return true;
+  // "The Authors ELIE MULHEM, MD..." — bio block that wasn't cut pre-split
+  if (/^The\s+Authors?\s+[A-Z]/.test(s)) return true;
+  // Credential abbreviation line: "FAAFP, UNC Orthopedics, 3551..."
+  if (/^(FAAFP|FRCPC|CAQSM|FACP|FACEP),\s+/.test(s)) return true;
+  // Email address in sentence
+  if (/\(email:/.test(s)) return true;
+  // ── Bibliography / references ─────────────────────────────────────────────────
+  // Journal volume/issue pattern (with or without space before page): "2016;150(6):1464" / "2006;22(6): 443-444"
+  if (/\b\d{4};\d+\(\d+\)\s*:\s*\d+/.test(s)) return true;
+  // Am Fam Physician citation
+  if (/Am\s+Fam\s+Physician/i.test(s)) return true;
+  // Bibliography entry starting with "LastName Initials," and containing et al.
+  if (/^[A-Z][a-zA-Z-]+\s+[A-Z]{1,3}[,\s]/.test(s) && s.includes('et al.')) return true;
+  // All-caps author name: "HOLLY ANN RUSSELL, MD, MS, is an assistant..."
+  if (/^[A-Z]{2,}(\s+[A-Z]{2,})+,?\s+(MD|DO|PhD|MPH|MS)\b/.test(s)) return true;
+  // Reference list: 3+ "Lastname Initials," patterns (pure author list row)
+  if ((s.match(/\b[A-Z][a-z]+\s+[A-Z]{1,3}[,\.]/g) || []).length >= 3) return true;
+  // Journal volume pattern allowing electronic page numbers: "2016;2(1):e48"
+  if (/\b\d{4};\d+\(\d+\)\s*:\s*[e\d]\d*/.test(s)) return true;
+  // Numbered reference list entry ending with ". 10." pattern
+  if (/\.\s*\d{1,2}\.\s*$/.test(s)) return true;
+  // "[published correction appears in" — editorial note in reference
+  if (/\[published\s+correction\b/i.test(s)) return true;
+  // ── Reprints / permissions ────────────────────────────────────────────────────
+  if (/^Reprints?\b/i.test(s)) return true;
+  if (/^Reprinted\s+with\b/i.test(s)) return true;
+  if (/^Adapted\s+with\s+permission\b/i.test(s)) return true;
+  if (s.includes('Adapted with permission')) return true;
+  // ── Correspondence / disclosure ───────────────────────────────────────────────
+  if (/^Address\s+correspondence\b/i.test(s)) return true;
+  if (/\bconflicts?\s+of\s+interest\b/i.test(s)) return true;
+  if (/\bdisclosure\b.{0,60}\bstatement/i.test(s)) return true;
+  if (/\bCompleted\s+Conflict\b/i.test(s)) return true;
+  if (/^Dr\.?\s+\w+\s+is\s+a\s+(consultant|speaker|advisor|stockholder)\b/i.test(s)) return true;
+  if (/\bworkgroup\s+level\b.{0,60}\bconflict\b/i.test(s)) return true;
+  // ── Metadata lines ────────────────────────────────────────────────────────────
+  if (/^Search\s+dates?:/i.test(s)) return true;
+  if (/^Data\s+sources?:/i.test(s)) return true;
+  if (/^CME\s+This\b/i.test(s)) return true;
+  if (/^This\s+article\s+updates\s+previous/i.test(s)) return true;
+  // ── Legacy patterns ───────────────────────────────────────────────────────────
+  if (/^author disclosure/i.test(s)) return true;
+  if (/^patient information/i.test(s)) return true;
+  if (/^illustration by/i.test(s)) return true;
+  if (/^downloaded from/i.test(s)) return true;
+  if (/^copyright/i.test(s)) return true;
+  if (/^all other rights/i.test(s)) return true;
+  if (/^for information about the sort/i.test(s)) return true;
+  if (/^a = consistent/i.test(s)) return true;
+  if (/^b = inconsistent/i.test(s)) return true;
+  if (/^information from reference/i.test(s)) return true;
+  if (/^evidence\s*(rating)?$/i.test(s)) return true;
+  if (/^clinical recommendation$/i.test(s)) return true;
+  return false;
 }
 
 function extractSentences(rawText) {
   let text = rawText
-    // Fix typographic line-break hyphens: "mil-\nlion" → "million", "initi-\nated" → "initiated"
+    // Fix typographic line-break hyphens: "mil-\nlion" → "million"
     .replace(/([a-zA-Z])-\n([a-zA-Z])/g, '$1$2')
     // Remove "-- N of M --" page separators
     .replace(/--\s*\d+\s*of\s*\d+\s*--/gi, ' ')
     // Remove full AAFP download/copyright block
     .replace(/Downloaded from[\s\S]{0,600}?permission requests\./i, '')
-    // Remove running page headers: lines that contain journal/volume info
+    // Remove "The Authors" section and all bio text that follows (to end of document)
+    .replace(/\bThe\s+Authors?\b[\s\S]{0,4000}$/, '')
+    // Remove "Data Sources" paragraph (usually near end)
+    .replace(/\bData\s+Sources?\b[\s\S]{0,1200}?(?=\n\s*\n|\bSearch\b|\bThe\s+Authors?\b|$)/i, '')
+    // Remove "Search dates" line
+    .replace(/Search\s+dates?:[^\n]{0,200}\n?/gi, '')
+    // Remove CME notice block
+    .replace(/CME\s+This\s+clinical\s+content[\s\S]{0,400}?(?=\n\n|$)/gi, '')
+    // Remove (Am Fam Physician. YYYY;Vol(Iss):pp.) journal citation blobs
+    .replace(/\(Am\s+Fam\s+Physician\.[^)]{5,80}\)/gi, '')
+    // Remove running page headers: lines with journal/volume info
     .replace(/^.{0,40}(?:American Family Physician|www\.aafp\.org\/afp|Volume \d+|◆).{0,120}$/gm, '')
+    // Remove "Reprints:" line
+    .replace(/^Reprints?:[^\n]{0,200}\n?/gim, '')
+    // Remove "Address correspondence" line
+    .replace(/^Address\s+correspondence[^\n]{0,200}\n?/gim, '')
     // Remove standalone page numbers
     .replace(/^\s*\d{1,3}\s*$/gm, '')
     // Remove URLs
     .replace(/https?:\/\/\S+/g, '')
-    // Remove TRAILING inline citation clusters at end of sentence
-    // Pattern: sentence text followed by .1,7-9  or .14 before next capital
-    .replace(/\.(\d[\d,\-–]{0,15})(?=\s+[A-Z])/g, '.')
-    // Remove superscript citations that appear mid-sentence right after punctuation
-    // e.g. "visits,2hospitalizations" → "visits, hospitalizations"
-    // (single 1-2 digit number stuck between comma/period and lowercase)
+    // Remove inline citation superscripts after punctuation: "visits,2hospitalizations" → "visits, hospitalizations"
     .replace(/([,.])\s*(\d{1,2})(?=[a-z])/g, '$1 ')
+    // Remove trailing citation clusters: ".1,7-9" before next capital
+    .replace(/\.(\d[\d,\-–]{0,15})(?=\s+[A-Z])/g, '.')
     // Collapse whitespace
     .replace(/\n+/g, ' ')
     .replace(/\s{2,}/g, ' ')
     .trim();
 
-  // Protect common abbreviations from splitting
+  // Protect common abbreviations from false sentence splits
   const ABBREVS = ['Dr', 'Mr', 'Mrs', 'Ms', 'vs', 'Fig', 'No', 'Vol', 'et al', 'i.e', 'e.g', 'approx'];
   ABBREVS.forEach((ab) => {
     const safe = ab.replace('.', '\x01');
@@ -121,12 +177,12 @@ function extractSentences(rawText) {
   const sentences = [];
   for (let s of parts) {
     s = s.replace(/\x01/g, '.').replace(/\s{2,}/g, ' ').trim();
-    if (s.length < 35) continue;
+    if (s.length < 40) continue;
     if (s.length > 520) continue;
     if (/^\d+$/.test(s)) continue;
-    if (/^[A-Z\s]{8,}$/.test(s)) continue;           // all-caps header
+    if (/^[A-Z\s]{8,}$/.test(s)) continue;                 // all-caps header
     if (/^(Table|Figure|Box|Appendix)\s+\d/i.test(s)) continue;
-    if (/^[ABC]\s+[\d,\s]+$/.test(s)) continue;       // evidence rating row
+    if (/^[ABC]\s+[\d,\s]+$/.test(s)) continue;             // evidence rating row
     if (isJunk(s)) continue;
     sentences.push(s);
   }
