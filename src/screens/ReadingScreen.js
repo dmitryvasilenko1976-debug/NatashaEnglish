@@ -14,7 +14,7 @@ import {
   getArticles, getSavedWords, saveWord,
   getProgress, saveProgress,
 } from '../services/storageService';
-import { explainWord } from '../services/anthropicService';
+import { explainWord, extractContext as deriveContext } from '../services/anthropicService';
 import { addXP } from '../services/gamificationService';
 import { colors } from '../theme/colors';
 
@@ -92,7 +92,9 @@ export default function ReadingScreen({ route, navigation }) {
 
     const cached = savedWords[clean];
     if (cached) {
-      setWordData(cached);
+      // Re-derive context from the sentence currently being read
+      const { contextBefore, contextAfter } = deriveContext(clean, sentence);
+      setWordData({ ...cached, contextBefore, contextAfter });
       setDrawerLoading(false);
       const result = await addXP(1);
       showXPBurst(1);
