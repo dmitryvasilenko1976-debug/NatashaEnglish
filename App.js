@@ -13,6 +13,10 @@ import {
   CrimsonText_400Regular_Italic,
   CrimsonText_600SemiBold,
 } from '@expo-google-fonts/crimson-text';
+import {
+  Cinzel_400Regular,
+  Cinzel_700Bold,
+} from '@expo-google-fonts/cinzel';
 
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import TutorialScreen from './src/screens/TutorialScreen';
@@ -31,6 +35,8 @@ export default function App() {
     CrimsonText_400Regular,
     CrimsonText_400Regular_Italic,
     CrimsonText_600SemiBold,
+    Cinzel_400Regular,
+    Cinzel_700Bold,
   });
 
   if (!fontsLoaded && !fontError) {

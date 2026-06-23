@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  View, Text, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Platform,
+  Animated, PanResponder, Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -18,15 +19,24 @@ import { explainWord, extractContext as deriveContext } from '../services/anthro
 import { addXP } from '../services/gamificationService';
 import { colors } from '../theme/colors';
 
-// SVG fractalNoise parchment texture (web only)
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
 const PARCHMENT_BG = Platform.OS === 'web'
   ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E")`
   : null;
 
+function toRoman(n) {
+  const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+  const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+  let r = '';
+  for (let i = 0; i < vals.length; i++) {
+    while (n >= vals[i]) { r += syms[i]; n -= vals[i]; }
+  }
+  return r;
+}
+
 export default function ReadingScreen({ route, navigation }) {
   const { articleId } = route.params;
-  const scrollRef = useRef(null);
-  const sentenceYRef = useRef({});
 
   const [article, setArticle] = useState(null);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -39,25 +49,18 @@ export default function ReadingScreen({ route, navigation }) {
   const [xpBursts, setXpBursts] = useState([]);
   const [showHint, setShowHint] = useState(true);
 
-  useEffect(() => {
-    loadArticle();
-  }, [articleId]);
+  const slideX = useRef(new Animated.Value(0)).current;
+  const currentIdxRef = useRef(0);
+  const articleRef = useRef(null);
 
-  // Auto-scroll to active sentence
-  useEffect(() => {
-    const y = sentenceYRef.current[currentIdx];
-    if (y !== undefined && scrollRef.current) {
-      scrollRef.current.scrollTo({ y: Math.max(0, y - 24), animated: true });
-    }
-  }, [currentIdx]);
+  // Keep refs in sync for PanResponder closures
+  useEffect(() => { currentIdxRef.current = currentIdx; }, [currentIdx]);
+  useEffect(() => { articleRef.current = article; }, [article]);
 
-  // Keyboard navigation (web)
+  // Keyboard nav (web)
   const handleNextRef = useRef();
   const handleBackRef = useRef();
-  useEffect(() => {
-    handleNextRef.current = handleNext;
-    handleBackRef.current = handleBack;
-  });
+  useEffect(() => { handleNextRef.current = handleNext; handleBackRef.current = handleBack; });
   useEffect(() => {
     if (Platform.OS !== 'web') return;
     const onKey = (e) => {
@@ -68,6 +71,18 @@ export default function ReadingScreen({ route, navigation }) {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  // Swipe gesture (no ScrollView conflict in single-sentence mode)
+  const panResponder = useRef(PanResponder.create({
+    onMoveShouldSetPanResponder: (_, { dx, dy }) =>
+      Math.abs(dx) > 20 && Math.abs(dx) > Math.abs(dy) * 1.5,
+    onPanResponderRelease: (_, { dx }) => {
+      if (dx < -60) handleNextRef.current?.();
+      else if (dx > 60) handleBackRef.current?.();
+    },
+  })).current;
+
+  useEffect(() => { loadArticle(); }, [articleId]);
+
   async function loadArticle() {
     const list = await getArticles();
     const found = list.find(a => a.id === articleId);
@@ -75,8 +90,26 @@ export default function ReadingScreen({ route, navigation }) {
     setArticle(found);
     const prog = await getProgress(articleId);
     setCurrentIdx(prog);
+    currentIdxRef.current = prog;
     const words = await getSavedWords(articleId);
     setSavedWords(words);
+  }
+
+  function animateTo(newIdx, direction) {
+    const dist = SCREEN_WIDTH * 0.85;
+    Animated.timing(slideX, {
+      toValue: -direction * dist,
+      duration: 210,
+      useNativeDriver: true,
+    }).start(() => {
+      setCurrentIdx(newIdx);
+      slideX.setValue(direction * dist);
+      Animated.timing(slideX, {
+        toValue: 0,
+        duration: 210,
+        useNativeDriver: true,
+      }).start();
+    });
   }
 
   function showXPBurst(amount) {
@@ -92,7 +125,6 @@ export default function ReadingScreen({ route, navigation }) {
 
     const cached = savedWords[clean];
     if (cached) {
-      // Re-derive context from the sentence currently being read
       const { contextBefore, contextAfter } = deriveContext(clean, sentence);
       setWordData({ ...cached, contextBefore, contextAfter });
       setDrawerLoading(false);
@@ -104,7 +136,6 @@ export default function ReadingScreen({ route, navigation }) {
 
     setWordData(null);
     setDrawerLoading(true);
-
     const result = await addXP(1);
     showXPBurst(1);
     if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
@@ -130,16 +161,16 @@ export default function ReadingScreen({ route, navigation }) {
   }
 
   async function handleNext() {
-    if (!article) return;
-    const next = Math.min(currentIdx + 1, article.sentences.length - 1);
-    setCurrentIdx(next);
+    const art = articleRef.current;
+    const idx = currentIdxRef.current;
+    if (!art || idx >= art.sentences.length - 1) return;
+    const next = idx + 1;
+    animateTo(next, 1);
     await saveProgress(articleId, next);
-
     const result = await addXP(2);
     showXPBurst(2);
     if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
-
-    if (next === article.sentences.length - 1) {
+    if (next === art.sentences.length - 1) {
       const res = await addXP(50, { articlesTotal: 1 });
       showXPBurst(50);
       if (res.newlyUnlocked.length > 0) setPendingAchievements(a => [...a, ...res.newlyUnlocked]);
@@ -147,9 +178,10 @@ export default function ReadingScreen({ route, navigation }) {
   }
 
   async function handleBack() {
-    if (!article) return;
-    const prev = Math.max(currentIdx - 1, 0);
-    setCurrentIdx(prev);
+    const idx = currentIdxRef.current;
+    if (idx === 0) return;
+    const prev = idx - 1;
+    animateTo(prev, -1);
     await saveProgress(articleId, prev);
   }
 
@@ -161,7 +193,8 @@ export default function ReadingScreen({ route, navigation }) {
   if (!article) return null;
 
   const total = article.sentences.length;
-  const progress = Math.round(((currentIdx + 1) / total) * 100);
+  const progress = (currentIdx + 1) / total;
+  const sentence = article.sentences[currentIdx];
 
   return (
     <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
@@ -183,49 +216,39 @@ export default function ReadingScreen({ route, navigation }) {
 
       {/* Progress bar */}
       <View style={styles.progressBarBg}>
-        <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+        <View style={[styles.progressBarFill, { width: `${Math.round(progress * 100)}%` }]} />
       </View>
 
       <OrnamentDivider />
 
-      {/* Content */}
-      <View style={styles.contentFrame}>
-        <View style={styles.marginLine} />
-        <ScrollView
-          ref={scrollRef}
-          style={[
-            styles.scroll,
-            Platform.OS === 'web' && {
-              overflowY: 'scroll',
-              backgroundImage: PARCHMENT_BG,
-              backgroundRepeat: 'repeat',
-            },
-          ]}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {showHint && currentIdx === 0 && (
-            <View style={styles.hintBox}>
-              <Text style={styles.hintText}>Нажми на слово — узнай значение. Стрелки ← → для навигации.</Text>
-            </View>
-          )}
+      {/* Sentence area — swipeable */}
+      <View
+        style={[
+          styles.sentenceArea,
+          Platform.OS === 'web' && {
+            backgroundImage: PARCHMENT_BG,
+            backgroundRepeat: 'repeat',
+          },
+        ]}
+        {...panResponder.panHandlers}
+      >
+        <Animated.View style={[styles.sentenceSlide, { transform: [{ translateX: slideX }] }]}>
+          {/* Roman numeral chapter label */}
+          <Text style={styles.scrollLabel}>Свиток {toRoman(currentIdx + 1)}</Text>
 
-          {article.sentences.map((sentence, idx) => (
-            <View
-              key={idx}
-              onLayout={(e) => { sentenceYRef.current[idx] = e.nativeEvent.layout.y; }}
-            >
-              <SentenceBlock
-                sentence={sentence}
-                isActive={idx === currentIdx}
-                isRead={idx < currentIdx}
-                selectedWord={idx === currentIdx ? selectedWord : null}
-                savedWords={savedWords}
-                onWordPress={(clean, s) => handleWordPress(clean, s)}
-              />
-            </View>
-          ))}
-          <View style={{ height: 24 }} />
-        </ScrollView>
+          <SentenceBlock
+            sentence={sentence}
+            selectedWord={selectedWord}
+            savedWords={savedWords}
+            onWordPress={handleWordPress}
+          />
+
+          {showHint && currentIdx === 0 && (
+            <Text style={styles.hintText}>
+              Нажми на слово — узнай значение
+            </Text>
+          )}
+        </Animated.View>
       </View>
 
       {/* Bottom navigation */}
@@ -234,7 +257,7 @@ export default function ReadingScreen({ route, navigation }) {
           style={styles.navArrow}
           onPress={handleBack}
           disabled={currentIdx === 0}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
         >
           <Text style={[styles.navArrowGlyph, currentIdx === 0 && styles.navArrowDisabled]}>‹</Text>
         </TouchableOpacity>
@@ -245,7 +268,7 @@ export default function ReadingScreen({ route, navigation }) {
           style={styles.navArrow}
           onPress={handleNext}
           disabled={currentIdx === total - 1}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
         >
           <Text style={[styles.navArrowGlyph, currentIdx === total - 1 && styles.navArrowDisabled]}>›</Text>
         </TouchableOpacity>
@@ -299,11 +322,12 @@ const styles = StyleSheet.create({
   },
   topTitle: {
     flex: 1,
-    fontFamily: 'IMFellEnglish_400Regular',
-    fontSize: 14,
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 12,
     color: '#f0e6c8',
     textAlign: 'center',
     marginHorizontal: 4,
+    letterSpacing: 0.5,
   },
   quizBtn: {
     paddingHorizontal: 10,
@@ -311,13 +335,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#c4a96a70',
     borderRadius: 3,
-    minWidth: 36,
+    minWidth: 44,
     alignItems: 'center',
   },
   quizBtnText: {
-    fontFamily: 'CrimsonText_400Regular_Italic',
-    fontSize: 13,
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 11,
     color: '#c4a96a',
+    letterSpacing: 0.5,
   },
   progressBarBg: {
     height: 5,
@@ -327,70 +352,61 @@ const styles = StyleSheet.create({
     height: 5,
     backgroundColor: colors.gold,
   },
-  contentFrame: {
+  sentenceArea: {
     flex: 1,
-    flexDirection: 'row',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
-  marginLine: {
-    width: 1.5,
-    backgroundColor: '#d4b87028',
-    marginTop: 10,
-    marginBottom: 10,
-    marginLeft: 9,
+  sentenceSlide: {
+    paddingHorizontal: 8,
+    paddingVertical: 16,
   },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: 10,
-    paddingBottom: 8,
-  },
-  hintBox: {
-    marginHorizontal: 16,
-    marginBottom: 10,
-    backgroundColor: '#fffbe6',
-    borderWidth: 1,
-    borderColor: colors.goldFaint,
-    borderRadius: 3,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+  scrollLabel: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 11,
+    color: colors.goldLight,
+    textAlign: 'center',
+    letterSpacing: 2,
+    marginBottom: 20,
   },
   hintText: {
     fontFamily: 'CrimsonText_400Regular_Italic',
     fontSize: 13,
-    color: colors.inkMuted,
+    color: colors.inkFaint,
     textAlign: 'center',
+    marginTop: 24,
+    opacity: 0.8,
   },
   bottomNav: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingVertical: 6,
     borderTopWidth: 1,
     borderTopColor: '#d4b87030',
     backgroundColor: colors.parchment,
   },
   navArrow: {
-    width: 52,
-    height: 44,
+    width: 60,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
   navArrowGlyph: {
-    fontSize: 40,
+    fontSize: 44,
     color: colors.gold,
     fontFamily: 'CrimsonText_400Regular',
-    lineHeight: 48,
+    lineHeight: 52,
     includeFontPadding: false,
   },
   navArrowDisabled: {
-    color: '#d4c9a860',
+    color: '#d4c9a850',
   },
   pageCounter: {
-    fontFamily: 'CrimsonText_400Regular_Italic',
-    fontSize: 14,
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 12,
     color: colors.inkFaint,
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
 });
