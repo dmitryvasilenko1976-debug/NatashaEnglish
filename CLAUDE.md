@@ -1,165 +1,423 @@
-# NatashaEnglish — Claude Code Guide
+# CLAUDE.md — Контекст для AI-агентов
 
-Expo React Native app for reading medical English articles with word lookup and gamification.
-Built for Natasha: offline-first, no cloud, no accounts.
-
----
-
-## Stack
-
-- **Runtime**: Expo SDK ~54 / React Native 0.81 / React 19
-- **Navigation**: `@react-navigation/stack`
-- **Storage**: `AsyncStorage` (all data on device)
-- **Word explanations**: precomputed via LM Studio → `wordCache.json` (bundled); or via ChatGPT web using export/import scripts
-- **PDF parsing**: `pdf-parse` v2 (`PDFParse` class, not the v1 function API)
+Этот файл описывает проект NatashaEnglish для Claude и других AI-агентов.
+Прочитай полностью перед тем как писать любой код.
 
 ---
 
-## Running the app
+## Что это за проект
 
-```bash
-npm start          # Expo dev server (scan QR or press W for web)
-npm run web        # Web only
+**NatashaEnglish** — Expo (React Native) приложение для изучения медицинского английского. Пользователь — Наташа, врач, которая читает медицинские статьи на английском и учит медицинскую терминологию.
+
+- Работает как PWA в браузере (основной режим) и как мобильное приложение
+- Offline-first: все данные в AsyncStorage, объяснения слов предзагружены в JSON
+- Деплой: Vercel → https://natashenglish.vercel.app
+- Репо: https://github.com/dmitryvasilenko1976-debug/NatashaEnglish
+
+---
+
+## Стек — КРИТИЧНО знать версии
+
+| Пакет | Версия | Примечание |
+|---|---|---|
+| Expo SDK | ~54.0.0 | НЕ 51, НЕ 52, НЕ 53 |
+| React Native | 0.81.5 | |
+| React | 19.1.0 | |
+| Jest | ^29.7.0 | v30 ломает jest-expo |
+| jest-expo | ^56.0.5 | |
+| pdf-parse | ^2.4.5 | **v2, не v1** — другой API |
+| AsyncStorage | 2.2.0 | из @react-native-async-storage |
+
+**pdf-parse v2 API:**
+```js
+const { PDFParse } = require('pdf-parse');  // НЕ const pdfParse = require('pdf-parse')
+const parser = new PDFParse();
+const data = await parser.parse(buffer);
+data.text  // текст
 ```
 
 ---
 
-## Project structure
+## Архитектурные решения
+
+### Offline-first через wordCache.json
+Все объяснения слов предзагружены в `src/data/wordCache.json` (~2300 терминов).
+`anthropicService.js` ищет слово в кэше — никаких API-запросов во время работы приложения.
+
+### extractContext() — важно
+В `anthropicService.js` есть `extractContext(word, sentence)` — она берёт контекст (слова до/после) из **текущего предложения**, а не из предзагруженного кэша. Это критично: иначе карточка слова показывала бы контекст из другой статьи.
+
+```js
+// ПРАВИЛЬНО: всегда переопределяем contextBefore/contextAfter из текущего предложения
+const { contextBefore, contextAfter } = sentence
+  ? extractContext(word, sentence)
+  : { contextBefore: '', contextAfter: '' };
+return { ...cacheResult, contextBefore, contextAfter };
+```
+
+### Анимация предложений
+`ReadingScreen.js` использует `Animated.Value` + `PanResponder`. Нет `ScrollView` — это намеренно, иначе конфликт со свайпом.
+
+**Паттерн animateTo(newIdx, direction):**
+1. Старое предложение уезжает в `-direction * dist`
+2. Меняем индекс (`setCurrentIdx`)
+3. Новое предложение появляется с другой стороны
+
+**Stale closure в keyboard listener:**
+Используем refs `handleNextRef` / `handleBackRef` — обновляются каждый рендер, listener регистрируется один раз (`useEffect([], [])`).
+
+### PanResponder порог
+```js
+onMoveShouldSetPanResponder: (_, { dx, dy }) =>
+  Math.abs(dx) > 20 && Math.abs(dx) > Math.abs(dy) * 1.5
+onPanResponderRelease: (_, { dx }) => {
+  if (dx < -60) handleNextRef.current?.();
+  else if (dx > 60) handleBackRef.current?.();
+}
+```
+
+---
+
+## Структура файлов
 
 ```
+App.js                              # Навигатор + загрузка шрифтов
+index.js                            # Точка входа
+
 src/
-  screens/         # WelcomeScreen, HomeScreen, ReadingScreen, QuizScreen,
-                   # QuizSelectScreen, AchievementsScreen, TutorialScreen
-  components/      # SentenceBlock, WordDrawer, ArticleCard, AchievementModal,
-                   # OrnamentDivider, XPBurst
-  services/        # storageService, gamificationService, anthropicService, pdfService
+  screens/
+    WelcomeScreen.js                # Стартовый экран со статистикой
+    TutorialScreen.js               # Туториал (показывается один раз)
+    HomeScreen.js                   # Главный: статьи + XP + квесты + уровень
+    ReadingScreen.js                # Чтение: свайп, слова, XP, wordMastery
+    QuizSelectScreen.js             # Выбор статьи для квиза
+    QuizScreen.js                   # Квиз по сохранённым словам
+    AchievementsScreen.js           # Все достижения
+
+  components/
+    SentenceBlock.js                # Слова в предложении, клик, мастерство (wordMastery prop)
+    WordDrawer.js                   # Дровер с объяснением слова + diamonds mastery
+    DailyQuestsPanel.js             # 3 карточки квестов с прогресс-барами
+    ArticleCard.js                  # Карточка статьи
+    AchievementModal.js             # Модал при разблокировке достижения
+    XPBurst.js                      # Анимированный всплеск "+2 XP"
+    OrnamentDivider.js              # Декоративный разделитель
+
+  services/
+    storageService.js               # ВСЁ хранилище: статьи, слова, game data, mastery
+    gamificationService.js          # XP, уровни, квесты, достижения, addXP()
+    anthropicService.js             # Поиск в wordCache + extractContext()
+    pdfService.js                   # Парсинг PDF → статья
+
   data/
-    articles.json  # Bundled articles — GENERATED by precompute.js / expand-sentences.js
-    wordCache.json # Word explanations — GENERATED by precompute.js
-    achievements.js
-    sampleArticle.js
-  theme/colors.js
+    wordCache.json                  # ~2300 слов [{word, baseForm, transcription, ...}]
+    articles.json                   # 10 предзагруженных статей
+    achievements.js                 # Константы достижений
+    sampleArticle.js                # Демо-статья для первого запуска
 
-pdfs/              # Source PDFs (local only, not committed)
+  theme/
+    colors.js                       # Палитра проекта
+
 scripts/
-  expand-sentences.js  # Re-extracts sentences from PDFs (no LM Studio needed)
-precompute.js      # Full pipeline: PDF → articles.json + wordCache.json (needs LM Studio)
+  precompute.js                     # PDF → articles.json + wordCache (через LM Studio)
+  export-words-for-chatgpt.js       # Слова без кэша → батчи для ChatGPT
+  import-chatgpt-words.js           # Ответы ChatGPT → wordCache.json
+
+__tests__/
+  storageService.test.js            # 20 тестов
+  gamificationService.test.js       # 14 тестов
 ```
 
 ---
 
-## Content pipeline
+## Схема AsyncStorage
 
-### Step 1 — Expand / fix articles (no LM Studio needed)
-
-Re-parses every PDF in `/pdfs`, extracts up to 55 sentences per article,
-updates `articles.json`. Does NOT touch `wordCache.json`.
-
-```bash
-node scripts/expand-sentences.js
+```
+'articles'          → JSON: [{id, title, tag, sentences:string[], addedAt}]
+'words_{articleId}' → JSON: {
+                        word: {
+                          baseForm, transcription, translation, explanation,
+                          grammaticalForm, contextBefore, contextAfter, savedAt,
+                          srs: {                          // добавляется в Релизе IV
+                            interval, nextReview,
+                            streak, status: 'new'|'learning'|'review'|'mastered'
+                          }
+                        }
+                      }
+'progress_{id}'     → string: "42"
+'gamification'      → JSON: {
+                        xp: number,
+                        gems: number,                    // валюта ◈ (Релиз II)
+                        streak: {current, lastDate, max},
+                        streakShield: boolean,           // щит серии (Релиз II)
+                        hearts: number,                  // сердца для квиза (Релиз III)
+                        heartsRestoredAt: number|null,
+                        achievements: {[id]: true},
+                        stats: {wordsTotal, articlesTotal, quizCorrect},
+                        daily: {
+                          date: "2026-06-23",
+                          sentencesRead, wordsLookedUp, wordsSaved,
+                          bonusGranted: string[]
+                        },
+                        activityLog: {                   // (Релиз II)
+                          "2026-06-23": "perfect"|"quests"|"opened"
+                        },
+                        weeklyChallenge: {               // (Релиз III)
+                          weekId, progress, completed, bonusGranted
+                        },
+                        leagueLevel: number              // (Релиз III)
+                      }
+'word_mastery'      → JSON: {word: lookupCount}
 ```
 
-Use this when:
-- A new PDF is added to `/pdfs`
-- Sentences feel too short or incomplete
-- Chronic Cough article is missing from the UI
+---
 
-### Step 2 — Fill word cache via ChatGPT web (recommended)
+## Gamification — ключевые функции
 
-Export new words → ChatGPT explains them → import results into wordCache.json.
+### storageService.js
+- `getGameData()` — читает + делает defensive merge + сбрасывает daily при смене дня
+- `saveGameData(data)` — сохраняет
+- `updateStreak(gameData)` — обновляет серию (вызывать перед saveGameData)
+- `getWordMastery()` — `{word: count}`
+- `incrementWordMastery(word)` — +1 к счётчику, возвращает новый count
+
+### gamificationService.js
+- `getLevelInfo(xp)` → `{level, title, subtitle, prevXP, nextXP, progress}`
+- `getDailyQuests(game)` → массив 3 квестов с прогрессом
+- `addXP(amount, statUpdates)` → `{xp, newlyUnlocked, newlyCompletedQuests}`
+  - `statUpdates` поддерживает кумулятивные: `wordsTotal`, `articlesTotal`, `quizCorrect`
+  - и дневные: `sentencesRead`, `wordsLookedUp`, `wordsSaved`
+  - автоматически проверяет выполнение квестов и начисляет бонус (один раз в день)
+  - defensive init: `if (!game.daily) game.daily = {...}` — защищает тесты с моками
+
+### Уровни (LEVEL_TIERS)
+```
+0 XP    → Хоббит из Шира
+100 XP  → Путник на дороге
+300 XP  → Следопыт, Дунэдан Севера
+600 XP  → Рыцарь Гондора
+1100 XP → Эльф Ривенделла
+2000 XP → Майар, дух Средиземья
+3500 XP → Истари в сером плаще
+6000 XP → Валар, правитель мира
+10000XP → Эру Илуватар
+```
+
+### Ежедневные квесты (4-дневная ротация)
+`getDailySchedule()` — детерминированно по `Math.floor(Date.now() / 86400000) % 4`
+Три квеста: `sentencesRead`, `wordsLookedUp`, `wordsSaved`
+`bonusGranted[]` в `game.daily` — список уже начисленных квестов (защита от двойного XP)
+
+---
+
+## Мастерство слов
+
+### SentenceBlock.js
+Принимает `wordMastery: {word: count}`.
+- 10-19 открытий → `familiarWrap` (dotted underline, inkFaint)
+- 20+ открытий → `knownWrap` (solid underline, goldLight)
+
+### WordDrawer.js
+Принимает `mastery: number`.
+- `masteryDiamonds(count)` → строка ◆◆◇◇◇ (5 diamond scale)
+- Показывает "Встречено N раз"
+
+---
+
+## Шрифты
+
+Загружаются в `App.js` через `useFonts()`:
+- `IMFellEnglish_400Regular` — основной текст статей (21px, lineHeight 40)
+- `IMFellEnglish_400Regular_Italic` — выделенное слово
+- `CrimsonText_400Regular` — вспомогательный текст
+- `CrimsonText_400Regular_Italic` — курсив
+- `CrimsonText_600SemiBold` — жирный вспомогательный
+- `Cinzel_400Regular` — заголовки, Толкиеновский стиль
+- `Cinzel_700Bold` — жирные заголовки
+
+---
+
+## Цветовая палитра (src/theme/colors.js)
+
+```js
+parchment:       '#f9f4e7'  // фон (пергамент)
+parchmentDark:   '#ede8d8'  // тёмный фон
+parchmentBorder: '#e8e0cc'  // граница
+forestGreen:     '#2c4a2e'  // хедер, кнопки
+forestGreenLight:'#eef3eb'  // светлый зелёный
+gold:            '#b8975a'  // акцент (золото)
+goldLight:       '#d4b870'  // светлое золото
+goldFaint:       '#d4b87040'// прозрачное золото
+ink:             '#2c1f0e'  // основной текст
+inkMuted:        '#4a3728'  // приглушённый текст
+inkFaint:        '#8b6914'  // слабый текст (золотистый)
+```
+
+---
+
+## Деплой
+
+### Vercel
+```bash
+npx vercel --prod
+```
+
+`vercel.json`:
+```json
+{ "buildCommand": "npx expo export -p web", "outputDirectory": "dist", "framework": null }
+```
+
+`.npmrc`:
+```
+legacy-peer-deps=true
+```
+Нужно из-за конфликта `@react-native/jest-preset@0.86.0` vs `react@19.1.0`.
+
+### Vercel link (если не связан)
+```bash
+npx vercel link --yes --scope medical-superpower --project natashenglish
+```
+
+`.vercel/` папка в `.gitignore` — не коммитится.
+
+---
+
+## Тесты
 
 ```bash
-# 1. Generate the input file and prompt
+npm test
+# 34 теста: 20 storageService + 14 gamificationService
+```
+
+**ВАЖНО:** Jest v29 + jest-expo v56. НЕ обновлять Jest до v30 — ломает jest-expo.
+
+Тесты в `__tests__/`. При изменении `storageService.js` или `gamificationService.js` — проверять что тесты проходят.
+
+---
+
+## Добавление статей в wordCache
+
+**Через ChatGPT (нет OpenAI API, только веб-подписка):**
+
+```bash
 node scripts/export-words-for-chatgpt.js
+# → chatgpt-input/words-part-N.json + chatgpt-input/PROMPT.txt
+```
 
-# 2. Open chatgpt.com, paste chatgpt-input/PROMPT.txt, attach chatgpt-input/words-to-explain.json
-# 3. Save ChatGPT's response as chatgpt-input/chatgpt-response.json
+Копируй PROMPT.txt и каждый words-part файл в ChatGPT.
+Сохрани ответы как `chatgpt-input/chatgpt-response-01.json` и т.д.
 
-# 4. Import into wordCache.json
+```bash
 node scripts/import-chatgpt-words.js
+# → обновляет src/data/wordCache.json
 ```
 
-Use this when:
-- New PDFs were added and you want word explanations
-- wordCache.json is missing or outdated
-- You have a ChatGPT Plus subscription
-
-### Step 2 (alt) — Full precompute via LM Studio (needs LM Studio on port 1234)
-
-```bash
-# Start LM Studio with medgemma-4b-it first, then:
-node precompute.js
-```
+ChatGPT может вернуть JSON в markdown-блоке (```json ... ```) — скрипт импорта автоматически стрипает fence.
 
 ---
 
-## Key data schemas
+## Пергаментная текстура (web only)
 
-### Article (articles.json entry)
 ```js
-{
-  id: "article_1782044644_Gastroen",  // stable, must not change
-  title: "Acute Gastroenteritis in Children",
-  tag: "Педиатрия",
-  sentences: ["sentence 1", "sentence 2", ...],  // up to 55
-  addedAt: "2026-06-22T...",
-  source: "Gastroenteritis in Children AAFP 2019.pdf"
-}
-```
-
-### WordCache entry (wordCache.json)
-```js
-{
-  "gastroenteritis": {
-    baseForm: "gastroenteritis",
-    transcription: "[ˌɡæstrəʊˌentəˈraɪtɪs]",
-    grammaticalForm: "существительное",
-    translation: "гастроэнтерит",
-    explanation: "...",
-    contextBefore: "...",
-    contextAfter: "..."
-  }
-}
-```
-
-### GameData (AsyncStorage key: "gamification")
-```js
-{
-  xp: 0,
-  streak: { current: 0, lastDate: null, max: 0 },
-  achievements: { "frodo": true, ... },
-  stats: { wordsTotal: 0, articlesTotal: 0, quizCorrect: 0 }
-}
+const PARCHMENT_BG = Platform.OS === 'web'
+  ? `url("data:image/svg+xml,...")`  // SVG fractalNoise
+  : null;
+// Применяется как backgroundImage через inline web style
 ```
 
 ---
 
-## Known limitations
+## Дорожная карта — Пять релизов
 
-| Issue | Status |
-|---|---|
-| New words in expanded sentences show "Слово не найдено" | Run `node precompute.js` to fill cache |
-| `hb` unification | `lab_alias_resolver` uses "hgb"; `reference_ranges.json` uses "hb" |
-| PDF add via UI | `parsePDFToSentences()` throws intentionally — add PDFs via precompute.js |
-| Streak counts app opens, not actual reading | By design for now |
+### Релиз I — "Искры" (1-2 дня)
+**Механики:** переменные награды ("крит"), таймер квестов, восстановление серии
+
+Файлы:
+- `gamificationService.js` — добавить `rollCritical(pct)` → `{isCritical, multiplier}`; `recoverStreak()` (−50 ◈)
+- `storageService.js` — добавить `gems: 0` в `defaultGame()`; `checkStreakRecovery(game)` → `{canRecover}`
+- `ReadingScreen.js` — в `handleNext()`: вызов `rollCritical(0.25)`, при крите `addXP(8)` + XPBurst с "КРИТИЧЕСКИ!"
+- `XPBurst.js` — проп `critical: bool`, другой цвет/размер при крите
+- `DailyQuestsPanel.js` — таймер до сброса (`nextMidnight - Date.now()`, обновляется каждую минуту)
+- `HomeScreen.js` — баннер восстановления серии если `canRecover === true`
+
+### Релиз II — "Самоцветы и Щит" (2-3 дня)
+**Механики:** валюта ◈, щит серии, тепловой календарь активности
+
+Новые файлы:
+- `src/components/CalendarHeatmap.js` — сетка 7×5 (35 дней), 4 цвета по типу дня
+
+Изменения:
+- `storageService.js` — `streakShield: false`, `activityLog: {}`, `logActivity(type)`, `spendGems()`, `earnGems()`; обновить `updateStreak()` — проверять щит при обрыве
+- `gamificationService.js` — `buyStreakShield()` (−30 ◈); начислять ◈ во всех нужных `addXP()` вызовах
+- `HomeScreen.js` — `◈ {gems}` в topBar, кнопка щита, CalendarHeatmap в ListHeader
+- `ReadingScreen.js` — `earnGems()` при событиях, 15% шанс +1 ◈ при открытии слова
+
+### Релиз III — "Лига и Испытание" (2-3 дня)
+**Механики:** еженедельный вызов с FOMO-таймером, симулированная лига, сердца в квизе
+
+Новые файлы:
+- `src/services/leagueService.js` — `getLeagueStandings(game)` с детерминированными псевдо-соперниками (seed = weekId * playerId)
+- `src/components/LeaguePanel.js` — таблица 10 игроков, Наташа выделена
+- `src/components/WeeklyChallengeCard.js` — карточка с прогресс-баром и таймером
+- `src/components/HeartsRow.js` — ряд ❤️ в хедере квиза
+
+Изменения:
+- `storageService.js` — `hearts: 5`, `heartsRestoredAt`, `weeklyChallenge`, `leagueLevel`, `restoreHearts(game)`
+- `gamificationService.js` — `WEEKLY_CHALLENGES[6]`, `getWeeklyChallenge()`, `spendHeart()`, `refillHearts()`
+- `QuizScreen.js` — интеграция сердец, GameOver экран при 0, кнопка "Восстановить (20 ◈)"
+- `HomeScreen.js` — WeeklyChallengeCard, LeaguePanel в ListHeader
+
+Лиги по порядку: Шир → Ривенделл → Гондор → Рохан → Мория → Валинор
+
+### Релиз IV — "Свиток Памяти" (3-4 дня)
+**Механики:** интервальное повторение слов (упрощённый SM-2)
+
+Алгоритм:
+- Правильно 1→5 раз: interval = 1, 4, 10, 21, 42 дня; статус: new→learning→review→mastered
+- Ошибка: interval = 1, streak = 0
+
+SRS поле в каждом слове: `{ interval, nextReview, streak, status }`
+
+Новые файлы:
+- `src/services/srsService.js` — `getWordsForReview()` (сканирует все статьи), `markAnswer()`, `getReviewStats()`
+- `src/screens/ReviewScreen.js` — flip-card сессия (max 20 карточек)
+- `src/components/ReviewCard.js` — анимация rotateY 210ms, перед/зад
+
+Изменения:
+- `storageService.js` — в `saveWord()` добавлять `srs` с дефолтами
+- `gamificationService.js` — квест `wordsReviewed` в QUEST_SCHEDULES ротацию
+- `data/achievements.js` — достижения за 10/50/100 mastered слов
+- `HomeScreen.js` — CTA карточка "К повторению: N слов"
+- `App.js` — добавить `ReviewScreen` в Stack.Navigator
+
+### Релиз V — "Путь Мастера" (2 дня)
+**Механики:** статистика роста, тихий режим (intrinsic motivation shift)
+
+Новые файлы:
+- `src/screens/StatsScreen.js` — скорость чтения, vocab mastery %, дней в пути, лучшая серия
+
+Изменения:
+- `storageService.js` — `quietMode: false` в `defaultGame()`
+- `ReadingScreen.js` — при `quietMode` пропускать XP/mastery
+- `HomeScreen.js` — кнопка тихого режима, кнопка "Твой путь" → StatsScreen
+- `App.js` — добавить `StatsScreen` в Stack.Navigator
 
 ---
 
-## DO NOT
+## Известные особенности и ловушки
 
-- Commit `pdfs/` — not in .gitignore but should stay local (patient-adjacent content)
-- Commit `src/data/articles.json` or `wordCache.json` with half-processed state
-- Change article `id` values — they're referenced in AsyncStorage progress keys
-- Run `precompute.js` without LM Studio — it will hang on the first word explanation
-- Modify `src/data/articles.json` or `wordCache.json` by hand — always regenerate
+1. **`.vercel/` не в git** — при первой установке на новой машине нужен `vercel link`.
 
----
+2. **`@react-native/jest-preset` конфликт** — требует react@^19.2.3, у нас 19.1.0. Решение: `.npmrc` с `legacy-peer-deps=true`. НЕ обновлять react без проверки.
 
-## Tests
+3. **wordCache format** — массив объектов: `[{word, baseForm, ...}]`. Ключ поиска — `word` (lowercase).
 
-```bash
-npm test                     # run all tests (Jest)
-npm test -- --watch          # watch mode
-```
+4. **Platform.OS === 'web'** — SVG texture, keyboard navigation, speechSynthesis — только web. Всегда проверяй платформу.
 
-Test files live in `__tests__/`. Cover: `gamificationService`, `storageService`.
+5. **Defensive merge в getGameData()** — всегда `{...base, ...stored}`, иначе новые поля схемы не появятся у существующих пользователей.
+
+6. **addXP defensive init** — `if (!game.daily) game.daily = {...}` защищает тесты с моками без поля `daily`.
+
+7. **Шрифты и dev режим** — если шрифты не грузятся, перезапустить с `expo start --clear`.
+
+8. **Римские цифры** — функция `toRoman(n)` локально в ReadingScreen.js, не выносить в утилиты (используется только там).
