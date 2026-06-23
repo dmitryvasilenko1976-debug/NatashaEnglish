@@ -41,7 +41,7 @@ export default function LeagueScreen({ navigation }) {
       { name: 'Ты', xp: game.xp, isUser: true },
       ...rivals.map(r => ({ ...r, isUser: false })),
     ];
-    all.sort((a, b) => b.xp - a.xp);
+    all.sort((a, b) => (b.xp || 0) - (a.xp || 0));
     setRows(all);
     setUserPos(all.findIndex(r => r.isUser) + 1);
   }

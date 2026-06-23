@@ -40,6 +40,7 @@ export default function HomeScreen({ navigation }) {
   const [reviewCount, setReviewCount] = useState(0);
   const xpRef = useRef(0);
   const isFirstLoad = useRef(true);
+  const xpAnimRef = useRef(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -80,17 +81,19 @@ export default function HomeScreen({ navigation }) {
       setXpDisplay(newXP);
       isFirstLoad.current = false;
     } else if (newXP !== xpRef.current) {
-      // Animate XP counter from current displayed value to new value
+      // Animate XP counter; cancel any prior animation before starting a new one
+      if (xpAnimRef.current) clearInterval(xpAnimRef.current);
       const from = xpRef.current;
       const to = newXP;
       const steps = 15;
       let step = 0;
-      const id = setInterval(() => {
+      xpAnimRef.current = setInterval(() => {
         step++;
         const current = Math.round(from + ((to - from) * step) / steps);
         setXpDisplay(current);
         if (step >= steps) {
-          clearInterval(id);
+          clearInterval(xpAnimRef.current);
+          xpAnimRef.current = null;
           xpRef.current = to;
         }
       }, 40);

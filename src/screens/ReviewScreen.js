@@ -7,7 +7,8 @@ import { Ionicons } from '@expo/vector-icons';
 
 import OrnamentDivider from '../components/OrnamentDivider';
 import XPBurst from '../components/XPBurst';
-import { getWordsForReview, updateWordSRS, getSavedWords, getGameData, saveGameData } from '../services/storageService';
+import AchievementModal from '../components/AchievementModal';
+import { getWordsForReview, updateWordSRS, getSavedWords, getGameData, saveGameData, getWordMastery } from '../services/storageService';
 import { addXP, addGems, getMasteryLevel, isArticleMastered, MASTERY_NAMES } from '../services/gamificationService';
 import { colors } from '../theme/colors';
 
@@ -36,17 +37,20 @@ export default function ReviewScreen({ navigation }) {
   const [xpEarned, setXpEarned] = useState(0);
   const [xpBursts, setXpBursts] = useState([]);
   const [masteredScrolls, setMasteredScrolls] = useState([]);
+  const [pendingAchievements, setPendingAchievements] = useState([]);
 
   const revealAnim = useRef(new Animated.Value(0)).current;
   const masteredIdsRef = useRef(new Set());
   const newMasteredRef = useRef([]);  // scrolls newly mastered THIS session
+  const wordMasteryRef = useRef({});  // global lookup counts for isArticleMastered
 
   useEffect(() => { loadCards(); }, []);
 
   async function loadCards() {
-    const [all, game] = await Promise.all([getWordsForReview(), getGameData()]);
+    const [all, game, wm] = await Promise.all([getWordsForReview(), getGameData(), getWordMastery()]);
     masteredIdsRef.current = new Set(game.stats?.masteredArticleIds || []);
     newMasteredRef.current = [];
+    wordMasteryRef.current = wm;
     setCards(all.slice(0, SESSION_LIMIT));
     setCurrent(0);
     setRevealed(false);
@@ -69,7 +73,7 @@ export default function ReviewScreen({ navigation }) {
 
     // Check article mastery — deduplicated across sessions via masteredIdsRef
     const allWords = await getSavedWords(item.articleId);
-    if (isArticleMastered(allWords) && !masteredIdsRef.current.has(item.articleId)) {
+    if (isArticleMastered(allWords, wordMasteryRef.current) && !masteredIdsRef.current.has(item.articleId)) {
       masteredIdsRef.current.add(item.articleId);
       const scroll = { id: item.articleId, title: item.articleTitle };
       newMasteredRef.current = [...newMasteredRef.current, scroll];
@@ -96,10 +100,13 @@ export default function ReviewScreen({ navigation }) {
         const game = await getGameData();
         game.stats.masteredArticleIds = [...masteredIdsRef.current];
         await saveGameData(game);
+        const allUnlocked = [];
         for (const _scroll of newMasteredRef.current) {
-          await addXP(200);
+          const masteryResult = await addXP(200);
+          if (masteryResult.newlyUnlocked?.length > 0) allUnlocked.push(...masteryResult.newlyUnlocked);
           await addGems(100);
         }
+        if (allUnlocked.length > 0) setPendingAchievements(allUnlocked);
       }
       setDone(true);
     }
@@ -186,6 +193,9 @@ export default function ReviewScreen({ navigation }) {
         {xpBursts.map(b => (
           <XPBurst key={b.id} amount={b.amount} onDone={() => setXpBursts(prev => prev.filter(x => x.id !== b.id))} />
         ))}
+        {pendingAchievements.length > 0 && (
+          <AchievementModal achievements={pendingAchievements} onClose={() => setPendingAchievements([])} />
+        )}
       </SafeAreaView>
     );
   }
@@ -201,7 +211,7 @@ export default function ReviewScreen({ navigation }) {
 
       {/* Progress bar */}
       <View style={styles.progressBg}>
-        <View style={[styles.progressFill, { width: `${Math.round((current / cards.length) * 100)}%` }]} />
+        <View style={[styles.progressFill, { width: `${Math.round(((current + 1) / cards.length) * 100)}%` }]} />
       </View>
 
       <View style={styles.cardArea}>

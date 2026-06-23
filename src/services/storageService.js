@@ -282,11 +282,10 @@ export function updateStreakWithInfo(gameData) {
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
   const last = gameData.streak.lastDate;
   const previousStreak = gameData.streak.current;
-  const streakBroken =
-    last !== null &&
-    last !== today &&
-    last !== yesterday &&
-    previousStreak >= 3;
+  const gapExists = last !== null && last !== today && last !== yesterday;
+  // Shield absorbs the break → don't show the "streak lost" modal
+  const shieldWillAbsorb = gapExists && !!gameData.streakShield;
+  const streakBroken = gapExists && previousStreak >= 3 && !shieldWillAbsorb;
   const game = updateStreak(gameData);
   return { game, streakBroken, previousStreak };
 }

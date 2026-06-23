@@ -193,6 +193,11 @@ export default function ReadingScreen({ route, navigation }) {
     if (result.newRecord) {
       showXPBurst(result.newRecord.value, { force: true, label: `🏆 Рекорд дня: ${result.newRecord.value} предл.` });
     }
+    if (result.weeklyQuestJustCompleted) {
+      showXPBurst(result.weeklyQuestReward, { force: true, label: `⚔️ Испытание недели! +${result.weeklyQuestReward}◈` });
+    } else if (result.newlyCompletedQuests?.length > 0) {
+      showXPBurst(50, { force: true, label: '✦ Задание дня выполнено!' });
+    }
     // 30-sentence session bonus (once per session)
     sessionSentencesRef.current += 1;
     if (sessionSentencesRef.current === 30 && !sessionGemBonusGiven.current) {

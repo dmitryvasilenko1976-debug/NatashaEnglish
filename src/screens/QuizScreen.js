@@ -105,7 +105,12 @@ export default function QuizScreen({ route, navigation }) {
       setHearts(newHearts);
       shakeHearts();
       const game = await getGameData();
-      game.quiz = { hearts: newHearts, lastHeartRestore: Date.now() };
+      // Only start the 2-hour restoration timer when losing the first heart;
+      // subsequent losses preserve the existing timer so elapsed time isn't wasted
+      game.quiz = {
+        hearts: newHearts,
+        lastHeartRestore: hearts === MAX_HEARTS ? Date.now() : (game.quiz.lastHeartRestore || Date.now()),
+      };
       await saveGameData(game);
 
       if (newHearts <= 0) {

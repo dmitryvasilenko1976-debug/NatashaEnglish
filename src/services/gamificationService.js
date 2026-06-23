@@ -202,7 +202,7 @@ export async function addXP(amount, statUpdates = {}) {
     if (todayCnt > prevBest) {
       if (!game.stats.records) game.stats.records = {};
       game.stats.records.bestDaySentences = { count: todayCnt, date: today };
-      if (prevBest > 0) newRecord = { type: 'bestDay', value: todayCnt };
+      newRecord = { type: 'bestDay', value: todayCnt };
     }
   }
 
@@ -242,15 +242,27 @@ export async function addXP(amount, statUpdates = {}) {
 
   if (!wq.completed) {
     let delta = 0;
+    let skipDelta = false;
     if (wqDef.key === 'xpWeek') {
       delta = earnedXP;
     } else if (wqDef.key === 'streak') {
+      // Track streak progress as the current streak value directly (not cumulative),
+      // so a streak reset during the week doesn't permanently block quest completion
       const cur = game.streak?.current || 0;
-      delta = Math.max(0, cur - (wq.progress || 0));
+      const newProg = Math.min(cur, wqDef.target);
+      if (newProg !== (wq.progress || 0)) {
+        wq.progress = newProg;
+        if (wq.progress >= wqDef.target) {
+          wq.completed = true;
+          weeklyQuestJustCompleted = true;
+          game.gems = (game.gems || 0) + wqDef.reward;
+        }
+      }
+      skipDelta = true;
     } else if (statUpdates[wqDef.key]) {
       delta = statUpdates[wqDef.key];
     }
-    if (delta > 0) {
+    if (!skipDelta && delta > 0) {
       wq.progress = (wq.progress || 0) + delta;
       if (wq.progress >= wqDef.target) {
         wq.completed = true;
@@ -335,10 +347,10 @@ export function getMasteryLevel(wordData, lookupCount) {
 export const MASTERY_NAMES = ['Незнакомое', 'Замеченное', 'Знакомое', 'Изученное', 'Освоенное', 'Мастерское'];
 
 // Returns true if every saved word in article has reached Изученное (level 3+)
-export function isArticleMastered(wordsObj) {
-  const entries = Object.values(wordsObj);
+export function isArticleMastered(wordsObj, wordMasteryMap = {}) {
+  const entries = Object.entries(wordsObj);
   if (entries.length < 3) return false;
-  return entries.every(w => getMasteryLevel(w, 0) >= 3);
+  return entries.every(([word, w]) => getMasteryLevel(w, wordMasteryMap[word] || 0) >= 3);
 }
 
 // ── Achievement checker ───────────────────────────────────────────────────────

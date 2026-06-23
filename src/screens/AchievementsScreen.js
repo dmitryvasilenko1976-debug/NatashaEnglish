@@ -163,7 +163,8 @@ export default function AchievementsScreen({ navigation }) {
 
   async function toggleQuietMode(value) {
     setQuietMode(value);
-    await saveSettings({ quietMode: value });
+    const current = await getSettings();
+    await saveSettings({ ...current, quietMode: value });
   }
 
   const unlocked = ACHIEVEMENTS.filter(a => unlockedMap[a.id]).length;
