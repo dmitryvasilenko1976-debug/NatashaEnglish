@@ -116,9 +116,9 @@ export default function ReadingScreen({ route, navigation }) {
     });
   }
 
-  function showXPBurst(amount) {
-    const id = Date.now();
-    setXpBursts(prev => [...prev, { id, amount }]);
+  function showXPBurst(amount, options = {}) {
+    const id = Date.now() + Math.random();
+    setXpBursts(prev => [...prev, { id, amount, ...options }]);
   }
 
   async function handleWordPress(clean, sentence) {
@@ -136,16 +136,15 @@ export default function ReadingScreen({ route, navigation }) {
       setWordData({ ...cached, contextBefore, contextAfter });
       setDrawerLoading(false);
       const result = await addXP(1, { wordsLookedUp: 1 });
-      showXPBurst(1);
+      showXPBurst(result.earnedXP || 1);
       if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
-      if (result.newlyCompletedQuests?.length > 0) showXPBurst(result.newlyCompletedQuests.reduce((s, k) => s, 0));
       return;
     }
 
     setWordData(null);
     setDrawerLoading(true);
     const result = await addXP(1, { wordsLookedUp: 1 });
-    showXPBurst(1);
+    showXPBurst(result.earnedXP || 1);
     if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
 
     try {
@@ -176,7 +175,13 @@ export default function ReadingScreen({ route, navigation }) {
     animateTo(next, 1);
     await saveProgress(articleId, next);
     const result = await addXP(2, { sentencesRead: 1 });
-    showXPBurst(2);
+    if (result.isFirstSentenceBonus) {
+      showXPBurst(result.earnedXP, { label: `Добро пожаловать! +${result.earnedXP} XP` });
+    } else if (result.isCrit) {
+      showXPBurst(result.earnedXP, { crit: true });
+    } else {
+      showXPBurst(result.earnedXP || 2);
+    }
     if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
     if (next === art.sentences.length - 1) {
       const res = await addXP(50, { articlesTotal: 1 });
@@ -287,6 +292,8 @@ export default function ReadingScreen({ route, navigation }) {
         <XPBurst
           key={b.id}
           amount={b.amount}
+          crit={b.crit}
+          label={b.label}
           onDone={() => setXpBursts(prev => prev.filter(x => x.id !== b.id))}
         />
       ))}

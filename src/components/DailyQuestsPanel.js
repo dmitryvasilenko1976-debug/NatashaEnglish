@@ -1,17 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 
+function getTimeUntilMidnight() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  const diff = midnight - now;
+  return {
+    hours: Math.floor(diff / 3600000),
+    minutes: Math.floor((diff % 3600000) / 60000),
+  };
+}
+
 export default function DailyQuestsPanel({ quests }) {
+  const [timeLeft, setTimeLeft] = useState(getTimeUntilMidnight());
+
+  useEffect(() => {
+    const id = setInterval(() => setTimeLeft(getTimeUntilMidnight()), 60000);
+    return () => clearInterval(id);
+  }, []);
+
   if (!quests || quests.length === 0) return null;
   const allDone = quests.every(q => q.completed);
+
+  const timerColor =
+    timeLeft.hours >= 8 ? colors.inkFaint :
+    timeLeft.hours >= 4 ? colors.gold :
+    '#e05a00';
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Задания дня</Text>
-        {allDone && <Text style={styles.allDoneText}>✦ Все выполнены</Text>}
+        {allDone
+          ? <Text style={styles.allDoneText}>✦ Все выполнены</Text>
+          : <Text style={[styles.timerText, { color: timerColor }]}>
+              {timeLeft.hours < 4 ? '⚠ ' : ''}{timeLeft.hours}ч {timeLeft.minutes}м
+            </Text>
+        }
       </View>
       <View style={styles.row}>
         {quests.map(quest => (
@@ -73,6 +101,10 @@ const styles = StyleSheet.create({
     fontFamily: 'CrimsonText_400Regular_Italic',
     fontSize: 12,
     color: colors.gold,
+  },
+  timerText: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 12,
   },
   row: {
     flexDirection: 'row',

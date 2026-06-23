@@ -91,7 +91,25 @@ export function getDailyQuests(game) {
 export async function addXP(amount, statUpdates = {}) {
   const game = await getGameData();
 
-  game.xp += amount;
+  // ── Epoch I bonuses (only on sentence reads) ──────────────────────────────
+  let earnedXP = amount;
+  let isCrit = false;
+  let isFirstSentenceBonus = false;
+
+  if (statUpdates.sentencesRead) {
+    if (!game.daily.firstSentenceBonusUsed) {
+      // First sentence of the day: 2× XP — daily hook
+      earnedXP = amount * 2;
+      game.daily.firstSentenceBonusUsed = true;
+      isFirstSentenceBonus = true;
+    } else if (Math.random() < 0.125) {
+      // Critical hit: 2× XP — variable reward / Skinner schedule
+      earnedXP = amount * 2;
+      isCrit = true;
+    }
+  }
+
+  game.xp += earnedXP;
 
   // Cumulative stats
   const cumulativeKeys = ['wordsTotal', 'articlesTotal', 'quizCorrect'];
@@ -135,7 +153,7 @@ export async function addXP(amount, statUpdates = {}) {
   const { gameData: updated, newlyUnlocked } = checkNewAchievements(game);
   await saveGameData(updated);
 
-  return { xp: updated.xp, newlyUnlocked, newlyCompletedQuests };
+  return { xp: updated.xp, newlyUnlocked, newlyCompletedQuests, earnedXP, isCrit, isFirstSentenceBonus };
 }
 
 // ── Achievement checker ───────────────────────────────────────────────────────

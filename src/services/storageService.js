@@ -110,6 +110,7 @@ function defaultDaily() {
     wordsLookedUp: 0,
     wordsSaved: 0,
     bonusGranted: [],
+    firstSentenceBonusUsed: false,
   };
 }
 
@@ -157,4 +158,20 @@ export function updateStreak(gameData) {
   }
   gameData.streak.lastDate = today;
   return gameData;
+}
+
+// Like updateStreak but also returns whether a meaningful streak was just broken.
+// Used by HomeScreen to show the "Серия прервана" modal.
+export function updateStreakWithInfo(gameData) {
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const last = gameData.streak.lastDate;
+  const previousStreak = gameData.streak.current;
+  const streakBroken =
+    last !== null &&
+    last !== today &&
+    last !== yesterday &&
+    previousStreak >= 3;
+  const game = updateStreak(gameData);
+  return { game, streakBroken, previousStreak };
 }
