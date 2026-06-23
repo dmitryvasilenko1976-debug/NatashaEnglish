@@ -16,7 +16,19 @@ function getBundled() {
 }
 
 export async function getArticles() {
-  return getBundled();
+  const bundled = getBundled();
+  try {
+    const json = await AsyncStorage.getItem('articles');
+    if (!json) return bundled;
+    const stored = JSON.parse(json);
+    // Bundled articles always win for existing IDs (updated by precompute + rebuild).
+    // Custom articles added via UI (different IDs) are appended.
+    const bundledIds = new Set(bundled.map((a) => a.id));
+    const custom = stored.filter((a) => !bundledIds.has(a.id));
+    return custom.length > 0 ? [...bundled, ...custom] : bundled;
+  } catch {
+    return bundled;
+  }
 }
 
 export async function saveArticle(article) {
