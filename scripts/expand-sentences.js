@@ -106,6 +106,76 @@ function isJunk(s) {
   if (/\bCompleted\s+Conflict\b/i.test(s)) return true;
   if (/^Dr\.?\s+\w+\s+is\s+a\s+(consultant|speaker|advisor|stockholder)\b/i.test(s)) return true;
   if (/\bworkgroup\s+level\b.{0,60}\bconflict\b/i.test(s)) return true;
+  // ── Remaining reference list residue ─────────────────────────────────────────
+  // "Accessed June 16, 2021." — access-date lines
+  if (/^Accessed\s+\w+\s+\d/i.test(s)) return true;
+  // "In: Red Book:..." / "In: Managing Infectious Diseases..." — book chapter refs
+  if (/^In:\s+[A-Z]/i.test(s)) return true;
+  // "American Academy of Pediatrics; 2017:97-98." — org citation
+  if (/^American\s+(Academy|College|Association)\s+of\b/i.test(s)) return true;
+  // "Cochrane Database Syst Rev..."
+  if (/Cochrane\s+Database\s+Syst\s+Rev/i.test(s)) return true;
+  // Broken URL fragments: ".html 31." or "guideline_/" or "/afp/2012/"
+  if (/\.html\s+\d+\.$/.test(s)) return true;
+  if (/guideline_\/|\/afp\/\d{4}\//.test(s)) return true;
+  // Month-date fragments from search date sentences: "November 19, 2020, and December 14, 2021."
+  if (/^(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}/i.test(s)) return true;
+  // "January 2011." standalone month-year references
+  if (/^(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\.\s*$/.test(s)) return true;
+  // Day-number fragment: "19, 2017; and December 27, 2017."
+  if (/^\d{1,2},\s+\d{4}[;,]/.test(s)) return true;
+  // Reference list residue: numbered entry fragments ". 19, 2017"
+  if (/^Reference\s+lists?\s+of\s+(retrieved|the\s+articles)/i.test(s)) return true;
+  // ── Disclaimers / boilerplate ─────────────────────────────────────────────────
+  // US Government copyright: "Title 17 U.S.C. 105 provides that..."
+  if (/Title\s+17\s+U\.S\.C\./i.test(s)) return true;
+  // Views disclaimer: "The views expressed in this article are those of the authors..."
+  if (/^The\s+views\s+expressed\s+in\s+this\b/i.test(s)) return true;
+  // Military/government affiliation fragments
+  if (/\bDepartment\s+of\s+Defense\b/i.test(s)) return true;
+  if (/^Air\s+Force[,\s]/i.test(s)) return true;
+  // "This work was prepared as part of my official duties."
+  if (/^This\s+work\s+was\s+prepared\s+as\s+part\s+of/i.test(s)) return true;
+  // "The opinions and assertions contained herein are the private views of the authors..."
+  if (/\bopinions\s+and\s+assertions\s+contained\s+herein\b/i.test(s)) return true;
+  // Editor's note — handles both straight ' and curly ' apostrophes
+  if (/^Editor.s\s+Note:/i.test(s)) return true;
+  // ── Search methodology sentences ──────────────────────────────────────────────
+  // "The search included meta-analyses, RCTs..." / "This search included InfoPOEMs..."
+  if (/^The\s+search\s+included\b/i.test(s)) return true;
+  if (/^This\s+search\s+included\b/i.test(s)) return true;
+  // "This was supplemented by searches of the Cochrane database..."
+  if (/^This\s+was\s+supplemented\s+by\s+searches?\b/i.test(s)) return true;
+  // "We also searched the Cochrane database, Essential Evidence Plus..."
+  if (/^We\s+(also\s+)?searched\b/i.test(s)) return true;
+  // "Also searched were Scopus, Embase, Google Scholar..."
+  if (/^Also\s+searched\b/i.test(s)) return true;
+  // "Search terms included hand-foot-and-mouth disease..."
+  if (/^Search\s+(terms?|dates?)\s+included\b/i.test(s)) return true;
+  // "Key words included rotavirus, gastroenteritis..."
+  if (/^Key\s+words?\s+included\b/i.test(s)) return true;
+  // "Relevant articles were cross-referenced in PubMed..."
+  if (/^Relevant\s+articles\s+were\s+cross-referenced\b/i.test(s)) return true;
+  // "References from articles were reviewed for primary-source evidence."
+  if (/^References?\s+from\s+(the\s+)?articles?\s+were\s+reviewed\b/i.test(s)) return true;
+  // "An Essential Evidence Plus summary on pneumonia was reviewed."
+  if (/^An\s+Essential\s+Evidence\s+Plus\b/i.test(s)) return true;
+  // "In addition, references in these resources were searched. 19, 2017..."
+  // "In addition, searches were conducted using these terms..."
+  if (/^In\s+addition,?\s+(searches?\s+were\s+conducted|references?\b.{0,80}\bsearched\b)/i.test(s)) return true;
+  // "In addition, a search of..."
+  if (/^In\s+addition,\s+a\s+search\s+of\b/i.test(s)) return true;
+  // "The Cochrane database, DynaMed... were also searched."
+  if (/\b(DynaMed|Essential\s+Evidence\s+Plus)\b/i.test(s) && /\bsearched\b/i.test(s)) return true;
+  if (/\bsearch\s+of\s+Essential\s+Evidence\s+Plus\b/i.test(s)) return true;
+  if (/\bNational\s+Guideline\s+Clearinghouse\b/i.test(s)) return true;
+  if (/\bInfoPOEMs\b/i.test(s)) return true;
+  // "Agency for Healthcare Research and Quality" — always methodological
+  if (/\bAgency\s+for\s+Healthcare\s+Research\s+and\s+Quality\b/i.test(s)) return true;
+  // "Food and Drug Administration Web site for specific information..."
+  if (/Food\s+and\s+Drug\s+Administration\s+Web\s+site/i.test(s)) return true;
+  // "We reviewed the updated [database] evidence report..."
+  if (/^We\s+reviewed\s+the\s+(updated\s+)?[A-Z]/i.test(s) && /\bevidence\s+report\b/i.test(s)) return true;
   // ── Metadata lines ────────────────────────────────────────────────────────────
   if (/^Search\s+dates?:/i.test(s)) return true;
   if (/^Data\s+sources?:/i.test(s)) return true;
@@ -124,6 +194,16 @@ function isJunk(s) {
   if (/^information from reference/i.test(s)) return true;
   if (/^evidence\s*(rating)?$/i.test(s)) return true;
   if (/^clinical recommendation$/i.test(s)) return true;
+  // Evidence rating table rows: sentence contains the legend "A = consistent, good-quality..."
+  if (/\bA\s*=\s*consistent[,.\s]+good.quality/i.test(s)) return true;
+  // SORT table header sentence (AAFP "Summary Of Recommendations Taxonomy")
+  if (/SORT:\s*KEY\s*RECOMMENDATIONS/i.test(s)) return true;
+  // Evidence grade rows from SORT table: "A Systematic review...", "B Single RCT...", "C Consensus..."
+  if (/^[A-C]\s+(Systematic\s+review|Single\s+randomized|Randomized\s+controlled|Prospective\s+cohort|Cohort|Limited.quality|Expert\s+opinion|Meta.analysis|Retrospective|Case.control|Consensus)/i.test(s)) return true;
+  // All-caps article-header fragment embedded in sentence: "CAP IN CHILDREN and..."
+  if (/^[A-Z]{2,}\s+IN\s+[A-Z]{2,}\s+[a-z]/.test(s)) return true;
+  // Abbreviation definition rows: "EBV = Epstein-Barr virus; IgM = immunoglobulin M."
+  if (/^[A-Z]{2,5}\s*=\s*[A-Z][a-z]/.test(s)) return true;
   return false;
 }
 
@@ -135,6 +215,8 @@ function extractSentences(rawText) {
     .replace(/--\s*\d+\s*of\s*\d+\s*--/gi, ' ')
     // Remove full AAFP download/copyright block
     .replace(/Downloaded from[\s\S]{0,600}?permission requests\./i, '')
+    // Remove "References" section and everything after (must run on raw text before whitespace collapse)
+    .replace(/\n\s*REFERENCES?\s*\n[\s\S]*/i, '\n')
     // Remove "The Authors" section and all bio text that follows (to end of document)
     .replace(/\bThe\s+Authors?\b[\s\S]{0,4000}$/, '')
     // Remove "Data Sources" paragraph (usually near end)
