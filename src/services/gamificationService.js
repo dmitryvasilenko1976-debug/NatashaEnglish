@@ -1,4 +1,4 @@
-import { getGameData, saveGameData } from './storageService';
+import { getGameData, saveGameData, updateStreak } from './storageService';
 import { ACHIEVEMENTS } from '../data/achievements';
 
 // ── Level system ──────────────────────────────────────────────────────────────
@@ -126,7 +126,15 @@ export async function addXP(amount, statUpdates = {}) {
     if (statUpdates[key]) game.daily[key] = (game.daily[key] || 0) + statUpdates[key];
   }
 
-  // Check daily quest completions and award bonus XP once each
+  // Track daily activity for heatmap
+  if (statUpdates.sentencesRead) {
+    const today = new Date().toISOString().split('T')[0];
+    if (!game.stats.dailyActivity) game.stats.dailyActivity = {};
+    game.stats.dailyActivity[today] =
+      (game.stats.dailyActivity[today] || 0) + statUpdates.sentencesRead;
+  }
+
+  // Check daily quest completions — award bonus XP + gems once each
   const schedule = getDailySchedule();
   const questTargets = {
     sentencesRead: schedule.sentencesRead,
@@ -146,6 +154,7 @@ export async function addXP(amount, statUpdates = {}) {
     ) {
       game.daily.bonusGranted.push(key);
       game.xp += questXP[key];
+      game.gems = (game.gems || 0) + 50; // ◈ quest completion bonus
       newlyCompletedQuests.push(key);
     }
   }
@@ -154,6 +163,45 @@ export async function addXP(amount, statUpdates = {}) {
   await saveGameData(updated);
 
   return { xp: updated.xp, newlyUnlocked, newlyCompletedQuests, earnedXP, isCrit, isFirstSentenceBonus };
+}
+
+// ── Gems ─────────────────────────────────────────────────────────────────────
+
+export async function addGems(amount) {
+  const game = await getGameData();
+  game.gems = (game.gems || 0) + amount;
+  await saveGameData(game);
+  return game.gems;
+}
+
+export async function buyStreakShield() {
+  const game = await getGameData();
+  if ((game.gems || 0) < 100) return { success: false, gems: game.gems || 0 };
+  game.gems -= 100;
+  game.streakShield = true;
+  await saveGameData(game);
+  return { success: true, gems: game.gems };
+}
+
+// ── Login streak + daily bonus ────────────────────────────────────────────────
+
+const LOGIN_GEMS = [10, 15, 20, 25, 35, 50, 70]; // days 1–7+
+
+export function updateLoginStreak(game) {
+  const today = new Date().toISOString().split('T')[0];
+  if (!game.loginStreak) game.loginStreak = { current: 0, lastLogin: null };
+  const ls = game.loginStreak;
+
+  if (ls.lastLogin === today) return { game, gemsEarned: 0, bonusDay: 0 };
+
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  ls.current = ls.lastLogin === yesterday ? ls.current + 1 : 1;
+  ls.lastLogin = today;
+
+  const bonusGems = LOGIN_GEMS[Math.min(ls.current - 1, LOGIN_GEMS.length - 1)];
+  game.gems = (game.gems || 0) + bonusGems;
+
+  return { game, gemsEarned: bonusGems, bonusDay: ls.current };
 }
 
 // ── Achievement checker ───────────────────────────────────────────────────────

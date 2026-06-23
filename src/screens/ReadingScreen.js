@@ -17,7 +17,7 @@ import {
   getWordMastery, incrementWordMastery,
 } from '../services/storageService';
 import { explainWord, extractContext as deriveContext } from '../services/anthropicService';
-import { addXP } from '../services/gamificationService';
+import { addXP, addGems } from '../services/gamificationService';
 import { colors } from '../theme/colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -50,6 +50,8 @@ export default function ReadingScreen({ route, navigation }) {
   const [xpBursts, setXpBursts] = useState([]);
   const [showHint, setShowHint] = useState(true);
   const [wordMastery, setWordMastery] = useState({});
+  const sessionSentencesRef = useRef(0);  // for 30-sentence gem bonus
+  const sessionGemBonusGiven = useRef(false);
 
   const slideX = useRef(new Animated.Value(0)).current;
   const currentIdxRef = useRef(0);
@@ -183,9 +185,18 @@ export default function ReadingScreen({ route, navigation }) {
       showXPBurst(result.earnedXP || 2);
     }
     if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
+    // 30-sentence session bonus (once per session)
+    sessionSentencesRef.current += 1;
+    if (sessionSentencesRef.current === 30 && !sessionGemBonusGiven.current) {
+      sessionGemBonusGiven.current = true;
+      addGems(25);
+      showXPBurst(25, { label: '◈ +25 за выносливость!' });
+    }
+
     if (next === art.sentences.length - 1) {
       const res = await addXP(50, { articlesTotal: 1 });
       showXPBurst(50);
+      await addGems(100); // ◈ for completing article
       if (res.newlyUnlocked.length > 0) setPendingAchievements(a => [...a, ...res.newlyUnlocked]);
     }
   }

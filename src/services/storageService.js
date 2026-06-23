@@ -118,8 +118,11 @@ const defaultGame = () => ({
   xp: 0,
   streak: { current: 0, lastDate: null, max: 0 },
   achievements: {},
-  stats: { wordsTotal: 0, articlesTotal: 0, quizCorrect: 0 },
+  stats: { wordsTotal: 0, articlesTotal: 0, quizCorrect: 0, dailyActivity: {} },
   daily: defaultDaily(),
+  gems: 0,
+  streakShield: false,
+  loginStreak: { current: 0, lastLogin: null },
 });
 
 export async function getGameData() {
@@ -128,8 +131,10 @@ export async function getGameData() {
     const base = defaultGame();
     const stored = json ? JSON.parse(json) : {};
     const game = { ...base, ...stored };
-    game.streak = { ...base.streak, ...(stored.streak || {}) };
-    game.stats   = { ...base.stats,  ...(stored.stats  || {}) };
+    game.streak      = { ...base.streak,      ...(stored.streak      || {}) };
+    game.stats       = { ...base.stats,       ...(stored.stats       || {}) };
+    game.loginStreak = { ...base.loginStreak, ...(stored.loginStreak || {}) };
+    if (!game.stats.dailyActivity) game.stats.dailyActivity = {};
     // Reset daily on a new day
     const today = todayStr();
     if (!game.daily || game.daily.date !== today) {
@@ -152,7 +157,18 @@ export function updateStreak(gameData) {
   const last = gameData.streak.lastDate;
   if (last === today) return gameData;
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  gameData.streak.current = last === yesterday ? gameData.streak.current + 1 : 1;
+
+  if (last !== null && last !== yesterday) {
+    // Missed at least one day
+    if (gameData.streakShield) {
+      gameData.streakShield = false; // shield consumed, streak survives
+    } else {
+      gameData.streak.current = 1;
+    }
+  } else {
+    gameData.streak.current = last === yesterday ? gameData.streak.current + 1 : 1;
+  }
+
   if (gameData.streak.current > (gameData.streak.max || 0)) {
     gameData.streak.max = gameData.streak.current;
   }

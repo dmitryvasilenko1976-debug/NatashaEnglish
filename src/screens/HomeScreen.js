@@ -14,7 +14,7 @@ import {
   getArticles, saveArticle, deleteArticle,
   getSavedWords, getProgress, getGameData, saveGameData, updateStreakWithInfo,
 } from '../services/storageService';
-import { getLevelInfo, getDailyQuests } from '../services/gamificationService';
+import { getLevelInfo, getDailyQuests, updateLoginStreak, buyStreakShield } from '../services/gamificationService';
 import { pickAndParsePDF } from '../services/pdfService';
 import { sampleArticle } from '../data/sampleArticle';
 import { colors } from '../theme/colors';
@@ -30,7 +30,10 @@ export default function HomeScreen({ navigation }) {
   const [levelInfo, setLevelInfo] = useState(null);
   const [dailyQuests, setDailyQuests] = useState([]);
   const [pendingAchievements, setPendingAchievements] = useState([]);
-  const [streakLost, setStreakLost] = useState(null); // { days: N }
+  const [streakLost, setStreakLost] = useState(null);   // { days: N }
+  const [gems, setGems] = useState(0);
+  const [shieldActive, setShieldActive] = useState(false);
+  const [loginBonus, setLoginBonus] = useState(null);   // { gems: N, day: N }
   const xpRef = useRef(0);
   const isFirstLoad = useRef(true);
 
@@ -61,7 +64,8 @@ export default function HomeScreen({ navigation }) {
     setWordCountMap(wcMap);
 
     let game = await getGameData();
-    const { game: updatedGame, streakBroken, previousStreak } = updateStreakWithInfo(game);
+    const { game: afterStreak, streakBroken, previousStreak } = updateStreakWithInfo(game);
+    const { game: updatedGame, gemsEarned, bonusDay } = updateLoginStreak(afterStreak);
     await saveGameData(updatedGame);
 
     const newXP = updatedGame.xp;
@@ -91,8 +95,11 @@ export default function HomeScreen({ navigation }) {
     setStreak(updatedGame.streak.current);
     setLevelInfo(getLevelInfo(newXP));
     setDailyQuests(getDailyQuests(updatedGame));
+    setGems(updatedGame.gems || 0);
+    setShieldActive(!!updatedGame.streakShield);
 
     if (streakBroken) setStreakLost({ days: previousStreak });
+    if (gemsEarned > 0) setLoginBonus({ gems: gemsEarned, day: bonusDay });
   }
 
   async function handleAddScroll() {
@@ -107,6 +114,16 @@ export default function HomeScreen({ navigation }) {
       Alert.alert('Ошибка', 'Не удалось открыть свиток: ' + e.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleBuyShield() {
+    const result = await buyStreakShield();
+    if (result.success) {
+      setGems(result.gems);
+      setShieldActive(true);
+    } else {
+      Alert.alert('Недостаточно самоцветов', 'Нужно 100 ◈ для покупки щита серии.');
     }
   }
 
@@ -150,6 +167,7 @@ export default function HomeScreen({ navigation }) {
           {levelInfo && (
             <Text style={styles.levelText}>{levelInfo.title}</Text>
           )}
+          <Text style={styles.gemsText}>◈ {gems}</Text>
           <Text style={styles.xpText}>✦ {xpDisplay} XP</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Achievements')} style={styles.iconBtn}>
             <Ionicons name="trophy-outline" size={20} color="#c4a96a" />
@@ -161,6 +179,14 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.streakRow}>
           <Ionicons name="flame" size={14} color={streak >= 7 ? '#e05a00' : colors.gold} />
           <Text style={styles.streakText}> {streakLabel}</Text>
+          {shieldActive
+            ? <Text style={styles.shieldActive}> 🛡</Text>
+            : streak >= 3 && (
+              <TouchableOpacity onPress={handleBuyShield} style={styles.shieldBuyBtn}>
+                <Text style={styles.shieldBuyText}>🛡 100◈</Text>
+              </TouchableOpacity>
+            )
+          }
         </View>
       )}
 
@@ -220,6 +246,29 @@ export default function HomeScreen({ navigation }) {
           onClose={() => setPendingAchievements([])}
         />
       )}
+
+      <Modal
+        visible={!!loginBonus && !streakLost}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLoginBonus(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalEmoji}>◈</Text>
+            <Text style={styles.modalTitle}>Бонус входа — День {loginBonus?.day}</Text>
+            <Text style={styles.modalBody}>
+              +{loginBonus?.gems} самоцветов получено!{'\n'}
+              {loginBonus?.day >= 7
+                ? 'Максимальный дневной бонус!'
+                : `Возвращайся завтра за бо́льшим`}
+            </Text>
+            <TouchableOpacity style={styles.modalBtn} onPress={() => setLoginBonus(null)}>
+              <Text style={styles.modalBtnText}>Принять</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <Modal
         visible={!!streakLost}
@@ -427,5 +476,28 @@ const styles = StyleSheet.create({
     fontFamily: 'CrimsonText_400Regular_Italic',
     fontSize: 13,
     color: '#9a8a7a',
+  },
+  gemsText: {
+    fontFamily: 'CrimsonText_400Regular',
+    fontSize: 13,
+    color: '#7ec8e3',
+    marginRight: 2,
+  },
+  shieldActive: {
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  shieldBuyBtn: {
+    marginLeft: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderWidth: 1,
+    borderColor: '#c4a96a50',
+    borderRadius: 10,
+  },
+  shieldBuyText: {
+    fontFamily: 'CrimsonText_400Regular',
+    fontSize: 11,
+    color: colors.inkFaint,
   },
 });
