@@ -118,7 +118,7 @@ const defaultGame = () => ({
   xp: 0,
   streak: { current: 0, lastDate: null, max: 0 },
   achievements: {},
-  stats: { wordsTotal: 0, articlesTotal: 0, quizCorrect: 0, dailyActivity: {} },
+  stats: { wordsTotal: 0, articlesTotal: 0, quizCorrect: 0, srsReview: 0, dailyActivity: {}, records: {}, masteredArticleIds: [] },
   daily: defaultDaily(),
   gems: 0,
   streakShield: false,
@@ -156,6 +156,17 @@ export async function getGameData() {
 
 export async function saveGameData(data) {
   await AsyncStorage.setItem('gamification', JSON.stringify(data));
+}
+
+export async function getSettings() {
+  try {
+    const json = await AsyncStorage.getItem('settings');
+    return json ? { quietMode: false, ...JSON.parse(json) } : { quietMode: false };
+  } catch { return { quietMode: false }; }
+}
+
+export async function saveSettings(settings) {
+  await AsyncStorage.setItem('settings', JSON.stringify(settings));
 }
 
 // ── SM-2 Spaced Repetition ────────────────────────────────────────────────────

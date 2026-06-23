@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import OrnamentDivider from '../components/OrnamentDivider';
 import XPBurst from '../components/XPBurst';
-import { getWordsForReview, updateWordSRS, getSavedWords } from '../services/storageService';
+import { getWordsForReview, updateWordSRS, getSavedWords, getGameData, saveGameData } from '../services/storageService';
 import { addXP, addGems, getMasteryLevel, isArticleMastered, MASTERY_NAMES } from '../services/gamificationService';
 import { colors } from '../theme/colors';
 
@@ -38,11 +38,15 @@ export default function ReviewScreen({ navigation }) {
   const [masteredScrolls, setMasteredScrolls] = useState([]);
 
   const revealAnim = useRef(new Animated.Value(0)).current;
+  const masteredIdsRef = useRef(new Set());
+  const newMasteredRef = useRef([]);  // scrolls newly mastered THIS session
 
   useEffect(() => { loadCards(); }, []);
 
   async function loadCards() {
-    const all = await getWordsForReview();
+    const [all, game] = await Promise.all([getWordsForReview(), getGameData()]);
+    masteredIdsRef.current = new Set(game.stats?.masteredArticleIds || []);
+    newMasteredRef.current = [];
     setCards(all.slice(0, SESSION_LIMIT));
     setCurrent(0);
     setRevealed(false);
@@ -61,16 +65,20 @@ export default function ReviewScreen({ navigation }) {
     const item = cards[current];
     const { grade, xp } = gradeObj;
 
-    const updatedWordData = await updateWordSRS(item.articleId, item.word, grade);
+    await updateWordSRS(item.articleId, item.word, grade);
 
-    // Check article mastery
+    // Check article mastery — deduplicated across sessions via masteredIdsRef
     const allWords = await getSavedWords(item.articleId);
-    if (isArticleMastered(allWords) && !masteredScrolls.find(s => s.id === item.articleId)) {
-      setMasteredScrolls(prev => [...prev, { id: item.articleId, title: item.articleTitle }]);
+    if (isArticleMastered(allWords) && !masteredIdsRef.current.has(item.articleId)) {
+      masteredIdsRef.current.add(item.articleId);
+      const scroll = { id: item.articleId, title: item.articleTitle };
+      newMasteredRef.current = [...newMasteredRef.current, scroll];
+      setMasteredScrolls(prev => [...prev, scroll]);
     }
 
+    // Always count the SRS review; only add XP if earned
+    const result = await addXP(xp, { srsReview: 1 });
     if (xp > 0) {
-      const result = await addXP(xp);
       const id = Date.now() + Math.random();
       setXpBursts(prev => [...prev, { id, amount: xp }]);
       setXpEarned(prev => prev + xp);
@@ -79,13 +87,19 @@ export default function ReviewScreen({ navigation }) {
     // Advance
     revealAnim.setValue(0);
     setRevealed(false);
-    if (current + 1 < cards.length) {
-      setCurrent(c => c + 1);
+    const nextIdx = current + 1;
+    if (nextIdx < cards.length) {
+      setCurrent(nextIdx);
     } else {
-      // Award mastered scrolls
-      for (const scroll of masteredScrolls) {
-        await addXP(200);
-        await addGems(100);
+      // Award newly mastered scrolls and persist all IDs
+      if (newMasteredRef.current.length > 0) {
+        const game = await getGameData();
+        game.stats.masteredArticleIds = [...masteredIdsRef.current];
+        await saveGameData(game);
+        for (const _scroll of newMasteredRef.current) {
+          await addXP(200);
+          await addGems(100);
+        }
       }
       setDone(true);
     }

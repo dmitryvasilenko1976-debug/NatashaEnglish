@@ -186,6 +186,9 @@ export default function HomeScreen({ navigation }) {
           )}
           <Text style={styles.gemsText}>◈ {gems}</Text>
           <Text style={styles.xpText}>✦ {xpDisplay} XP</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Stats')} style={styles.iconBtn}>
+            <Ionicons name="bar-chart-outline" size={20} color="#c4a96a" />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Achievements')} style={styles.iconBtn}>
             <Ionicons name="trophy-outline" size={20} color="#c4a96a" />
           </TouchableOpacity>

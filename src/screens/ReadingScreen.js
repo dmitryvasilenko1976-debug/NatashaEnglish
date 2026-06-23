@@ -15,6 +15,7 @@ import {
   getArticles, getSavedWords, saveWord,
   getProgress, saveProgress,
   getWordMastery, incrementWordMastery,
+  getSettings,
 } from '../services/storageService';
 import { explainWord, extractContext as deriveContext } from '../services/anthropicService';
 import { addXP, addGems } from '../services/gamificationService';
@@ -50,6 +51,7 @@ export default function ReadingScreen({ route, navigation }) {
   const [xpBursts, setXpBursts] = useState([]);
   const [showHint, setShowHint] = useState(true);
   const [wordMastery, setWordMastery] = useState({});
+  const [quietMode, setQuietMode] = useState(false);
   const sessionSentencesRef = useRef(0);  // for 30-sentence gem bonus
   const sessionGemBonusGiven = useRef(false);
 
@@ -88,7 +90,8 @@ export default function ReadingScreen({ route, navigation }) {
   useEffect(() => { loadArticle(); }, [articleId]);
 
   async function loadArticle() {
-    const list = await getArticles();
+    const [list, settings] = await Promise.all([getArticles(), getSettings()]);
+    setQuietMode(!!settings.quietMode);
     const found = list.find(a => a.id === articleId);
     if (!found) return;
     setArticle(found);
@@ -119,6 +122,7 @@ export default function ReadingScreen({ route, navigation }) {
   }
 
   function showXPBurst(amount, options = {}) {
+    if (quietMode && !options.force) return;
     const id = Date.now() + Math.random();
     setXpBursts(prev => [...prev, { id, amount, ...options }]);
   }
@@ -185,6 +189,9 @@ export default function ReadingScreen({ route, navigation }) {
       showXPBurst(result.earnedXP || 2);
     }
     if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
+    if (result.newRecord) {
+      showXPBurst(result.newRecord.value, { force: true, label: `🏆 Рекорд дня: ${result.newRecord.value} предл.` });
+    }
     // 30-sentence session bonus (once per session)
     sessionSentencesRef.current += 1;
     if (sessionSentencesRef.current === 30 && !sessionGemBonusGiven.current) {

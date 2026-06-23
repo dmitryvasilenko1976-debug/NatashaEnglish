@@ -27,6 +27,7 @@ import QuizScreen from './src/screens/QuizScreen';
 import AchievementsScreen from './src/screens/AchievementsScreen';
 import LeagueScreen from './src/screens/LeagueScreen';
 import ReviewScreen from './src/screens/ReviewScreen';
+import StatsScreen from './src/screens/StatsScreen';
 
 const Stack = createStackNavigator();
 
@@ -61,6 +62,7 @@ export default function App() {
         <Stack.Screen name="Achievements" component={AchievementsScreen} />
         <Stack.Screen name="League" component={LeagueScreen} />
         <Stack.Screen name="Review" component={ReviewScreen} />
+        <Stack.Screen name="Stats" component={StatsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

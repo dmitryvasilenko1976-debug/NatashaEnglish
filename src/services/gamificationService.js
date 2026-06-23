@@ -174,7 +174,7 @@ export async function addXP(amount, statUpdates = {}) {
   game.xp += earnedXP;
 
   // Cumulative stats
-  const cumulativeKeys = ['wordsTotal', 'articlesTotal', 'quizCorrect'];
+  const cumulativeKeys = ['wordsTotal', 'articlesTotal', 'quizCorrect', 'srsReview'];
   for (const key of cumulativeKeys) {
     if (statUpdates[key]) game.stats[key] = (game.stats[key] || 0) + statUpdates[key];
   }
@@ -188,12 +188,20 @@ export async function addXP(amount, statUpdates = {}) {
     if (statUpdates[key]) game.daily[key] = (game.daily[key] || 0) + statUpdates[key];
   }
 
-  // Heatmap
+  // Heatmap + personal record check
+  let newRecord = null;
   if (statUpdates.sentencesRead) {
     const today = new Date().toISOString().split('T')[0];
     if (!game.stats.dailyActivity) game.stats.dailyActivity = {};
     game.stats.dailyActivity[today] =
       (game.stats.dailyActivity[today] || 0) + statUpdates.sentencesRead;
+    const todayCnt = game.stats.dailyActivity[today];
+    const prevBest = game.stats.records?.bestDaySentences?.count || 0;
+    if (todayCnt > prevBest) {
+      if (!game.stats.records) game.stats.records = {};
+      game.stats.records.bestDaySentences = { count: todayCnt, date: today };
+      if (prevBest > 0) newRecord = { type: 'bestDay', value: todayCnt };
+    }
   }
 
   // Daily quest completions → gems
@@ -264,6 +272,7 @@ export async function addXP(amount, statUpdates = {}) {
     articlesTotal: updated.stats.articlesTotal || 0,
     weeklyQuestJustCompleted,
     weeklyQuestReward: weeklyQuestJustCompleted ? wqDef.reward : 0,
+    newRecord,
   };
 }
 
@@ -336,7 +345,12 @@ export function checkNewAchievements(gameData) {
   const newlyUnlocked = [];
   for (const achievement of ACHIEVEMENTS) {
     if (gameData.achievements[achievement.id]) continue;
-    const stats = { ...gameData.stats, streakMax: gameData.streak?.max || 0 };
+    const stats = {
+      ...gameData.stats,
+      streakMax: gameData.streak?.max || 0,
+      leagueTier: gameData.league?.tier || 0,
+      masteredArticles: (gameData.stats.masteredArticleIds || []).length,
+    };
     if (achievement.check(stats)) {
       gameData.achievements[achievement.id] = true;
       gameData.xp += achievement.xpBonus;

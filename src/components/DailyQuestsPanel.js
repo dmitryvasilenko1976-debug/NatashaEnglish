@@ -19,7 +19,7 @@ function daysUntilSunday() {
   return dow === 0 ? 7 : 7 - dow;
 }
 
-export default function DailyQuestsPanel({ quests, weeklyQuest }) {
+export default function DailyQuestsPanel({ quests, weeklyQuest, quietMode }) {
   const [timeLeft, setTimeLeft] = useState(getTimeUntilMidnight());
 
   useEffect(() => {
@@ -30,10 +30,11 @@ export default function DailyQuestsPanel({ quests, weeklyQuest }) {
   if (!quests || quests.length === 0) return null;
   const allDone = quests.every(q => q.completed);
 
-  const timerColor =
-    timeLeft.hours >= 8 ? colors.inkFaint :
-    timeLeft.hours >= 4 ? colors.gold :
-    '#e05a00';
+  const timerColor = quietMode
+    ? colors.inkFaint
+    : timeLeft.hours >= 8 ? colors.inkFaint
+    : timeLeft.hours >= 4 ? colors.gold
+    : '#e05a00';
 
   return (
     <View style={styles.container}>
@@ -44,7 +45,7 @@ export default function DailyQuestsPanel({ quests, weeklyQuest }) {
         {allDone
           ? <Text style={styles.allDoneText}>✦ Все выполнены</Text>
           : <Text style={[styles.timerText, { color: timerColor }]}>
-              {timeLeft.hours < 4 ? '⚠ ' : ''}{timeLeft.hours}ч {timeLeft.minutes}м
+              {!quietMode && timeLeft.hours < 4 ? '⚠ ' : ''}{timeLeft.hours}ч {timeLeft.minutes}м
             </Text>
         }
       </View>

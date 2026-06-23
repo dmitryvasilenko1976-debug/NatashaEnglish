@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View, Text, FlatList, StyleSheet,
-  SafeAreaView, StatusBar, TouchableOpacity,
+  SafeAreaView, StatusBar, TouchableOpacity, Switch,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
 
 import OrnamentDivider from '../components/OrnamentDivider';
-import { getGameData } from '../services/storageService';
+import { getGameData, getSettings, saveSettings } from '../services/storageService';
 import { ACHIEVEMENTS } from '../data/achievements';
 import { colors } from '../theme/colors';
 
@@ -146,18 +145,25 @@ export default function AchievementsScreen({ navigation }) {
   const [gems, setGems] = useState(0);
   const [shieldActive, setShieldActive] = useState(false);
   const [dailyActivity, setDailyActivity] = useState({});
+  const [quietMode, setQuietMode] = useState(false);
 
   useFocusEffect(
     useCallback(() => { loadData(); }, [])
   );
 
   async function loadData() {
-    const game = await getGameData();
+    const [game, settings] = await Promise.all([getGameData(), getSettings()]);
     setUnlockedMap(game.achievements || {});
     setXp(game.xp || 0);
     setGems(game.gems || 0);
     setShieldActive(!!game.streakShield);
     setDailyActivity(game.stats?.dailyActivity || {});
+    setQuietMode(!!settings.quietMode);
+  }
+
+  async function toggleQuietMode(value) {
+    setQuietMode(value);
+    await saveSettings({ quietMode: value });
   }
 
   const unlocked = ACHIEVEMENTS.filter(a => unlockedMap[a.id]).length;
@@ -217,6 +223,20 @@ export default function AchievementsScreen({ navigation }) {
                   </TouchableOpacity>
                 )
               }
+            </View>
+
+            {/* Quiet mode toggle */}
+            <View style={styles.quietRow}>
+              <View>
+                <Text style={styles.quietLabel}>Тихий режим</Text>
+                <Text style={styles.quietDesc}>Скрыть XP-анимации во время чтения</Text>
+              </View>
+              <Switch
+                value={quietMode}
+                onValueChange={toggleQuietMode}
+                trackColor={{ false: colors.parchmentBorder, true: colors.forestGreen }}
+                thumbColor={quietMode ? colors.gold : '#f0e6c8'}
+              />
             </View>
 
             <OrnamentDivider />
@@ -286,6 +306,25 @@ const styles = StyleSheet.create({
   },
   shieldBtnTextDisabled: {
     color: colors.inkFaint,
+  },
+  quietRow: {
+    marginHorizontal: 12,
+    marginTop: 10,
+    marginBottom: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  quietLabel: {
+    fontFamily: 'CrimsonText_600SemiBold',
+    fontSize: 14,
+    color: colors.inkMuted,
+  },
+  quietDesc: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 11,
+    color: colors.inkFaint,
+    marginTop: 2,
   },
   achievementsHeader: {
     fontFamily: 'Cinzel_400Regular',
