@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, ScrollView,
+  SafeAreaView, StatusBar, ScrollView, Alert, Animated,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import OrnamentDivider from '../components/OrnamentDivider';
 import AchievementModal from '../components/AchievementModal';
 import XPBurst from '../components/XPBurst';
-import { getSavedWords } from '../services/storageService';
+import { getSavedWords, getGameData, saveGameData, getRestoredHearts } from '../services/storageService';
 import { addXP } from '../services/gamificationService';
 import { colors } from '../theme/colors';
 
@@ -19,7 +19,6 @@ function shuffle(arr) {
 function buildQuestions(words) {
   const entries = Object.entries(words);
   if (entries.length < 2) return [];
-
   return shuffle(entries).map(([word, data], i) => {
     const correct = data.translation;
     const distractors = entries
@@ -32,32 +31,61 @@ function buildQuestions(words) {
   });
 }
 
-export default function QuizScreen({ route, navigation }) {
-  const { articleId } = route.params;
-  const [questions, setQuestions] = useState([]);
-  const [current, setCurrent] = useState(0);
-  const [answered, setAnswered] = useState(null);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  const [pendingAchievements, setPendingAchievements] = useState([]);
-  const [xpBursts, setXpBursts] = useState([]);
+const MAX_HEARTS = 3;
+const HEART_COST = 50;
 
-  useEffect(() => {
-    loadWords();
-  }, [articleId]);
+export default function QuizScreen({ route, navigation }) {
+  const { articleId, sageChallenge } = route.params || {};
+
+  const [questions, setQuestions]           = useState([]);
+  const [current, setCurrent]               = useState(0);
+  const [answered, setAnswered]             = useState(null);
+  const [score, setScore]                   = useState(0);
+  const [done, setDone]                     = useState(false);
+  const [pendingAchievements, setPendingAchievements] = useState([]);
+  const [xpBursts, setXpBursts]            = useState([]);
+  const [hearts, setHearts]                 = useState(MAX_HEARTS);
+  const [outOfHearts, setOutOfHearts]       = useState(false);
+  const [minutesUntilHeart, setMinutesUntilHeart] = useState(120);
+  const [sageIntro, setSageIntro]           = useState(!!sageChallenge);
+  const [gems, setGems]                     = useState(0);
+
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => { loadWords(); }, [articleId]);
 
   async function loadWords() {
+    const game = await getGameData();
+    const { hearts: restored, minutesUntilNext } = getRestoredHearts(game);
+    if (restored !== game.quiz?.hearts) {
+      game.quiz = { hearts: restored, lastHeartRestore: restored >= 3 ? null : game.quiz?.lastHeartRestore };
+      await saveGameData(game);
+    }
+    setHearts(restored);
+    setMinutesUntilHeart(minutesUntilNext);
+    setGems(game.gems || 0);
+
     const words = await getSavedWords(articleId);
     setQuestions(buildQuestions(words));
     setCurrent(0);
     setAnswered(null);
     setScore(0);
     setDone(false);
+    setOutOfHearts(false);
   }
 
-  function showBurst(amount) {
+  function shakeHearts() {
+    Animated.sequence([
+      Animated.timing(shakeAnim, { toValue: -10, duration: 55, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 10,  duration: 55, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: -6,  duration: 55, useNativeDriver: true }),
+      Animated.timing(shakeAnim, { toValue: 0,   duration: 55, useNativeDriver: true }),
+    ]).start();
+  }
+
+  function showBurst(amount, options = {}) {
     const id = Date.now() + Math.random();
-    setXpBursts(prev => [...prev, { id, amount }]);
+    setXpBursts(prev => [...prev, { id, amount, ...options }]);
   }
 
   async function handleAnswer(option) {
@@ -71,6 +99,21 @@ export default function QuizScreen({ route, navigation }) {
       showBurst(10);
       if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
       setScore(s => s + 1);
+    } else {
+      // Lose a heart
+      const newHearts = hearts - 1;
+      setHearts(newHearts);
+      shakeHearts();
+      const game = await getGameData();
+      game.quiz = { hearts: newHearts, lastHeartRestore: Date.now() };
+      await saveGameData(game);
+
+      if (newHearts <= 0) {
+        const { minutesUntilNext } = getRestoredHearts(game);
+        setMinutesUntilHeart(minutesUntilNext || 120);
+        setTimeout(() => setOutOfHearts(true), 900);
+        return;
+      }
     }
 
     setTimeout(async () => {
@@ -78,70 +121,144 @@ export default function QuizScreen({ route, navigation }) {
         setCurrent(c => c + 1);
         setAnswered(null);
       } else {
-        // Quiz complete
-        const result = await addXP(25);
-        showBurst(25);
-        if (result.newlyUnlocked.length > 0) setPendingAchievements(a => [...a, ...result.newlyUnlocked]);
-        setDone(true);
+        await finishQuiz(score + (correct ? 1 : 0));
       }
     }, 1200);
   }
 
-  const q = questions[current];
+  async function finishQuiz(finalScore) {
+    const isSage = !!sageChallenge;
+    let xpBonus = 25;
+    let sageLabel = '';
 
-  const emptyScreen = (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home')} style={styles.iconBtn}>
-          <Ionicons name="chevron-back" size={22} color="#c4a96a" />
-        </TouchableOpacity>
-        <Text style={styles.topTitle}>Испытание в таверне</Text>
-        <View style={styles.iconBtn} />
-      </View>
-      <View style={styles.emptyWrap}>
-        <OrnamentDivider />
-        <Text style={styles.emptyText}>
-          Нажми на слово во время чтения, затем нажми{'\n'}«Добавить в свиток заклинаний» —{'\n'}сохранённые слова появятся здесь для испытания
-        </Text>
-        <OrnamentDivider />
-      </View>
-    </SafeAreaView>
+    if (isSage) {
+      const ratio = finalScore / questions.length;
+      if (ratio >= 0.7) { xpBonus = 200; sageLabel = `✦ +${xpBonus} XP`; }
+      else if (ratio >= 0.5) { xpBonus = 100; sageLabel = `+${xpBonus} XP`; }
+      else { xpBonus = 0; }
+    }
+
+    if (xpBonus > 0) {
+      const result = await addXP(xpBonus);
+      showBurst(xpBonus, sageLabel ? { label: sageLabel } : {});
+      if (result.newlyUnlocked.length > 0) setPendingAchievements(a => [...a, ...result.newlyUnlocked]);
+    }
+    setDone(true);
+  }
+
+  async function handleBuyHearts() {
+    const game = await getGameData();
+    if ((game.gems || 0) < HEART_COST) {
+      Alert.alert('Недостаточно самоцветов', `Нужно ${HEART_COST} ◈ для восстановления сердец.`);
+      return;
+    }
+    game.gems -= HEART_COST;
+    game.quiz = { hearts: MAX_HEARTS, lastHeartRestore: null };
+    await saveGameData(game);
+    setHearts(MAX_HEARTS);
+    setGems(game.gems);
+    setOutOfHearts(false);
+  }
+
+  function goBack() {
+    if (navigation.canGoBack()) navigation.goBack();
+    else navigation.navigate('Home');
+  }
+
+  const topBar = (
+    <View style={styles.topBar}>
+      <TouchableOpacity onPress={goBack} style={styles.iconBtn}>
+        <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+      </TouchableOpacity>
+      <Text style={styles.topTitle}>
+        {sageChallenge ? 'Испытание Мудреца' : 'Испытание в таверне'}
+      </Text>
+      <Animated.View style={[styles.heartsRow, { transform: [{ translateX: shakeAnim }] }]}>
+        {[1, 2, 3].map(n => (
+          <Text key={n} style={styles.heart}>{n <= hearts ? '❤️' : '🖤'}</Text>
+        ))}
+      </Animated.View>
+    </View>
   );
 
-  if (questions.length === 0) return emptyScreen;
-
-  if (done) {
+  // ── Sage intro ─────────────────────────────────────────────────────────────
+  if (sageIntro) {
     return (
       <SafeAreaView style={styles.safe}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
-        <View style={styles.topBar}>
-          <TouchableOpacity onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home')} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={22} color="#c4a96a" />
-          </TouchableOpacity>
-          <Text style={styles.topTitle}>Испытание в таверне</Text>
-          <View style={styles.iconBtn} />
-        </View>
-
-        <View style={styles.doneWrap}>
+        {topBar}
+        <View style={styles.sageWrap}>
+          <Text style={styles.sageIcon}>⚔️</Text>
+          <Text style={styles.sageTitle}>Ты встречаешь{'\n'}Серого Странника</Text>
           <OrnamentDivider />
-          <Text style={styles.doneTitle}>Испытание пройдено!</Text>
-          <Text style={styles.doneScore}>{score} из {questions.length}</Text>
-          <Text style={styles.doneDesc}>
-            {score === questions.length ? 'Безупречно. Гэндальф был бы горд.' :
-             score >= questions.length * 0.7 ? 'Достойный результат, герой.' :
-             'Продолжай практиковаться — Ривенделл ждёт.'}
+          <Text style={styles.sageQuote}>
+            "Назови мне слова из этого Свитка,{'\n'}
+            и я открою тебе следующий путь.{'\n\n'}
+            Семь из десяти — и я буду доволен."
           </Text>
           <OrnamentDivider />
-          <TouchableOpacity style={styles.restartBtn} onPress={loadWords}>
-            <Text style={styles.restartBtnText}>Пройти испытание заново</Text>
+          <TouchableOpacity style={styles.sageStartBtn} onPress={() => setSageIntro(false)}>
+            <Text style={styles.sageStartText}>Принять Испытание</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ marginTop: 16 }} onPress={goBack}>
+            <Text style={styles.sageDeferText}>Не сейчас</Text>
           </TouchableOpacity>
         </View>
+      </SafeAreaView>
+    );
+  }
 
+  // ── No words ───────────────────────────────────────────────────────────────
+  if (questions.length === 0) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
+        {topBar}
+        <View style={styles.emptyWrap}>
+          <OrnamentDivider />
+          <Text style={styles.emptyText}>
+            Нажми на слово во время чтения, затем нажми{'\n'}«Добавить в свиток заклинаний» —{'\n'}сохранённые слова появятся здесь для испытания
+          </Text>
+          <OrnamentDivider />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // ── Done screen ────────────────────────────────────────────────────────────
+  if (done) {
+    const isSage = !!sageChallenge;
+    const ratio = score / questions.length;
+    const doneDesc = isSage
+      ? ratio >= 0.7 ? 'Гэндальф удовлетворён. Путь открыт.' :
+        ratio >= 0.5 ? 'Достойный результат, герой.' :
+        'Учись прежде, чем странствовать.'
+      : score === questions.length ? 'Безупречно. Гэндальф был бы горд.' :
+        score >= questions.length * 0.7 ? 'Достойный результат, герой.' :
+        'Продолжай практиковаться — Ривенделл ждёт.';
+
+    return (
+      <SafeAreaView style={styles.safe}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
+        {topBar}
+        <View style={styles.doneWrap}>
+          <OrnamentDivider />
+          <Text style={styles.doneTitle}>
+            {isSage ? '⚔️ Испытание пройдено' : 'Испытание пройдено!'}
+          </Text>
+          <Text style={styles.doneScore}>{score} из {questions.length}</Text>
+          <Text style={styles.doneDesc}>{doneDesc}</Text>
+          <OrnamentDivider />
+          <TouchableOpacity style={styles.restartBtn} onPress={loadWords}>
+            <Text style={styles.restartBtnText}>Пройти ещё раз</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.homeBtn} onPress={goBack}>
+            <Text style={styles.homeBtnText}>Вернуться</Text>
+          </TouchableOpacity>
+        </View>
         {xpBursts.map(b => (
-          <XPBurst key={b.id} amount={b.amount} onDone={() => setXpBursts(prev => prev.filter(x => x.id !== b.id))} />
+          <XPBurst key={b.id} amount={b.amount} label={b.label} onDone={() => setXpBursts(prev => prev.filter(x => x.id !== b.id))} />
         ))}
-
         {pendingAchievements.length > 0 && (
           <AchievementModal achievements={pendingAchievements} onClose={() => setPendingAchievements([])} />
         )}
@@ -149,19 +266,14 @@ export default function QuizScreen({ route, navigation }) {
     );
   }
 
+  // ── Active quiz ────────────────────────────────────────────────────────────
+  const q = questions[current];
+
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
+      {topBar}
 
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Home')} style={styles.iconBtn}>
-          <Ionicons name="chevron-back" size={22} color="#c4a96a" />
-        </TouchableOpacity>
-        <Text style={styles.topTitle}>Испытание в таверне</Text>
-        <View style={styles.iconBtn} />
-      </View>
-
-      {/* Score */}
       <View style={styles.scoreRow}>
         <View style={styles.scoreCard}>
           <Text style={styles.scoreNum}>{score}</Text>
@@ -183,7 +295,6 @@ export default function QuizScreen({ route, navigation }) {
         {q.options.map((opt, i) => {
           let btnStyle = styles.optBtn;
           let textStyle = styles.optText;
-
           if (answered !== null) {
             if (opt === q.correct) {
               btnStyle = [styles.optBtn, styles.optCorrect];
@@ -195,7 +306,6 @@ export default function QuizScreen({ route, navigation }) {
               btnStyle = [styles.optBtn, styles.optDim];
             }
           }
-
           return (
             <TouchableOpacity key={i} style={btnStyle} onPress={() => handleAnswer(opt)} activeOpacity={0.8}>
               <Text style={textStyle}>{opt}</Text>
@@ -208,10 +318,33 @@ export default function QuizScreen({ route, navigation }) {
         </Text>
       </ScrollView>
 
-      {xpBursts.map(b => (
-        <XPBurst key={b.id} amount={b.amount} onDone={() => setXpBursts(prev => prev.filter(x => x.id !== b.id))} />
-      ))}
+      {/* Out of hearts overlay */}
+      {outOfHearts && (
+        <View style={styles.ohOverlay}>
+          <View style={styles.ohBox}>
+            <Text style={styles.ohEmoji}>💔</Text>
+            <Text style={styles.ohTitle}>Сердца иссякли</Text>
+            <Text style={styles.ohBody}>
+              Следующее сердце через{'\n'}{minutesUntilHeart} мин
+            </Text>
+            <TouchableOpacity
+              style={[styles.ohBuyBtn, gems < HEART_COST && styles.ohBuyBtnDisabled]}
+              onPress={handleBuyHearts}
+            >
+              <Text style={styles.ohBuyText}>
+                ◈ Восстановить за {HEART_COST} самоцветов
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={goBack} style={{ marginTop: 14 }}>
+              <Text style={styles.ohLeave}>Уйти</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
+      {xpBursts.map(b => (
+        <XPBurst key={b.id} amount={b.amount} label={b.label} onDone={() => setXpBursts(prev => prev.filter(x => x.id !== b.id))} />
+      ))}
       {pendingAchievements.length > 0 && (
         <AchievementModal achievements={pendingAchievements} onClose={() => setPendingAchievements([])} />
       )}
@@ -220,10 +353,7 @@ export default function QuizScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.parchmentDark,
-  },
+  safe: { flex: 1, backgroundColor: colors.parchmentDark },
   topBar: {
     backgroundColor: colors.forestGreen,
     borderBottomWidth: 2,
@@ -233,10 +363,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  iconBtn: {
-    padding: 6,
-    width: 36,
-  },
+  iconBtn: { padding: 6, width: 36 },
   topTitle: {
     flex: 1,
     fontFamily: 'IMFellEnglish_400Regular',
@@ -244,6 +371,59 @@ const styles = StyleSheet.create({
     color: '#f0e6c8',
     textAlign: 'center',
   },
+  heartsRow: {
+    flexDirection: 'row',
+    width: 60,
+    justifyContent: 'flex-end',
+    gap: 2,
+  },
+  heart: { fontSize: 14 },
+
+  // Sage intro
+  sageWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  sageIcon: { fontSize: 52, marginBottom: 16 },
+  sageTitle: {
+    fontFamily: 'IMFellEnglish_400Regular',
+    fontSize: 22,
+    color: colors.ink,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  sageQuote: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 16,
+    color: colors.inkMuted,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginVertical: 16,
+  },
+  sageStartBtn: {
+    backgroundColor: colors.forestGreen,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.gold,
+    marginTop: 8,
+  },
+  sageStartText: {
+    fontFamily: 'CrimsonText_600SemiBold',
+    fontSize: 16,
+    color: '#f0e6c8',
+    letterSpacing: 0.4,
+  },
+  sageDeferText: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 13,
+    color: colors.inkFaint,
+  },
+
+  // Score
   scoreRow: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -251,9 +431,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     gap: 16,
   },
-  scoreCard: {
-    alignItems: 'center',
-  },
+  scoreCard: { alignItems: 'center' },
   scoreNum: {
     fontFamily: 'IMFellEnglish_400Regular',
     fontSize: 28,
@@ -269,6 +447,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: colors.gold,
   },
+
+  // Quiz
   quizContent: {
     padding: 24,
     paddingTop: 8,
@@ -303,30 +483,19 @@ const styles = StyleSheet.create({
     color: colors.ink,
     textAlign: 'center',
   },
-  optCorrect: {
-    backgroundColor: colors.correct,
-    borderColor: colors.correctBorder,
-  },
-  optCorrectText: {
-    color: colors.correctText,
-    fontFamily: 'CrimsonText_600SemiBold',
-  },
-  optWrong: {
-    backgroundColor: colors.wrong,
-    borderColor: colors.wrongBorder,
-  },
-  optWrongText: {
-    color: colors.wrongText,
-  },
-  optDim: {
-    opacity: 0.4,
-  },
+  optCorrect: { backgroundColor: colors.correct, borderColor: colors.correctBorder },
+  optCorrectText: { color: colors.correctText, fontFamily: 'CrimsonText_600SemiBold' },
+  optWrong: { backgroundColor: colors.wrong, borderColor: colors.wrongBorder },
+  optWrongText: { color: colors.wrongText },
+  optDim: { opacity: 0.4 },
   progNote: {
     fontFamily: 'CrimsonText_400Regular_Italic',
     fontSize: 11,
     color: colors.inkFaint,
     marginTop: 12,
   },
+
+  // Empty
   emptyWrap: {
     flex: 1,
     justifyContent: 'center',
@@ -341,6 +510,8 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginVertical: 16,
   },
+
+  // Done
   doneWrap: {
     flex: 1,
     justifyContent: 'center',
@@ -349,13 +520,14 @@ const styles = StyleSheet.create({
   },
   doneTitle: {
     fontFamily: 'IMFellEnglish_400Regular',
-    fontSize: 24,
+    fontSize: 22,
     color: colors.ink,
     marginBottom: 8,
+    textAlign: 'center',
   },
   doneScore: {
     fontFamily: 'IMFellEnglish_400Regular',
-    fontSize: 40,
+    fontSize: 44,
     color: colors.forestGreen,
     marginBottom: 12,
   },
@@ -373,10 +545,72 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 3,
     marginTop: 8,
+    borderWidth: 1,
+    borderColor: colors.gold,
   },
   restartBtnText: {
     fontFamily: 'CrimsonText_400Regular',
     fontSize: 15,
     color: '#f0e6c8',
+  },
+  homeBtn: { marginTop: 14 },
+  homeBtnText: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 13,
+    color: colors.inkFaint,
+  },
+
+  // Out of hearts overlay
+  ohOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  ohBox: {
+    backgroundColor: '#f5eedc',
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: '#c4a96a',
+    padding: 28,
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 340,
+  },
+  ohEmoji: { fontSize: 48, marginBottom: 12 },
+  ohTitle: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 16,
+    color: '#4a3728',
+    marginBottom: 10,
+    letterSpacing: 0.3,
+  },
+  ohBody: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 15,
+    color: '#6b5744',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  ohBuyBtn: {
+    backgroundColor: colors.forestGreen,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.gold,
+  },
+  ohBuyBtnDisabled: { opacity: 0.4 },
+  ohBuyText: {
+    fontFamily: 'CrimsonText_600SemiBold',
+    fontSize: 14,
+    color: '#f0e6c8',
+  },
+  ohLeave: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 13,
+    color: '#9a8a7a',
   },
 });

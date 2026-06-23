@@ -14,7 +14,7 @@ import {
   getArticles, saveArticle, deleteArticle,
   getSavedWords, getProgress, getGameData, saveGameData, updateStreakWithInfo,
 } from '../services/storageService';
-import { getLevelInfo, getDailyQuests, updateLoginStreak, buyStreakShield } from '../services/gamificationService';
+import { getLevelInfo, getDailyQuests, updateLoginStreak, buyStreakShield, updateLeagueRivals, getWeeklyQuest } from '../services/gamificationService';
 import { pickAndParsePDF } from '../services/pdfService';
 import { sampleArticle } from '../data/sampleArticle';
 import { colors } from '../theme/colors';
@@ -30,10 +30,12 @@ export default function HomeScreen({ navigation }) {
   const [levelInfo, setLevelInfo] = useState(null);
   const [dailyQuests, setDailyQuests] = useState([]);
   const [pendingAchievements, setPendingAchievements] = useState([]);
-  const [streakLost, setStreakLost] = useState(null);   // { days: N }
+  const [streakLost, setStreakLost] = useState(null);
   const [gems, setGems] = useState(0);
   const [shieldActive, setShieldActive] = useState(false);
-  const [loginBonus, setLoginBonus] = useState(null);   // { gems: N, day: N }
+  const [loginBonus, setLoginBonus] = useState(null);
+  const [leaguePosition, setLeaguePosition] = useState(null);
+  const [weeklyQuest, setWeeklyQuest] = useState(null);
   const xpRef = useRef(0);
   const isFirstLoad = useRef(true);
 
@@ -65,7 +67,8 @@ export default function HomeScreen({ navigation }) {
 
     let game = await getGameData();
     const { game: afterStreak, streakBroken, previousStreak } = updateStreakWithInfo(game);
-    const { game: updatedGame, gemsEarned, bonusDay } = updateLoginStreak(afterStreak);
+    const { game: afterLogin, gemsEarned, bonusDay } = updateLoginStreak(afterStreak);
+    const updatedGame = updateLeagueRivals(afterLogin);
     await saveGameData(updatedGame);
 
     const newXP = updatedGame.xp;
@@ -97,6 +100,15 @@ export default function HomeScreen({ navigation }) {
     setDailyQuests(getDailyQuests(updatedGame));
     setGems(updatedGame.gems || 0);
     setShieldActive(!!updatedGame.streakShield);
+
+    // League position
+    const rivals = updatedGame.league?.rivals || [];
+    const allPlayers = [{ name: 'Ты', xp: updatedGame.xp, isUser: true }, ...rivals];
+    allPlayers.sort((a, b) => b.xp - a.xp);
+    setLeaguePosition(allPlayers.findIndex(p => p.isUser) + 1);
+
+    // Weekly quest
+    setWeeklyQuest(getWeeklyQuest(updatedGame));
 
     if (streakBroken) setStreakLost({ days: previousStreak });
     if (gemsEarned > 0) setLoginBonus({ gems: gemsEarned, day: bonusDay });
@@ -187,6 +199,11 @@ export default function HomeScreen({ navigation }) {
               </TouchableOpacity>
             )
           }
+          {leaguePosition && (
+            <TouchableOpacity onPress={() => navigation.navigate('League')} style={styles.leagueLink}>
+              <Text style={styles.leagueLinkText}>  ⚔️ #{leaguePosition}</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
@@ -210,7 +227,7 @@ export default function HomeScreen({ navigation }) {
                 </Text>
               </View>
             )}
-            <DailyQuestsPanel quests={dailyQuests} />
+            <DailyQuestsPanel quests={dailyQuests} weeklyQuest={weeklyQuest} />
             <Text style={styles.listHeader}>Свитки</Text>
           </>
         }
@@ -499,5 +516,11 @@ const styles = StyleSheet.create({
     fontFamily: 'CrimsonText_400Regular',
     fontSize: 11,
     color: colors.inkFaint,
+  },
+  leagueLink: { marginLeft: 6 },
+  leagueLinkText: {
+    fontFamily: 'CrimsonText_600SemiBold',
+    fontSize: 12,
+    color: colors.gold,
   },
 });

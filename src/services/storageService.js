@@ -123,6 +123,9 @@ const defaultGame = () => ({
   gems: 0,
   streakShield: false,
   loginStreak: { current: 0, lastLogin: null },
+  quiz: { hearts: 3, lastHeartRestore: null },
+  weeklyQuest: { weekId: 0, progress: 0, completed: false },
+  league: null,
 });
 
 export async function getGameData() {
@@ -134,6 +137,9 @@ export async function getGameData() {
     game.streak      = { ...base.streak,      ...(stored.streak      || {}) };
     game.stats       = { ...base.stats,       ...(stored.stats       || {}) };
     game.loginStreak = { ...base.loginStreak, ...(stored.loginStreak || {}) };
+    game.quiz        = { ...base.quiz,        ...(stored.quiz        || {}) };
+    game.weeklyQuest = stored.weeklyQuest || base.weeklyQuest;
+    game.league      = stored.league !== undefined ? stored.league : base.league;
     if (!game.stats.dailyActivity) game.stats.dailyActivity = {};
     // Reset daily on a new day
     const today = todayStr();
@@ -150,6 +156,19 @@ export async function getGameData() {
 
 export async function saveGameData(data) {
   await AsyncStorage.setItem('gamification', JSON.stringify(data));
+}
+
+// Returns { hearts, minutesUntilNext } — calculates auto-restored hearts
+export function getRestoredHearts(game) {
+  const quiz = game.quiz || { hearts: 3, lastHeartRestore: null };
+  if (quiz.hearts >= 3) return { hearts: 3, minutesUntilNext: 0 };
+  if (!quiz.lastHeartRestore) return { hearts: quiz.hearts, minutesUntilNext: 120 };
+  const RESTORE_MS = 2 * 60 * 60 * 1000;
+  const elapsed = Date.now() - quiz.lastHeartRestore;
+  const restored = Math.floor(elapsed / RESTORE_MS);
+  const newHearts = Math.min(3, quiz.hearts + restored);
+  const msUntilNext = RESTORE_MS - (elapsed % RESTORE_MS);
+  return { hearts: newHearts, minutesUntilNext: Math.ceil(msUntilNext / 60000) };
 }
 
 export function updateStreak(gameData) {

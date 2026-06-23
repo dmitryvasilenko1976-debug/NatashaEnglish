@@ -196,8 +196,12 @@ export default function ReadingScreen({ route, navigation }) {
     if (next === art.sentences.length - 1) {
       const res = await addXP(50, { articlesTotal: 1 });
       showXPBurst(50);
-      await addGems(100); // ◈ for completing article
+      await addGems(100);
       if (res.newlyUnlocked.length > 0) setPendingAchievements(a => [...a, ...res.newlyUnlocked]);
+      // Sage Challenge: every 3rd article completed
+      if (res.articlesTotal > 0 && res.articlesTotal % 3 === 0) {
+        setTimeout(() => navigation.navigate('Quiz', { articleId, sageChallenge: true }), 1800);
+      }
     }
   }
 

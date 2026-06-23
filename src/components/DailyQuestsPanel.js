@@ -14,7 +14,12 @@ function getTimeUntilMidnight() {
   };
 }
 
-export default function DailyQuestsPanel({ quests }) {
+function daysUntilSunday() {
+  const dow = new Date().getDay();
+  return dow === 0 ? 7 : 7 - dow;
+}
+
+export default function DailyQuestsPanel({ quests, weeklyQuest }) {
   const [timeLeft, setTimeLeft] = useState(getTimeUntilMidnight());
 
   useEffect(() => {
@@ -32,6 +37,8 @@ export default function DailyQuestsPanel({ quests }) {
 
   return (
     <View style={styles.container}>
+      {weeklyQuest && <WeeklyQuestCard quest={weeklyQuest} />}
+
       <View style={styles.header}>
         <Text style={styles.headerText}>Задания дня</Text>
         {allDone
@@ -45,6 +52,37 @@ export default function DailyQuestsPanel({ quests }) {
         {quests.map(quest => (
           <QuestCard key={quest.id} quest={quest} />
         ))}
+      </View>
+    </View>
+  );
+}
+
+function WeeklyQuestCard({ quest }) {
+  const pct = quest.target > 0 ? Math.min(1, quest.progress / quest.target) : 0;
+  const done = quest.completed;
+  const daysLeft = daysUntilSunday();
+
+  return (
+    <View style={[wq.card, done && wq.cardDone]}>
+      <View style={wq.topRow}>
+        <Text style={wq.weekLabel}>⚔️ НЕДЕЛЬНОЕ ИСПЫТАНИЕ</Text>
+        {!done
+          ? <Text style={wq.daysLeft}>{daysLeft} дн.</Text>
+          : <Text style={wq.completedBadge}>✓ Выполнено</Text>
+        }
+      </View>
+      <View style={wq.bodyRow}>
+        <Ionicons name={done ? 'checkmark-circle' : quest.icon} size={18} color={done ? colors.gold : colors.forestGreen} />
+        <Text style={[wq.label, done && wq.labelDone]} numberOfLines={1}>{quest.label}</Text>
+      </View>
+      <View style={wq.bar}>
+        <View style={[wq.barFill, { width: `${Math.round(pct * 100)}%` }, done && wq.barFillDone]} />
+      </View>
+      <View style={wq.bottomRow}>
+        <Text style={wq.counter}>{Math.min(quest.progress, quest.target)}/{quest.target}</Text>
+        <Text style={[wq.reward, done && wq.rewardDone]}>
+          {done ? '✓ ' : '+'}◈ {quest.reward}
+        </Text>
       </View>
     </View>
   );
@@ -78,6 +116,89 @@ function QuestCard({ quest }) {
   );
 }
 
+// ── Weekly quest styles ───────────────────────────────────────────────────────
+const wq = StyleSheet.create({
+  card: {
+    backgroundColor: colors.parchment,
+    borderWidth: 1,
+    borderColor: colors.parchmentBorder,
+    borderRadius: 4,
+    padding: 10,
+    marginBottom: 8,
+  },
+  cardDone: {
+    backgroundColor: '#f5f0e0',
+    borderColor: colors.goldFaint,
+    opacity: 0.9,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  weekLabel: {
+    fontFamily: 'Cinzel_400Regular',
+    fontSize: 9,
+    color: colors.inkFaint,
+    letterSpacing: 1,
+  },
+  daysLeft: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 11,
+    color: '#e05a00',
+  },
+  completedBadge: {
+    fontFamily: 'CrimsonText_400Regular',
+    fontSize: 11,
+    color: colors.gold,
+  },
+  bodyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+  label: {
+    fontFamily: 'CrimsonText_400Regular',
+    fontSize: 13,
+    color: colors.inkMuted,
+    flex: 1,
+  },
+  labelDone: { color: colors.inkFaint },
+  bar: {
+    width: '100%',
+    height: 4,
+    backgroundColor: colors.parchmentBorder,
+    borderRadius: 2,
+    marginBottom: 6,
+    overflow: 'hidden',
+  },
+  barFill: {
+    height: 4,
+    backgroundColor: '#3a7a38',
+    borderRadius: 2,
+  },
+  barFillDone: { backgroundColor: colors.gold },
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  counter: {
+    fontFamily: 'CrimsonText_400Regular',
+    fontSize: 11,
+    color: colors.inkFaint,
+  },
+  reward: {
+    fontFamily: 'CrimsonText_600SemiBold',
+    fontSize: 13,
+    color: '#7ec8e3',
+  },
+  rewardDone: { color: colors.gold },
+});
+
+// ── Daily quest styles ────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 12,
@@ -124,9 +245,7 @@ const styles = StyleSheet.create({
     borderColor: colors.goldFaint,
     opacity: 0.85,
   },
-  icon: {
-    marginBottom: 4,
-  },
+  icon: { marginBottom: 4 },
   label: {
     fontFamily: 'CrimsonText_400Regular',
     fontSize: 11,
@@ -136,9 +255,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     minHeight: 30,
   },
-  labelDone: {
-    color: colors.inkFaint,
-  },
+  labelDone: { color: colors.inkFaint },
   bar: {
     width: '100%',
     height: 3,
@@ -152,24 +269,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.forestGreen,
     borderRadius: 2,
   },
-  barFillDone: {
-    backgroundColor: colors.gold,
-  },
+  barFillDone: { backgroundColor: colors.gold },
   counter: {
     fontFamily: 'CrimsonText_400Regular',
     fontSize: 11,
     color: colors.inkMuted,
     marginBottom: 3,
   },
-  counterDone: {
-    color: colors.inkFaint,
-  },
+  counterDone: { color: colors.inkFaint },
   reward: {
     fontFamily: 'CrimsonText_600SemiBold',
     fontSize: 11,
     color: colors.forestGreen,
   },
-  rewardDone: {
-    color: colors.gold,
-  },
+  rewardDone: { color: colors.gold },
 });
