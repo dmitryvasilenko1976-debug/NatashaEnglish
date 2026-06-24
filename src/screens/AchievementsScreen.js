@@ -95,7 +95,7 @@ const hm = StyleSheet.create({
     padding: 12,
   },
   title: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 11,
     color: colors.inkFaint,
     letterSpacing: 1,
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 6, width: 36 },
   topTitle: {
     flex: 1,
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: '#f0e6c8',
     textAlign: 'center',
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   achievementsHeader: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 11,
     color: colors.inkFaint,
     letterSpacing: 1,
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   tileUnlocked: { backgroundColor: colors.forestGreenLight, borderColor: colors.forestGreen },
   tileLocked: { opacity: 0.5 },
   tileName: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 13,
     color: colors.ink,
     textAlign: 'center',

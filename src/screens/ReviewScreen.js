@@ -286,13 +286,13 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 6, width: 50 },
   topTitle: {
     flex: 1,
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: '#f0e6c8',
     textAlign: 'center',
   },
   progress: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 12,
     color: '#c4a96a',
     width: 50,
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   cardWord: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 36,
     color: colors.ink,
     textAlign: 'center',
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
   },
   emptyIcon: { fontSize: 52, marginBottom: 16 },
   emptyTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 22,
     color: colors.ink,
     marginBottom: 12,
@@ -449,14 +449,14 @@ const styles = StyleSheet.create({
   },
   doneIcon: { fontSize: 48, color: colors.gold, marginBottom: 12 },
   doneTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 24,
     color: colors.ink,
     marginBottom: 8,
     textAlign: 'center',
   },
   doneXP: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 38,
     color: colors.forestGreen,
     marginBottom: 4,
@@ -481,13 +481,13 @@ const styles = StyleSheet.create({
   },
   masteredIcon: { fontSize: 28 },
   masteredTitle: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 11,
     color: colors.forestGreen,
     letterSpacing: 1,
   },
   masteredName: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 15,
     color: colors.ink,
     marginTop: 2,

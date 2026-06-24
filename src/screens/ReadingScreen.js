@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   },
   topTitle: {
     flex: 1,
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 12,
     color: '#f0e6c8',
     textAlign: 'center',
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quizBtnText: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 11,
     color: '#c4a96a',
     letterSpacing: 0.5,
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   scrollLabel: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 11,
     color: colors.goldLight,
     textAlign: 'center',
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
     color: '#d4c9a850',
   },
   pageCounter: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 12,
     color: colors.inkFaint,
     letterSpacing: 1,

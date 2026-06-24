@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 6, width: 36 },
   topTitle: {
     flex: 1,
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 18,
     color: '#f0e6c8',
     textAlign: 'center',
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   },
   cardHeaderText: { flex: 1 },
   cardTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: colors.ink,
     marginBottom: 2,

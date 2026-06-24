@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 6, width: 36 },
   topTitle: {
     flex: 1,
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: '#f0e6c8',
     textAlign: 'center',
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   sectionTitle: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 10,
     color: colors.inkFaint,
     letterSpacing: 1.5,
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tileValue: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 30,
     color: colors.ink,
     marginTop: 6,
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     width: 22,
   },
   wordText: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: colors.ink,
     flex: 1,
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   recordValue: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 18,
     color: colors.ink,
   },

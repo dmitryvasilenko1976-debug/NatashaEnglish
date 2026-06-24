@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   name: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 22,
     color: colors.ink,
     marginTop: 8,

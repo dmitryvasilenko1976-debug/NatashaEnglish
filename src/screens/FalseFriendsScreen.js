@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 6, width: 36 },
   topTitle: {
     flex: 1,
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: '#f0e6c8',
     textAlign: 'center',
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     color: colors.gold,
   },
   cardEnWord: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: colors.forestGreen,
     flex: 1,
@@ -411,7 +411,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   langLabel: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 8,
     color: colors.inkFaint,
     letterSpacing: 1.2,
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   exampleLabel: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 8,
     color: colors.inkFaint,
     letterSpacing: 1,
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   questionLabel: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 9,
     color: colors.inkFaint,
     letterSpacing: 1.5,
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   quizWord: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 36,
     color: colors.ink,
     textAlign: 'center',
@@ -639,14 +639,14 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   doneTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 22,
     color: colors.ink,
     marginBottom: 8,
     textAlign: 'center',
   },
   doneScore: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 48,
     color: colors.forestGreen,
     marginBottom: 12,

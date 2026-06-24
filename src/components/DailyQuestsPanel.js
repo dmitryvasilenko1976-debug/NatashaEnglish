@@ -140,7 +140,7 @@ const wq = StyleSheet.create({
     marginBottom: 6,
   },
   weekLabel: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 9,
     color: colors.inkFaint,
     letterSpacing: 1,
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   headerText: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 11,
     color: colors.inkFaint,
     letterSpacing: 1.5,

@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 6, width: 36 },
   topTitle: {
     flex: 1,
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 15,
     color: '#f0e6c8',
     textAlign: 'center',
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   questionLabel: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 9,
     color: colors.inkFaint,
     letterSpacing: 1.5,
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   wordText: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 36,
     color: colors.ink,
     textAlign: 'center',
@@ -401,14 +401,14 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   doneTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 22,
     color: colors.ink,
     marginBottom: 8,
     textAlign: 'center',
   },
   doneScore: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 48,
     color: colors.forestGreen,
     marginBottom: 12,

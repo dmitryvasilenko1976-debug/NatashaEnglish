@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   title: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 15,
     color: colors.ink,
     marginBottom: 10,

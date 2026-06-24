@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 6, width: 36 },
   topTitle: {
     flex: 1,
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: '#f0e6c8',
     textAlign: 'center',
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   summaryText: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: colors.ink,
   },
@@ -165,11 +165,11 @@ const styles = StyleSheet.create({
   posCol: { width: 36, alignItems: 'center' },
   medal: { fontSize: 20 },
   posNum: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 14,
     color: colors.inkFaint,
   },
-  posNumUser: { color: colors.forestGreen, fontFamily: 'Cinzel_700Bold' },
+  posNumUser: { color: colors.forestGreen, fontFamily: 'Almendra_700Bold' },
   name: {
     flex: 1,
     fontFamily: 'CrimsonText_400Regular',

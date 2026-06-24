@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
   cardBody: { flex: 1 },
   cardLabel: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: colors.ink,
     marginBottom: 2,

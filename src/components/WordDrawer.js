@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   wordTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 24,
     color: colors.ink,
     flex: 1,

@@ -5,18 +5,18 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import {
   useFonts,
-  IMFellEnglish_400Regular,
-  IMFellEnglish_400Regular_Italic,
-} from '@expo-google-fonts/im-fell-english';
+  Almendra_400Regular,
+  Almendra_400Regular_Italic,
+  Almendra_700Bold,
+} from '@expo-google-fonts/almendra';
+import {
+  AlmendraDisplay_400Regular,
+} from '@expo-google-fonts/almendra-display';
 import {
   CrimsonText_400Regular,
   CrimsonText_400Regular_Italic,
   CrimsonText_600SemiBold,
 } from '@expo-google-fonts/crimson-text';
-import {
-  Cinzel_400Regular,
-  Cinzel_700Bold,
-} from '@expo-google-fonts/cinzel';
 
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import TutorialScreen from './src/screens/TutorialScreen';
@@ -56,13 +56,13 @@ export default function App() {
   }, []);
 
   const [fontsLoaded, fontError] = useFonts({
-    IMFellEnglish_400Regular,
-    IMFellEnglish_400Regular_Italic,
+    Almendra_400Regular,
+    Almendra_400Regular_Italic,
     CrimsonText_400Regular,
     CrimsonText_400Regular_Italic,
     CrimsonText_600SemiBold,
-    Cinzel_400Regular,
-    Cinzel_700Bold,
+    AlmendraDisplay_400Regular,
+    Almendra_700Bold,
   });
 
   if (!fontsLoaded && !fontError) {

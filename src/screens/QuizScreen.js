@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
   iconBtn: { padding: 6, width: 36 },
   topTitle: {
     flex: 1,
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: '#f0e6c8',
     textAlign: 'center',
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
   },
   sageIcon: { fontSize: 52, marginBottom: 16 },
   sageTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 22,
     color: colors.ink,
     textAlign: 'center',
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   },
   scoreCard: { alignItems: 'center' },
   scoreNum: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 28,
     color: colors.ink,
   },
@@ -491,7 +491,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   wordText: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 29,
     color: colors.ink,
     marginBottom: 6,
@@ -555,14 +555,14 @@ const styles = StyleSheet.create({
     padding: 32,
   },
   doneTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 22,
     color: colors.ink,
     marginBottom: 8,
     textAlign: 'center',
   },
   doneScore: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 44,
     color: colors.forestGreen,
     marginBottom: 12,
@@ -630,7 +630,7 @@ const styles = StyleSheet.create({
   },
   ohEmoji: { fontSize: 48, marginBottom: 12 },
   ohTitle: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 16,
     color: '#4a3728',
     marginBottom: 10,

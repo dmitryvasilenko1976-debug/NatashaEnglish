@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   iconBtn: { width: 36, padding: 6 },
   topTitle: {
     flex: 1,
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 16,
     color: '#f0e6c8',
     textAlign: 'center',
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   stepTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 24,
     color: colors.ink,
     textAlign: 'center',

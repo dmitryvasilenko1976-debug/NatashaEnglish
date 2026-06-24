@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
   },
   word: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 21,
     lineHeight: 40,
     color: colors.ink,
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web' && { letterSpacing: 0.2 }),
   },
   wordSelected: {
-    fontFamily: 'IMFellEnglish_400Regular_Italic',
+    fontFamily: 'Almendra_400Regular_Italic',
     color: colors.forestGreen,
   },
 

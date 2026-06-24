@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   appTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 18,
     color: '#f0e6c8',
     flex: 1,
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
     color: '#c4a96a',
   },
   levelText: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 10,
     color: '#d4b870',
     letterSpacing: 0.5,
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   },
   grammarCardBody: { flex: 1 },
   grammarCardTitle: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 15,
     color: colors.ink,
     marginBottom: 2,
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
   },
 
   listHeader: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'Almendra_400Regular',
     fontSize: 13,
     color: colors.inkFaint,
     marginHorizontal: 20,
@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   modalTitle: {
-    fontFamily: 'Cinzel_400Regular',
+    fontFamily: 'AlmendraDisplay_400Regular',
     fontSize: 15,
     color: '#4a3728',
     textAlign: 'center',
