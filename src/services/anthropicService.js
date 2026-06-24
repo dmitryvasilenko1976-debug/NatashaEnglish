@@ -46,6 +46,17 @@ function lookupInCache(cache, key) {
   for (const t of tries) {
     if (cache[t]) return cache[t];
   }
+  // Strip common medical prefixes as last resort
+  const prefixes = ['non', 'anti', 'pre', 'post', 'sub', 'supra', 'intra', 'inter', 'trans'];
+  for (const p of prefixes) {
+    if (k.startsWith(p) && k.length > p.length + 3) {
+      const stem = k.slice(p.length);
+      if (cache[stem]) return cache[stem];
+      // also try with hyphen stripped variant
+      const stemH = k.slice(p.length + 1);
+      if (cache[stemH]) return cache[stemH];
+    }
+  }
   return null;
 }
 
