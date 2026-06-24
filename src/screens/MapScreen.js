@@ -16,7 +16,7 @@ const MAP_W = Math.min(Dimensions.get('window').width, 500);
 
 // Layout constants
 const NODE_R = 28;
-const V_STEP = 130;
+const V_STEP = 145;
 const ZONE_BANNER_H = 48;
 const ZONE_GAP = 64;
 const START_Y = 24;
@@ -289,7 +289,7 @@ export default function MapScreen({ navigation }) {
               {/* Name label */}
               <Text
                 style={[styles.nodeLabel, isLocked && styles.nodeLabelLocked]}
-                numberOfLines={2}
+                numberOfLines={3}
               >
                 {loc.name_ru}
               </Text>
