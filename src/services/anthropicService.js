@@ -3,6 +3,7 @@
 import chunk1 from '../data/wordCache1.json';
 import chunk2 from '../data/wordCache2.json';
 import chunk3 from '../data/wordCache3.json';
+import commonWords from '../data/commonWords';
 
 let _cache = null;
 
@@ -51,7 +52,7 @@ function lookupInCache(cache, key) {
 export async function explainWord(word, sentence) {
   const cache = getCache();
   const key = word.toLowerCase().replace(/[^a-zA-Z'-]/g, '');
-  const result = lookupInCache(cache, key);
+  const result = lookupInCache(cache, key) || commonWords[key];
   if (!result) throw new Error(`Слово "${word}" не найдено в словаре`);
   // Always override context with the actual sentence being read
   const { contextBefore, contextAfter } = sentence
