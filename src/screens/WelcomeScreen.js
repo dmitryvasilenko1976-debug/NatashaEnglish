@@ -112,14 +112,12 @@ export default function WelcomeScreen({ navigation }) {
           </View>
 
           <View style={styles.statsRow}>
-            <StatPill value={stats.xp} label="XP" />
-            <View style={styles.statSep} />
-            <StatPill value={stats.totalWords} label="заклинаний" />
+            {stats.xp > 0 && <StatPill value={stats.xp} label="XP" />}
+            {stats.xp > 0 && stats.totalWords > 0 && <View style={styles.statSep} />}
+            {stats.totalWords > 0 && <StatPill value={stats.totalWords} label="заклинаний" />}
+            {stats.streak > 0 && (stats.xp > 0 || stats.totalWords > 0) && <View style={styles.statSep} />}
             {stats.streak > 0 && (
-              <>
-                <View style={styles.statSep} />
-                <StatPill value={`🔥 ${stats.streak}`} label="дней" />
-              </>
+              <StatPill value={`🔥 ${stats.streak}`} label="дней" />
             )}
           </View>
         </View>
@@ -269,7 +267,7 @@ const styles = StyleSheet.create({
   },
   statPill: { alignItems: 'center', paddingHorizontal: 12 },
   statNum: {
-    fontFamily: 'IMFellEnglish_400Regular',
+    fontFamily: 'CrimsonText_600SemiBold',
     fontSize: 20,
     color: colors.ink,
   },
