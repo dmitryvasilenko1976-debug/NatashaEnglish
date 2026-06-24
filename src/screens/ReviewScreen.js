@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, Animated,
+  SafeAreaView, StatusBar, Animated, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -133,7 +133,7 @@ export default function ReviewScreen({ navigation }) {
   // ── Empty ──────────────────────────────────────────────────────────────────
   if (cards.length === 0 && !done) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.emptyWrap}>
@@ -156,7 +156,7 @@ export default function ReviewScreen({ navigation }) {
   // ── Done ───────────────────────────────────────────────────────────────────
   if (done) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.doneWrap}>
@@ -205,7 +205,7 @@ export default function ReviewScreen({ navigation }) {
   const level = getMasteryLevel(item.data, 0);
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
       {topBar}
 

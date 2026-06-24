@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, FlatList, StyleSheet,
-  SafeAreaView, StatusBar, TouchableOpacity, Switch,
+  SafeAreaView, StatusBar, TouchableOpacity, Switch, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -183,7 +183,7 @@ export default function AchievementsScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
 
       <View style={styles.topBar}>

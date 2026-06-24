@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar,
+  SafeAreaView, StatusBar, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import OrnamentDivider from '../components/OrnamentDivider';
@@ -17,7 +17,7 @@ export default function MorphologyScreen({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
 
       <View style={styles.topBar}>

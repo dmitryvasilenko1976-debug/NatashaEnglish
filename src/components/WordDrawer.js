@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   },
   wordTitle: {
     fontFamily: 'IMFellEnglish_400Regular',
-    fontSize: 22,
+    fontSize: 24,
     color: colors.ink,
     flex: 1,
   },
@@ -247,8 +247,8 @@ const styles = StyleSheet.create({
   },
   translation: {
     fontFamily: 'CrimsonText_600SemiBold',
-    fontSize: 17,
-    color: colors.ink,
+    fontSize: 21,
+    color: colors.forestGreenBright,
     marginBottom: 6,
   },
   explanation: {

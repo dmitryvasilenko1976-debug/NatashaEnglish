@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, Animated,
+  SafeAreaView, StatusBar, Animated, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import OrnamentDivider from '../components/OrnamentDivider';
@@ -115,7 +115,7 @@ export default function FalseFriendsScreen({ navigation }) {
   if (showQuiz) {
     if (questions.length === 0) {
       return (
-        <SafeAreaView style={styles.safe}>
+        <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
           <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
           {topBar}
           <View style={styles.emptyWrap}>
@@ -134,7 +134,7 @@ export default function FalseFriendsScreen({ navigation }) {
         'Слова-ловушки ещё опасны. Перечитайте список.';
 
       return (
-        <SafeAreaView style={styles.safe}>
+        <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
           <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
           {topBar}
           <View style={styles.doneWrap}>
@@ -159,7 +159,7 @@ export default function FalseFriendsScreen({ navigation }) {
 
     const q = questions[current];
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
 
@@ -230,7 +230,7 @@ export default function FalseFriendsScreen({ navigation }) {
 
   // ── List view ──────────────────────────────────────────────────────────────
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
       {topBar}
 

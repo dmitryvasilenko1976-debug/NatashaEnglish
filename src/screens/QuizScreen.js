@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, ScrollView, Alert, Animated,
+  SafeAreaView, StatusBar, ScrollView, Alert, Animated, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -205,7 +205,7 @@ export default function QuizScreen({ route, navigation }) {
   // ── Sage intro ─────────────────────────────────────────────────────────────
   if (sageIntro) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.sageWrap}>
@@ -232,7 +232,7 @@ export default function QuizScreen({ route, navigation }) {
   // ── No words ───────────────────────────────────────────────────────────────
   if (questions.length === 0) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.emptyWrap}>
@@ -259,7 +259,7 @@ export default function QuizScreen({ route, navigation }) {
         'Продолжай практиковаться — Ривенделл ждёт.';
 
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.doneWrap}>
@@ -306,7 +306,7 @@ export default function QuizScreen({ route, navigation }) {
   const q = questions[current];
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
       {topBar}
 

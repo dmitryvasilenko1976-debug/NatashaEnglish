@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet,
-  SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator,
+  SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -50,7 +50,7 @@ export default function StatsScreen({ navigation }) {
 
   if (!game) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         <View style={styles.topBar}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
@@ -81,7 +81,7 @@ export default function StatsScreen({ navigation }) {
   const records = stats.records || {};
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
 
       <View style={styles.topBar}>

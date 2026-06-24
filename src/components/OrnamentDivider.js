@@ -11,9 +11,10 @@ export default function OrnamentDivider({ style }) {
 const styles = StyleSheet.create({
   ornament: {
     textAlign: 'center',
-    color: colors.gold,
-    fontSize: 14,
+    color: colors.goldBright,
+    fontSize: 15,
     marginVertical: 8,
-    letterSpacing: 3,
+    letterSpacing: 4,
+    opacity: 0.85,
   },
 });

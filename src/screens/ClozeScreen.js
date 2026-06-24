@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, Animated,
+  SafeAreaView, StatusBar, Animated, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import OrnamentDivider from '../components/OrnamentDivider';
@@ -131,7 +131,7 @@ export default function ClozeScreen({ navigation }) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.emptyWrap}>
@@ -143,7 +143,7 @@ export default function ClozeScreen({ navigation }) {
 
   if (allItems.length < 2) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.emptyWrap}>
@@ -170,7 +170,7 @@ export default function ClozeScreen({ navigation }) {
       'Читай больше — контекст придёт с практикой.';
 
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.doneWrap}>
@@ -200,7 +200,7 @@ export default function ClozeScreen({ navigation }) {
   const hasAfter = q.contextAfter && q.contextAfter.trim().length > 0;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
       {topBar}
 

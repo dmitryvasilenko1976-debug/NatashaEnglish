@@ -265,6 +265,24 @@ export default function ReadingScreen({ route, navigation }) {
   }
 
   const total = article.sentences.length;
+  if (total === 0) {
+    return (
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={handleGoBack} style={styles.iconBtn}>
+            <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          </TouchableOpacity>
+          <Text style={styles.topTitle}>{article.title}</Text>
+          <View style={{ width: 44 }} />
+        </View>
+        <View style={styles.sentenceArea}>
+          <Text style={styles.hintText}>Статья не содержит предложений.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   const progress = (currentIdx + 1) / total;
   const sentence = article.sentences[currentIdx];
 
@@ -335,17 +353,19 @@ export default function ReadingScreen({ route, navigation }) {
           <Text style={[styles.navArrowGlyph, currentIdx === 0 && styles.navArrowDisabled]}>‹</Text>
         </TouchableOpacity>
 
-        {Platform.OS === 'web' && (
-          <TouchableOpacity
-            style={styles.speakBtn}
-            onPress={() => speakSentence(sentence)}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="volume-medium-outline" size={20} color={colors.gold} />
-          </TouchableOpacity>
-        )}
-
-        <Text style={styles.pageCounter}>{currentIdx + 1} / {total}</Text>
+        <View style={styles.bottomCenter}>
+          {Platform.OS === 'web' && (
+            <TouchableOpacity
+              style={styles.speakBtn}
+              onPress={() => speakSentence(sentence)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="volume-medium-outline" size={22} color={colors.gold} />
+              <Text style={styles.speakBtnLabel}>Слушать</Text>
+            </TouchableOpacity>
+          )}
+          <Text style={styles.pageCounter}>{currentIdx + 1} / {total}</Text>
+        </View>
 
         <TouchableOpacity
           style={styles.navArrow}
@@ -500,7 +520,26 @@ const styles = StyleSheet.create({
     color: colors.inkFaint,
     letterSpacing: 1,
   },
+  bottomCenter: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
   speakBtn: {
-    padding: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.gold + '60',
+    backgroundColor: colors.gold + '12',
+  },
+  speakBtnLabel: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 12,
+    color: colors.gold,
   },
 });

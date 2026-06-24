@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, ScrollView, Animated,
+  SafeAreaView, StatusBar, ScrollView, Animated, Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import OrnamentDivider from '../components/OrnamentDivider';
@@ -130,7 +130,7 @@ export default function GrammarQuizScreen({ route, navigation }) {
 
   if (questions.length === 0) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.emptyWrap}>
@@ -156,7 +156,7 @@ export default function GrammarQuizScreen({ route, navigation }) {
       'Не сдавайся — перечитай раздел и попробуй снова.';
 
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.doneWrap}>
@@ -182,7 +182,7 @@ export default function GrammarQuizScreen({ route, navigation }) {
   const q = questions[current];
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
       {topBar}
 
