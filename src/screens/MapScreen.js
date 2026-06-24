@@ -16,7 +16,7 @@ const MAP_W = Math.min(Dimensions.get('window').width, 500);
 
 // Layout constants
 const NODE_R = 28;
-const V_STEP = 118;
+const V_STEP = 130;
 const ZONE_BANNER_H = 48;
 const ZONE_GAP = 64;
 const START_Y = 24;
@@ -79,6 +79,18 @@ export default function MapScreen({ navigation }) {
   const [showLetter, setShowLetter] = useState(false);
   const [storyModal, setStoryModal] = useState(null); // { location, dialogue }
   const scrollRef = useRef(null);
+  const pulseAnim = useRef(new Animated.Value(0.6)).current;
+
+  useEffect(() => {
+    const anim = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1, duration: 1200, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 0.2, duration: 1200, useNativeDriver: true }),
+      ])
+    );
+    anim.start();
+    return () => anim.stop();
+  }, []);
 
   useFocusEffect(useCallback(() => { loadData(); }, []));
 
@@ -167,9 +179,12 @@ export default function MapScreen({ navigation }) {
           <Ionicons name="chevron-back" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.topTitle}>Карта Путешествия</Text>
-        <View style={styles.xpPill}>
-          <Ionicons name="star-outline" size={13} color={colors.goldBright} />
-          <Text style={styles.xpText}>{xp} XP</Text>
+        <View style={styles.topRight}>
+          <Text style={styles.natashaAvatar}>👩‍⚕️</Text>
+          <View style={styles.xpPill}>
+            <Ionicons name="star-outline" size={13} color={colors.goldBright} />
+            <Text style={styles.xpText}>{xp} XP</Text>
+          </View>
         </View>
       </View>
 
@@ -215,8 +230,8 @@ export default function MapScreen({ navigation }) {
                 {
                   left: d.x - 5,
                   top: d.y - 5,
-                  backgroundColor: completed ? colors.goldBright : '#c8b890',
-                  opacity: completed ? 0.85 : 0.5,
+                  backgroundColor: completed ? colors.goldBright : '#8B7355',
+                  opacity: completed ? 0.9 : 0.65,
                 },
               ]}
             />
@@ -235,15 +250,10 @@ export default function MapScreen({ navigation }) {
 
           return (
             <View key={loc.name_en} style={[styles.nodeWrap, { left: pos.x - NODE_R, top: pos.y - NODE_R }]}>
-              {/* Natasha avatar */}
+              {/* Glow ring for current — animated pulse */}
               {isCurrent && (
-                <View style={styles.natashaWrap}>
-                  <Text style={styles.natashaEmoji}>👩‍⚕️</Text>
-                </View>
+                <Animated.View style={[styles.glowRing, { borderColor: accent + '60', opacity: pulseAnim }]} />
               )}
-
-              {/* Glow ring for current */}
-              {isCurrent && <View style={[styles.glowRing, { borderColor: accent + '60' }]} />}
 
               <TouchableOpacity
                 onPress={() => !isLocked && onNodePress(i)}
@@ -284,12 +294,6 @@ export default function MapScreen({ navigation }) {
                 {loc.name_ru}
               </Text>
 
-              {/* Milestone text for completed */}
-              {isCompleted && (
-                <Text style={[styles.milestoneText, { color: accent }]} numberOfLines={2}>
-                  {loc.milestone_text}
-                </Text>
-              )}
             </View>
           );
         })}
@@ -472,36 +476,20 @@ const styles = StyleSheet.create({
   },
   nodeLabel: {
     fontFamily: 'Almendra_400Regular',
-    fontSize: 10,
+    fontSize: 12,
     color: colors.ink,
     textAlign: 'center',
-    marginTop: 5,
-    lineHeight: 13,
-    width: 80,
+    marginTop: 6,
+    lineHeight: 16,
+    width: 96,
   },
   nodeLabelLocked: {
-    color: '#a09880',
-  },
-  milestoneText: {
-    fontFamily: 'CrimsonText_400Regular_Italic',
-    fontSize: 9,
-    textAlign: 'center',
-    width: 90,
-    marginTop: 2,
-    lineHeight: 12,
-    opacity: 0.8,
+    color: '#7a6a50',
   },
 
-  // Natasha
-  natashaWrap: {
-    position: 'absolute',
-    top: -(NODE_R + 22),
-    alignItems: 'center',
-    width: NODE_R * 2,
-  },
-  natashaEmoji: {
-    fontSize: 22,
-  },
+  // Natasha in header
+  topRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  natashaAvatar: { fontSize: 20 },
 
   // Fog
   fogOverlay: {
