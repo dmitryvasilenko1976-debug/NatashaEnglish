@@ -173,7 +173,7 @@ export default function HomeScreen({ navigation }) {
     `${streak} дней подряд`;
 
   return (
-    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
 
       {/* Top bar */}
@@ -241,10 +241,14 @@ export default function HomeScreen({ navigation }) {
         </View>
       ) : null}
 
+      <View style={{ flex: 1 }}>
       <FlatList
         data={articles}
         keyExtractor={(a) => a.id}
-        style={[{ flex: initialLoading ? 0 : 1 }, Platform.OS === 'web' && { overflowY: 'scroll' }]}
+        style={[
+          { flex: 1 },
+          Platform.OS === 'web' && { overflowY: 'scroll' },
+        ]}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <>
@@ -336,6 +340,7 @@ export default function HomeScreen({ navigation }) {
           ) : null
         }
       />
+      </View>
 
       {pendingAchievements.length > 0 && (
         <AchievementModal
