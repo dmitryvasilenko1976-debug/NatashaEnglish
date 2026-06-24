@@ -24,7 +24,11 @@ export default function ArticleCard({ article, progress, wordCount, onPress, onL
       </View>
 
       <Text style={styles.meta}>
-        {wordCount > 0 ? `${wordCount} слов в свитке заклинаний` : 'Свиток не открывался'}
+        {pct >= 1
+          ? (wordCount > 0 ? `${wordCount} слов · Свиток пройден ✓` : 'Свиток пройден ✓')
+          : pct > 0
+            ? (wordCount > 0 ? `${wordCount} слов · ${Math.round(pct * 100)}% прочитано` : `${Math.round(pct * 100)}% прочитано`)
+            : 'Свиток не открывался'}
       </Text>
     </TouchableOpacity>
   );
