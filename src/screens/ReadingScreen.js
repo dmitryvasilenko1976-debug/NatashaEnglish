@@ -237,6 +237,15 @@ export default function ReadingScreen({ route, navigation }) {
     else navigation.navigate('Home');
   }
 
+  function speakSentence(text) {
+    if (Platform.OS !== 'web' || !text || typeof window === 'undefined') return;
+    window.speechSynthesis.cancel();
+    const utt = new window.SpeechSynthesisUtterance(text);
+    utt.lang = 'en-US';
+    utt.rate = 0.82;
+    window.speechSynthesis.speak(utt);
+  }
+
   if (!article) {
     return (
       <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
@@ -325,6 +334,16 @@ export default function ReadingScreen({ route, navigation }) {
         >
           <Text style={[styles.navArrowGlyph, currentIdx === 0 && styles.navArrowDisabled]}>‹</Text>
         </TouchableOpacity>
+
+        {Platform.OS === 'web' && (
+          <TouchableOpacity
+            style={styles.speakBtn}
+            onPress={() => speakSentence(sentence)}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="volume-medium-outline" size={20} color={colors.gold} />
+          </TouchableOpacity>
+        )}
 
         <Text style={styles.pageCounter}>{currentIdx + 1} / {total}</Text>
 
@@ -480,5 +499,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.inkFaint,
     letterSpacing: 1,
+  },
+  speakBtn: {
+    padding: 8,
   },
 });

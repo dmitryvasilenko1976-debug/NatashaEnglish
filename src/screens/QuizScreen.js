@@ -31,11 +31,26 @@ function buildQuestions(words) {
   });
 }
 
+function buildRecallQuestions(words) {
+  const entries = Object.entries(words);
+  if (entries.length < 2) return [];
+  return shuffle(entries).map(([word, data]) => {
+    const correct = word; // English word to find
+    const distractors = entries
+      .filter(([w]) => w !== word)
+      .map(([w]) => w);
+    const wrongOpts = shuffle(distractors).slice(0, 3);
+    const options = shuffle([correct, ...wrongOpts]);
+    // word field = Russian translation (what to show as the prompt)
+    return { word: data.translation || word, correct, options, data, isRecall: true };
+  });
+}
+
 const MAX_HEARTS = 3;
 const HEART_COST = 50;
 
 export default function QuizScreen({ route, navigation }) {
-  const { articleId, sageChallenge } = route.params || {};
+  const { articleId, sageChallenge, recallMode } = route.params || {};
 
   const [questions, setQuestions]           = useState([]);
   const [current, setCurrent]               = useState(0);
@@ -66,7 +81,8 @@ export default function QuizScreen({ route, navigation }) {
     setGems(game.gems || 0);
 
     const words = await getSavedWords(articleId);
-    setQuestions(buildQuestions(words));
+    const questions = recallMode ? buildRecallQuestions(words) : buildQuestions(words);
+    setQuestions(questions);
     setCurrent(0);
     setAnswered(null);
     setScore(0);
@@ -176,7 +192,7 @@ export default function QuizScreen({ route, navigation }) {
         <Ionicons name="chevron-back" size={22} color="#c4a96a" />
       </TouchableOpacity>
       <Text style={styles.topTitle}>
-        {sageChallenge ? 'Испытание Мудреца' : 'Испытание в таверне'}
+        {sageChallenge ? 'Испытание Мудреца' : recallMode ? 'Вспоминание' : 'Испытание в таверне'}
       </Text>
       <Animated.View style={[styles.heartsRow, { transform: [{ translateX: shakeAnim }] }]}>
         {[1, 2, 3].map(n => (
@@ -257,6 +273,21 @@ export default function QuizScreen({ route, navigation }) {
           <TouchableOpacity style={styles.restartBtn} onPress={loadWords}>
             <Text style={styles.restartBtnText}>Пройти ещё раз</Text>
           </TouchableOpacity>
+          {!recallMode ? (
+            <TouchableOpacity
+              style={styles.recallToggleBtn}
+              onPress={() => navigation.replace('Quiz', { articleId, recallMode: true })}
+            >
+              <Text style={styles.recallToggleText}>Режим вспоминания →</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={styles.recallToggleBtn}
+              onPress={() => navigation.replace('Quiz', { articleId, recallMode: false })}
+            >
+              <Text style={styles.recallToggleText}>← Узнавание</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity style={styles.homeBtn} onPress={goBack}>
             <Text style={styles.homeBtnText}>Вернуться</Text>
           </TouchableOpacity>
@@ -295,7 +326,7 @@ export default function QuizScreen({ route, navigation }) {
 
       <ScrollView contentContainerStyle={styles.quizContent}>
         <Text style={styles.wordText}>{q.word}</Text>
-        <Text style={styles.subtitle}>Выбери верное толкование</Text>
+        <Text style={styles.subtitle}>{recallMode ? 'Выбери английское слово' : 'Выбери верное толкование'}</Text>
 
         {q.options.map((opt, i) => {
           let btnStyle = styles.optBtn;
@@ -563,6 +594,20 @@ const styles = StyleSheet.create({
     fontFamily: 'CrimsonText_400Regular_Italic',
     fontSize: 13,
     color: colors.inkFaint,
+  },
+  recallToggleBtn: {
+    marginTop: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: colors.forestGreen,
+  },
+  recallToggleText: {
+    fontFamily: 'CrimsonText_400Regular',
+    fontSize: 14,
+    color: colors.forestGreen,
+    textAlign: 'center',
   },
 
   // Out of hearts overlay

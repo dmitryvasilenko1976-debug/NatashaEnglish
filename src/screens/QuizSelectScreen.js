@@ -52,11 +52,7 @@ export default function QuizSelectScreen({ navigation }) {
         renderItem={({ item }) => {
           const ready = item.wordCount >= 2;
           return (
-            <TouchableOpacity
-              style={[styles.card, !ready && styles.cardDim]}
-              onPress={() => ready && navigation.navigate('Quiz', { articleId: item.id })}
-              activeOpacity={ready ? 0.82 : 1}
-            >
+            <View style={[styles.card, !ready && styles.cardDim]}>
               <View style={styles.cardLeft}>
                 <Text style={styles.cardTag}>{item.tag || 'Педиатрия'}</Text>
                 <Text style={[styles.cardTitle, !ready && styles.cardTitleDim]} numberOfLines={2}>
@@ -68,13 +64,28 @@ export default function QuizSelectScreen({ navigation }) {
                   <>
                     <Text style={styles.wordCount}>{item.wordCount}</Text>
                     <Text style={styles.wordLabel}>слов</Text>
-                    <Ionicons name="chevron-forward" size={14} color={colors.gold} style={{ marginTop: 4 }} />
+                    <View style={styles.quizBtnsRow}>
+                      <TouchableOpacity
+                        style={styles.quizModeBtn}
+                        onPress={() => navigation.navigate('Quiz', { articleId: item.id })}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={styles.quizModeBtnText}>Квиз →</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.quizModeBtn, styles.recallModeBtn]}
+                        onPress={() => navigation.navigate('Quiz', { articleId: item.id, recallMode: true })}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={[styles.quizModeBtnText, styles.recallModeBtnText]}>← Вспомни</Text>
+                      </TouchableOpacity>
+                    </View>
                   </>
                 ) : (
                   <Text style={styles.noWordsHint}>нет слов</Text>
                 )}
               </View>
-            </TouchableOpacity>
+            </View>
           );
         }}
         ListFooterComponent={
@@ -156,6 +167,31 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#bbb',
     textAlign: 'center',
+  },
+  quizBtnsRow: {
+    flexDirection: 'column',
+    gap: 5,
+    marginTop: 6,
+    alignItems: 'stretch',
+  },
+  quizModeBtn: {
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 3,
+    borderWidth: 1,
+    borderColor: colors.forestGreen,
+    alignItems: 'center',
+  },
+  quizModeBtnText: {
+    fontFamily: 'CrimsonText_400Regular',
+    fontSize: 11,
+    color: colors.forestGreen,
+  },
+  recallModeBtn: {
+    borderColor: colors.gold,
+  },
+  recallModeBtnText: {
+    color: colors.inkFaint,
   },
 
   footer: {

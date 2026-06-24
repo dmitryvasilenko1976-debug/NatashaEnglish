@@ -274,6 +274,40 @@ export default function HomeScreen({ navigation }) {
               </View>
               <Ionicons name="chevron-forward" size={16} color={colors.gold} />
             </TouchableOpacity>
+
+            <TouchableOpacity style={styles.grammarCard} onPress={() => navigation.navigate('Morphology')} activeOpacity={0.82}>
+              <View style={styles.grammarCardLeft}>
+                <Ionicons name="construct-outline" size={20} color={colors.gold} />
+              </View>
+              <View style={styles.grammarCardBody}>
+                <Text style={styles.grammarCardTitle}>Морфология</Text>
+                <Text style={styles.grammarCardDesc}>Приставки, корни, суффиксы — ключ к тысячам терминов</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.gold} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.grammarCard} onPress={() => navigation.navigate('FalseFriends')} activeOpacity={0.82}>
+              <View style={styles.grammarCardLeft}>
+                <Ionicons name="warning-outline" size={20} color={colors.gold} />
+              </View>
+              <View style={styles.grammarCardBody}>
+                <Text style={styles.grammarCardTitle}>Слова-ловушки</Text>
+                <Text style={styles.grammarCardDesc}>15 слов, которые обманывают русских врачей</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.gold} />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.grammarCard} onPress={() => navigation.navigate('Cloze')} activeOpacity={0.82}>
+              <View style={styles.grammarCardLeft}>
+                <Ionicons name="pencil-outline" size={20} color={colors.gold} />
+              </View>
+              <View style={styles.grammarCardBody}>
+                <Text style={styles.grammarCardTitle}>В контексте</Text>
+                <Text style={styles.grammarCardDesc}>Угадай слово по его роли в медицинском предложении</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.gold} />
+            </TouchableOpacity>
+
             <Text style={styles.listHeader}>Свитки</Text>
           </>
         }

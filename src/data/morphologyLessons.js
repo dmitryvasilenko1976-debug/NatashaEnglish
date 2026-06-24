@@ -1,0 +1,80 @@
+export const MORPHOLOGY_CATEGORIES = [
+  {
+    id: 'prefixes',
+    title: 'Приставки',
+    icon: 'arrow-back-circle-outline',
+    subtitle: 'hyper-, hypo-, brady-, tachy-, intra-...',
+    entries: [
+      { morpheme: 'a- / an-', meaning: 'без, отсутствие', examples: ['anemia', 'apnea', 'arrhythmia', 'analgesia'], tip: 'Перед гласной: an- (anemia), перед согласной: a- (apnea)' },
+      { morpheme: 'brady-', meaning: 'медленный', examples: ['bradycardia', 'bradypnea', 'bradykinesia'], tip: 'Противоположность tachy-. Bradicardia = ЧСС < 60 уд/мин' },
+      { morpheme: 'tachy-', meaning: 'быстрый', examples: ['tachycardia', 'tachypnea', 'tachyarrhythmia'], tip: 'Tachycardia = ЧСС > 100 уд/мин' },
+      { morpheme: 'hyper-', meaning: 'выше нормы, избыток', examples: ['hypertension', 'hyperglycemia', 'hyperthyroidism', 'hyperkalemia'], tip: 'Всегда «слишком много». Hyper-glyc-emia = высокий сахар в крови' },
+      { morpheme: 'hypo-', meaning: 'ниже нормы, недостаток', examples: ['hypotension', 'hypoglycemia', 'hypothyroidism', 'hypokalemia'], tip: 'Всегда «слишком мало». Противоположность hyper-' },
+      { morpheme: 'intra-', meaning: 'внутри', examples: ['intravenous', 'intramuscular', 'intracellular', 'intracranial'], tip: 'IV = IntraVenous = внутривенно. IM = IntraMuscular = внутримышечно' },
+      { morpheme: 'inter-', meaning: 'между', examples: ['intercostal', 'interstitial', 'interdisciplinary'], tip: 'inter- = между, intra- = внутри. Легко перепутать!' },
+      { morpheme: 'peri-', meaning: 'вокруг, около', examples: ['pericarditis', 'perioperative', 'peripheral', 'peritoneum'], tip: 'Pericardium = сумка вокруг сердца. Perioperative = вокруг операции' },
+      { morpheme: 'sub-', meaning: 'под', examples: ['subcutaneous', 'sublingual', 'subclavian', 'subdural'], tip: 'SC/SQ = SubCutaneous injection = подкожная инъекция. SL = subLingual' },
+      { morpheme: 'trans-', meaning: 'через, сквозь', examples: ['transdermal', 'transplant', 'transfusion', 'transcatheter'], tip: 'Transdermal patch = пластырь (через кожу). Transfusion = через вену' },
+      { morpheme: 'poly-', meaning: 'много, множество', examples: ['polypharmacy', 'polyuria', 'polyneuropathy', 'polycythemia'], tip: 'Polypharmacy = много лекарств одновременно (проблема у пожилых)' },
+      { morpheme: 'mono- / uni-', meaning: 'один', examples: ['monotherapy', 'mononucleosis', 'unilateral'], tip: 'Unilateral = односторонний, bilateral = двусторонний' },
+      { morpheme: 'bi- / di-', meaning: 'два', examples: ['bilateral', 'diplopia', 'bifurcation', 'biphasic'], tip: 'Diplopia = двоение в глазах (два изображения)' },
+      { morpheme: 'neo-', meaning: 'новый', examples: ['neoplasm', 'neonatal', 'neovascularization'], tip: 'Neoplasm = «новый рост» = опухоль. Neonatal = новорождённый' },
+      { morpheme: 'post-', meaning: 'после', examples: ['postoperative', 'postnatal', 'postmortem', 'postpartum'], tip: 'Pre- = до, post- = после. Post-op = послеоперационный' },
+      { morpheme: 'pre- / ante-', meaning: 'до, перед', examples: ['preoperative', 'prenatal', 'antenatal', 'antecubital'], tip: 'Prenatal и antenatal = одно и то же (до рождения). Pre-op = предоперационный' },
+    ],
+  },
+  {
+    id: 'roots',
+    title: 'Корни (органы)',
+    icon: 'body-outline',
+    subtitle: 'cardio-, hepato-, pneumo-, neuro-...',
+    entries: [
+      { morpheme: 'cardio- / card-', meaning: 'сердце', examples: ['cardiology', 'cardiomyopathy', 'cardiac', 'cardiovascular'], tip: 'ECG = ElectroCardioGram. MI = Myocardial Infarction = инфаркт' },
+      { morpheme: 'hepato- / hepat-', meaning: 'печень', examples: ['hepatitis', 'hepatocellular', 'hepatomegaly', 'hepatotoxic'], tip: 'LFT = Liver Function Tests = пробы печени. Hepatomegaly = увеличенная печень' },
+      { morpheme: 'nephro- / nephr-', meaning: 'почка', examples: ['nephrology', 'nephropathy', 'nephrotic', 'nephrolithiasis'], tip: 'CKD = Chronic Kidney Disease. Nephrolithiasis = почечные камни' },
+      { morpheme: 'pneumo- / pulmo-', meaning: 'лёгкое', examples: ['pneumonia', 'pulmonary', 'pneumothorax', 'pneumococcal'], tip: 'Pulmonary — от латинского, pneumo- — от греческого. Оба о лёгких' },
+      { morpheme: 'neuro- / neur-', meaning: 'нерв, нервная система', examples: ['neurology', 'neuropathy', 'neurotransmitter', 'neurological'], tip: 'CNS = Central Nervous System. PNS = Peripheral Nervous System' },
+      { morpheme: 'osteo- / oste-', meaning: 'кость', examples: ['osteoporosis', 'osteomyelitis', 'osteoarthritis', 'osteoblast'], tip: 'Osteoporosis = «пористые кости». DEXA scan = денситометрия' },
+      { morpheme: 'arthro- / arthr-', meaning: 'сустав', examples: ['arthritis', 'arthroscopy', 'arthralgia', 'arthroplasty'], tip: 'OA = Osteo-Arthritis, RA = Rheumatoid Arthritis. Arthroscopy = осмотр сустава' },
+      { morpheme: 'gastro- / gastr-', meaning: 'желудок', examples: ['gastritis', 'gastroenterology', 'gastroscopy', 'gastroparesis'], tip: 'GI tract = GastroIntestinal tract = желудочно-кишечный тракт' },
+      { morpheme: 'hemo- / hemat-', meaning: 'кровь', examples: ['hematology', 'hemorrhage', 'hematoma', 'hemoglobin'], tip: 'CBC = Complete Blood Count = общий анализ крови' },
+      { morpheme: 'onco-', meaning: 'опухоль', examples: ['oncology', 'oncologist', 'oncogene', 'oncological'], tip: 'Oncology = наука об опухолях. Onco- относится и к доброкачественным' },
+      { morpheme: 'derm- / dermato-', meaning: 'кожа', examples: ['dermatitis', 'dermatology', 'dermal', 'transdermal'], tip: 'Transdermal = через кожу. Intradermal injection = внутрикожная инъекция' },
+      { morpheme: 'cyto-', meaning: 'клетка', examples: ['cytology', 'cytokine', 'cytotoxic', 'cytoplasm'], tip: 'Cytokines = молекулы межклеточной сигнализации. Cytotoxic = убивающий клетки' },
+      { morpheme: 'myo- / my-', meaning: 'мышца', examples: ['myocardial', 'myopathy', 'myalgia', 'myositis'], tip: 'MI = Myocardial Infarction. Myalgia = боль в мышцах' },
+      { morpheme: 'thromb-', meaning: 'тромб, сгусток крови', examples: ['thrombosis', 'thrombus', 'thrombocytopenia', 'thromboembolism'], tip: 'DVT = Deep Vein Thrombosis. PE = Pulmonary Embolism = лёгочная эмболия' },
+      { morpheme: 'path-', meaning: 'болезнь, страдание', examples: ['pathology', 'pathogenesis', 'pathogen', 'neuropathy'], tip: 'Pathogen = вызывающий болезнь. -pathy = болезненное состояние органа' },
+    ],
+  },
+  {
+    id: 'suffixes',
+    title: 'Суффиксы',
+    icon: 'arrow-forward-circle-outline',
+    subtitle: '-itis, -osis, -ectomy, -oscopy, -logy...',
+    entries: [
+      { morpheme: '-itis', meaning: 'воспаление', examples: ['hepatitis', 'arthritis', 'bronchitis', 'appendicitis', 'pancreatitis'], tip: 'Почти всегда = воспаление конкретного органа. Самый частый суффикс в медицине' },
+      { morpheme: '-osis', meaning: 'патологическое состояние, процесс', examples: ['fibrosis', 'thrombosis', 'tuberculosis', 'cirrhosis', 'necrosis'], tip: 'Не воспаление, а дегенерация, накопление или хронический процесс' },
+      { morpheme: '-oma', meaning: 'опухоль', examples: ['carcinoma', 'lymphoma', 'melanoma', 'adenoma', 'hematoma'], tip: 'Hematoma — не опухоль, а гематома. Большинство -oma = опухоль (доброкач. или злокач.)' },
+      { morpheme: '-ectomy', meaning: 'хирургическое удаление', examples: ['appendectomy', 'tonsillectomy', 'gastrectomy', 'mastectomy'], tip: 'Appendectomy = удаление аппендикса. Mastectomy = удаление молочной железы' },
+      { morpheme: '-ostomy', meaning: 'создание хирургического отверстия', examples: ['colostomy', 'tracheostomy', 'gastrostomy', 'ileostomy'], tip: 'Создаётся постоянное или временное отверстие для выхода содержимого' },
+      { morpheme: '-otomy', meaning: 'хирургический разрез', examples: ['tracheotomy', 'laparotomy', 'craniotomy', 'thoracotomy'], tip: 'Laparotomy = разрез брюшной полости для доступа. -ostomy = отверстие, -otomy = разрез' },
+      { morpheme: '-oscopy', meaning: 'визуальный осмотр эндоскопом', examples: ['bronchoscopy', 'colonoscopy', 'laparoscopy', 'endoscopy'], tip: 'Всегда используется оптический прибор. Colonoscopy = осмотр толстой кишки' },
+      { morpheme: '-graphy', meaning: 'метод получения изображения', examples: ['radiography', 'echocardiography', 'tomography', 'mammography'], tip: '-graphy = процедура, -gram = результат (сам снимок/запись)' },
+      { morpheme: '-gram', meaning: 'изображение, запись', examples: ['electrocardiogram', 'mammogram', 'angiogram', 'sonogram'], tip: 'ECG = ElectroCardioGram = запись электрической активности сердца' },
+      { morpheme: '-logy', meaning: 'наука, раздел медицины', examples: ['cardiology', 'neurology', 'pathology', 'pharmacology', 'oncology'], tip: '-logy = наука, -logist = специалист, -logical = прилагательное' },
+      { morpheme: '-pathy', meaning: 'заболевание, расстройство органа', examples: ['neuropathy', 'cardiomyopathy', 'nephropathy', 'hepatopathy'], tip: 'Cardiomyo-pathy = болезнь сердечной мышцы. Обычно хронический процесс' },
+      { morpheme: '-algia / -dynia', meaning: 'боль', examples: ['myalgia', 'neuralgia', 'arthralgia', 'cephalgia'], tip: 'Myalgia = боль в мышцах. Neuralgia = боль по ходу нерва. Cephalgia = головная боль' },
+      { morpheme: '-penia', meaning: 'снижение, недостаток (клеток)', examples: ['leukopenia', 'thrombocytopenia', 'neutropenia', 'osteopenia'], tip: 'Всегда = снижение ниже нормы. Thrombocytopenia = тромбоцитов < 150 000' },
+      { morpheme: '-emia', meaning: 'состояние крови', examples: ['anemia', 'leukemia', 'hyperglycemia', 'bacteremia', 'uremia'], tip: 'Hyper-glyc-emia: разбери по частям — высокий (hyper) сахар (glyc) в крови (emia)' },
+      { morpheme: '-megaly', meaning: 'увеличение органа', examples: ['hepatomegaly', 'splenomegaly', 'cardiomegaly', 'acromegaly'], tip: 'Hepatomegaly = увеличена печень, splenomegaly = увеличена селезёнка' },
+      { morpheme: '-plasty', meaning: 'хирургическое восстановление, реконструкция', examples: ['angioplasty', 'rhinoplasty', 'arthroplasty', 'mammoplasty'], tip: 'Angioplasty = расширение сосуда. Arthroplasty = протезирование сустава' },
+    ],
+  },
+];
+
+export const MORPHEME_QUIZ_POOL = [];
+MORPHOLOGY_CATEGORIES.forEach(cat => {
+  cat.entries.forEach(entry => {
+    MORPHEME_QUIZ_POOL.push({ ...entry, categoryId: cat.id });
+  });
+});
