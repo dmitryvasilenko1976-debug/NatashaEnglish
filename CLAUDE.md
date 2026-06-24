@@ -90,11 +90,20 @@ src/
   screens/
     WelcomeScreen.js                # Стартовый экран со статистикой
     TutorialScreen.js               # Туториал (показывается один раз)
-    HomeScreen.js                   # Главный: статьи + XP + квесты + уровень
-    ReadingScreen.js                # Чтение: свайп, слова, XP, wordMastery
-    QuizSelectScreen.js             # Выбор статьи для квиза
-    QuizScreen.js                   # Квиз по сохранённым словам
+    HomeScreen.js                   # Главный: статьи + XP + квесты + уровень + ELT-карточки
+    ReadingScreen.js                # Чтение: свайп, слова, XP, wordMastery, TTS озвучка
+    QuizSelectScreen.js             # Выбор статьи для квиза (два режима: Квиз / Вспомни)
+    QuizScreen.js                   # Квиз по словам (узнавание RU→EN) + Режим Вспоминания (EN→RU)
     AchievementsScreen.js           # Все достижения
+    GrammarScreen.js                # Грамматика: 8 категорий, accordion-список
+    GrammarQuizScreen.js            # Тест по грамматике: RU→EN, +5 XP/вопрос
+    MorphologyScreen.js             # Морфология: 48 морфем, 3 категории (приставки/корни/суффиксы)
+    MorphologyQuizScreen.js         # Тест по морфемам: морфема→значение, +5 XP/вопрос
+    FalseFriendsScreen.js           # Слова-ловушки: 15 ложных друзей + встроенный квиз
+    ClozeScreen.js                  # Клоуз-тест: вставь слово по контексту из сохранённых слов
+    LeagueScreen.js                 # Лига: таблица результатов
+    ReviewScreen.js                 # Повторение слов по SRS (SM-2)
+    StatsScreen.js                  # Статистика прогресса
 
   components/
     SentenceBlock.js                # Слова в предложении, клик, мастерство (wordMastery prop)
@@ -116,6 +125,8 @@ src/
     articles.json                   # 10 предзагруженных статей
     achievements.js                 # Константы достижений
     sampleArticle.js                # Демо-статья для первого запуска
+    morphologyLessons.js            # 48 медицинских морфем (приставки/корни/суффиксы)
+    falseFriends.js                 # 15 ложных друзей переводчика (для врачей)
 
   theme/
     colors.js                       # Палитра проекта
@@ -126,8 +137,10 @@ scripts/
   import-chatgpt-words.js           # Ответы ChatGPT → wordCache.json
 
 __tests__/
-  storageService.test.js            # 20 тестов
-  gamificationService.test.js       # 14 тестов
+  storageService.test.js            # тесты storageService
+  gamificationService.test.js       # тесты gamificationService
+  storageService_extended.test.js   # расширенные тесты storageService
+  gamificationService_extended.test.js # расширенные тесты gamification
 ```
 
 ---
