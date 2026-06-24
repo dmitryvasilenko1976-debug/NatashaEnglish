@@ -21,6 +21,7 @@ import { sampleArticle } from '../data/sampleArticle';
 import { colors } from '../theme/colors';
 
 export default function HomeScreen({ navigation }) {
+  const [viewportH, setViewportH] = useState(0);
   const [articles, setArticles] = useState([]);
   const [progressMap, setProgressMap] = useState({});
   const [wordCountMap, setWordCountMap] = useState({});
@@ -42,6 +43,12 @@ export default function HomeScreen({ navigation }) {
   const xpRef = useRef(0);
   const isFirstLoad = useRef(true);
   const xpAnimRef = useRef(null);
+
+  useEffect(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      setViewportH(window.innerHeight);
+    }
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -173,7 +180,7 @@ export default function HomeScreen({ navigation }) {
     `${streak} дней подряд`;
 
   return (
-    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }]}>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && viewportH > 0 && { maxHeight: viewportH }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
 
       {/* Top bar */}
