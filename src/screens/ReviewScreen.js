@@ -346,6 +346,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     paddingHorizontal: 28,
     paddingVertical: 12,
+    backgroundColor: colors.forestGreen,
     borderWidth: 1.5,
     borderColor: colors.gold,
     borderRadius: 4,
@@ -353,7 +354,7 @@ const styles = StyleSheet.create({
   revealBtnText: {
     fontFamily: 'CrimsonText_400Regular',
     fontSize: 15,
-    color: colors.inkMuted,
+    color: '#f0e6c8',
     letterSpacing: 0.4,
   },
   transcription: {

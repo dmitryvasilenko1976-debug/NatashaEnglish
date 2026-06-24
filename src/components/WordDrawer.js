@@ -130,7 +130,11 @@ export default function WordDrawer({ visible, wordData, word, loading, isSaved, 
               </TouchableOpacity>
             </>
           ) : (
-            <Text style={styles.errorText}>Слово не найдено в свитке</Text>
+            <View style={styles.errorWrap}>
+              <Ionicons name="book-outline" size={32} color={colors.inkFaint} />
+              <Text style={styles.errorText}>Слово не найдено в свитке</Text>
+              <Text style={styles.errorSubtext}>Словарь содержит ~2300 медицинских терминов</Text>
+            </View>
           )}
         </ScrollView>
       </Animated.View>
@@ -252,12 +256,22 @@ const styles = StyleSheet.create({
     fontFamily: 'CrimsonText_600SemiBold',
     color: colors.forestGreen,
   },
+  errorWrap: {
+    alignItems: 'center',
+    paddingVertical: 24,
+    gap: 10,
+  },
   errorText: {
     fontFamily: 'CrimsonText_400Regular_Italic',
-    fontSize: 14,
+    fontSize: 15,
     color: colors.inkMuted,
     textAlign: 'center',
-    paddingVertical: 20,
+  },
+  errorSubtext: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 12,
+    color: colors.inkFaint,
+    textAlign: 'center',
   },
   saveBtn: {
     backgroundColor: colors.forestGreen,
@@ -267,7 +281,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   saveBtnDone: {
-    backgroundColor: '#aaaaaa',
+    backgroundColor: colors.forestGreenLight,
+    borderWidth: 1,
+    borderColor: colors.forestGreen,
   },
   saveBtnText: {
     fontFamily: 'CrimsonText_400Regular',
@@ -275,7 +291,8 @@ const styles = StyleSheet.create({
     color: '#f0e6c8',
   },
   saveBtnDoneText: {
-    color: '#eeeeee',
+    color: colors.forestGreen,
+    fontFamily: 'CrimsonText_600SemiBold',
   },
   masteryRow: {
     flexDirection: 'row',

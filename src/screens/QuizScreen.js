@@ -319,7 +319,7 @@ export default function QuizScreen({ route, navigation }) {
         })}
 
         <Text style={styles.progNote}>
-          Первое речение {current + 1} из {questions.length}
+          Речение {current + 1} из {questions.length}
         </Text>
       </ScrollView>
 

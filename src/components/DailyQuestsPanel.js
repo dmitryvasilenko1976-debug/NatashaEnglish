@@ -45,7 +45,8 @@ export default function DailyQuestsPanel({ quests, weeklyQuest, quietMode }) {
         {allDone
           ? <Text style={styles.allDoneText}>✦ Все выполнены</Text>
           : <Text style={[styles.timerText, { color: timerColor }]}>
-              {!quietMode && timeLeft.hours < 4 ? '⚠ ' : ''}{timeLeft.hours}ч {timeLeft.minutes}м
+              {!quietMode && timeLeft.hours < 4 ? '⚠ ' : ''}
+              {timeLeft.hours > 0 ? `${timeLeft.hours}ч ` : ''}{timeLeft.minutes}м
             </Text>
         }
       </View>

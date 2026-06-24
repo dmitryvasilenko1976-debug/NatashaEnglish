@@ -174,8 +174,8 @@ const styles = StyleSheet.create({
 
   symbolWrap: { alignItems: 'center', marginTop: 16, marginBottom: 4 },
   logo: {
-    width: 280,
-    height: 280,
+    width: 200,
+    height: 200,
   },
 
   divider: { marginVertical: 12 },

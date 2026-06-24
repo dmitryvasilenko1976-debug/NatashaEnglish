@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
-  Alert, ActivityIndicator, SafeAreaView, StatusBar, Platform, Modal,
+  Alert, ActivityIndicator, SafeAreaView, StatusBar, Platform, Modal, ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -38,6 +38,7 @@ export default function HomeScreen({ navigation }) {
   const [leaguePosition, setLeaguePosition] = useState(null);
   const [weeklyQuest, setWeeklyQuest] = useState(null);
   const [reviewCount, setReviewCount] = useState(0);
+  const [initialLoading, setInitialLoading] = useState(true);
   const xpRef = useRef(0);
   const isFirstLoad = useRef(true);
   const xpAnimRef = useRef(null);
@@ -120,6 +121,7 @@ export default function HomeScreen({ navigation }) {
 
     if (streakBroken) setStreakLost({ days: previousStreak });
     if (gemsEarned > 0) setLoginBonus({ gems: gemsEarned, day: bonusDay });
+    setInitialLoading(false);
   }
 
   async function handleAddScroll() {
@@ -233,10 +235,16 @@ export default function HomeScreen({ navigation }) {
 
       <OrnamentDivider style={styles.topDivider} />
 
+      {initialLoading ? (
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator color={colors.gold} size="large" />
+        </View>
+      ) : null}
+
       <FlatList
         data={articles}
         keyExtractor={(a) => a.id}
-        style={[{ flex: 1 }, Platform.OS === 'web' && { overflowY: 'scroll' }]}
+        style={[{ flex: initialLoading ? 0 : 1 }, Platform.OS === 'web' && { overflowY: 'scroll' }]}
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <>
@@ -517,6 +525,11 @@ const styles = StyleSheet.create({
     fontFamily: 'CrimsonText_400Regular_Italic',
     fontSize: 13,
     color: '#9a8a7a',
+  },
+  loadingWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   gemsText: {
     fontFamily: 'CrimsonText_400Regular',

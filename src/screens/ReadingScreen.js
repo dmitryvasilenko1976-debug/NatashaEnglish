@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, Platform,
+  SafeAreaView, StatusBar, Platform, ActivityIndicator,
   Animated, PanResponder, Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -125,7 +125,10 @@ export default function ReadingScreen({ route, navigation }) {
   function showXPBurst(amount, options = {}) {
     if (quietMode && !options.force) return;
     const id = Date.now() + Math.random();
-    setXpBursts(prev => [...prev, { id, amount, ...options }]);
+    setXpBursts(prev => {
+      const yOffset = prev.length * 32;
+      return [...prev, { id, amount, yOffset, ...options }];
+    });
   }
 
   async function handleWordPress(clean, sentence) {
@@ -178,6 +181,7 @@ export default function ReadingScreen({ route, navigation }) {
     const art = articleRef.current;
     const idx = currentIdxRef.current;
     if (!art || idx >= art.sentences.length - 1) return;
+    setShowHint(false);
     const next = idx + 1;
     animateTo(next, 1);
     await saveProgress(articleId, next);
@@ -222,6 +226,7 @@ export default function ReadingScreen({ route, navigation }) {
   async function handleBack() {
     const idx = currentIdxRef.current;
     if (idx === 0) return;
+    setShowHint(false);
     const prev = idx - 1;
     animateTo(prev, -1);
     await saveProgress(articleId, prev);
@@ -232,7 +237,23 @@ export default function ReadingScreen({ route, navigation }) {
     else navigation.navigate('Home');
   }
 
-  if (!article) return null;
+  if (!article) {
+    return (
+      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={handleGoBack} style={styles.iconBtn}>
+            <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          </TouchableOpacity>
+          <Text style={styles.topTitle}>Загрузка…</Text>
+          <View style={{ width: 44 }} />
+        </View>
+        <View style={styles.sentenceArea}>
+          <ActivityIndicator color={colors.gold} size="large" />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const total = article.sentences.length;
   const progress = (currentIdx + 1) / total;
@@ -323,6 +344,7 @@ export default function ReadingScreen({ route, navigation }) {
           amount={b.amount}
           crit={b.crit}
           label={b.label}
+          yOffset={b.yOffset || 0}
           onDone={() => setXpBursts(prev => prev.filter(x => x.id !== b.id))}
         />
       ))}

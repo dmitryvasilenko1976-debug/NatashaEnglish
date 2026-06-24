@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 
-export default function XPBurst({ amount, crit = false, label = null, onDone }) {
+export default function XPBurst({ amount, crit = false, label = null, yOffset = 0, onDone }) {
   const opacity = useRef(new Animated.Value(1)).current;
   const translateY = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(crit ? 0.6 : 1)).current;
@@ -16,13 +16,14 @@ export default function XPBurst({ amount, crit = false, label = null, onDone }) 
   }, []);
 
   const text = label || (crit ? `✦ КРИТ! +${amount} XP` : `+${amount} XP`);
+  const topBase = crit ? 70 : 80;
 
   return (
     <Animated.Text
       style={[
         styles.burst,
         crit && styles.burstCrit,
-        { opacity, transform: [{ translateY }, { scale }] },
+        { opacity, top: topBase + yOffset, transform: [{ translateY }, { scale }] },
       ]}
     >
       {text}

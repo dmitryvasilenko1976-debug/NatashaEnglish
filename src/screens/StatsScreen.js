@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet,
-  SafeAreaView, StatusBar, TouchableOpacity,
+  SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -48,7 +48,23 @@ export default function StatsScreen({ navigation }) {
     setWordMastery(wm);
   }
 
-  if (!game) return null;
+  if (!game) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
+            <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          </TouchableOpacity>
+          <Text style={styles.topTitle}>Путь Мастера</Text>
+          <View style={styles.iconBtn} />
+        </View>
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator color={colors.gold} size="large" />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const stats = game.stats || {};
   const days = getLast7Days();
@@ -318,5 +334,10 @@ const styles = StyleSheet.create({
     color: colors.inkFaint,
     textAlign: 'center',
     paddingVertical: 12,
+  },
+  loadingWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
