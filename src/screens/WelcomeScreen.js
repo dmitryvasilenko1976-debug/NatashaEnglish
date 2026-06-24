@@ -66,6 +66,24 @@ export default function WelcomeScreen({ navigation }) {
 
         <OrnamentDivider style={styles.divider} />
 
+        {/* Map card — главный вход в историю */}
+        <TouchableOpacity
+          style={styles.mapCard}
+          onPress={() => navigation.navigate('Map')}
+          activeOpacity={0.82}
+        >
+          <View style={styles.mapCardLeft}>
+            <Ionicons name="compass-outline" size={26} color={colors.goldBright} />
+          </View>
+          <View style={styles.mapCardBody}>
+            <Text style={styles.mapCardTitle}>Волшебная Карта</Text>
+            <Text style={styles.mapCardDesc}>Путешествие Наташи · 28 локаций · 6 зон</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color={colors.goldBright} />
+        </TouchableOpacity>
+
+        <OrnamentDivider style={styles.divider} />
+
         {/* Nav cards */}
         <MenuCard
           icon="map-outline"
@@ -177,6 +195,47 @@ const styles = StyleSheet.create({
   },
 
   divider: { marginVertical: 12 },
+
+  mapCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 4,
+    backgroundColor: colors.forestGreen,
+    borderWidth: 1.5,
+    borderColor: colors.goldBright + '80',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    gap: 12,
+    ...Platform.select({
+      web: { boxShadow: '0 2px 12px rgba(44,26,14,0.18)' },
+      default: { elevation: 4 },
+    }),
+  },
+  mapCardLeft: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: colors.goldBright + '60',
+    backgroundColor: colors.goldBright + '20',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mapCardBody: { flex: 1 },
+  mapCardTitle: {
+    fontFamily: 'AlmendraDisplay_400Regular',
+    fontSize: 17,
+    color: '#f0e6c8',
+    marginBottom: 2,
+  },
+  mapCardDesc: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 12,
+    color: colors.goldBright,
+    opacity: 0.85,
+  },
 
   card: {
     flexDirection: 'row',

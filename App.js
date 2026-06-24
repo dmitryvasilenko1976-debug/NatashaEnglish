@@ -26,6 +26,7 @@ import MorphologyScreen from './src/screens/MorphologyScreen';
 import MorphologyQuizScreen from './src/screens/MorphologyQuizScreen';
 import FalseFriendsScreen from './src/screens/FalseFriendsScreen';
 import ClozeScreen from './src/screens/ClozeScreen';
+import MapScreen from './src/screens/MapScreen';
 
 const Stack = createStackNavigator();
 
@@ -84,6 +85,7 @@ export default function App() {
         <Stack.Screen name="MorphologyQuiz" component={MorphologyQuizScreen} />
         <Stack.Screen name="FalseFriends" component={FalseFriendsScreen} />
         <Stack.Screen name="Cloze" component={ClozeScreen} />
+        <Stack.Screen name="Map" component={MapScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
