@@ -1,15 +1,14 @@
 // Все объяснения предвычислены — нет обращений к API
-let wordCache = null;
+// wordCache.json разбит на 3 части (~300 KB каждая) чтобы Metro web мог их включить в бандл
+import chunk1 from '../data/wordCache1.json';
+import chunk2 from '../data/wordCache2.json';
+import chunk3 from '../data/wordCache3.json';
+
+let _cache = null;
 
 function getCache() {
-  if (!wordCache) {
-    try {
-      wordCache = require('../../src/data/wordCache.json');
-    } catch {
-      wordCache = {};
-    }
-  }
-  return wordCache;
+  if (!_cache) _cache = { ...chunk1, ...chunk2, ...chunk3 };
+  return _cache;
 }
 
 // Extract surrounding words from the actual current sentence
