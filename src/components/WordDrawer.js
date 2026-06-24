@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import OrnamentDivider from './OrnamentDivider';
+import { WORD_CATEGORY_MAP, getCategoryById } from '../data/grammarLessons';
 import { colors } from '../theme/colors';
 
 function speakWord(word) {
@@ -31,7 +32,7 @@ function getMasteryLevel(wordData, lookupCount) {
   return 0;
 }
 
-export default function WordDrawer({ visible, wordData, word, loading, isSaved, onSave, onClose, mastery }) {
+export default function WordDrawer({ visible, wordData, word, loading, isSaved, onSave, onClose, mastery, onOpenGrammar }) {
   const slideY = useRef(new Animated.Value(300)).current;
 
   useEffect(() => {
@@ -118,6 +119,26 @@ export default function WordDrawer({ visible, wordData, word, loading, isSaved, 
                   </Text>
                 </View>
               ) : null}
+
+              {(() => {
+                const key = word?.toLowerCase().replace(/[^a-zA-Z'-]/g, '');
+                const catId = key ? WORD_CATEGORY_MAP[key] : null;
+                const cat = catId ? getCategoryById(catId) : null;
+                if (!cat || !onOpenGrammar) return null;
+                return (
+                  <TouchableOpacity
+                    style={styles.grammarLink}
+                    onPress={() => { onClose(); onOpenGrammar(catId); }}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="book-outline" size={14} color={colors.forestGreen} />
+                    <Text style={styles.grammarLinkText}>
+                      Раздел: {cat.title}
+                    </Text>
+                    <Ionicons name="chevron-forward" size={13} color={colors.forestGreen} />
+                  </TouchableOpacity>
+                );
+              })()}
 
               <TouchableOpacity
                 style={[styles.saveBtn, isSaved && styles.saveBtnDone]}
@@ -273,6 +294,25 @@ const styles = StyleSheet.create({
     color: colors.inkFaint,
     textAlign: 'center',
   },
+  grammarLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.forestGreenLight,
+    borderWidth: 1,
+    borderColor: colors.forestGreen + '40',
+    borderRadius: 3,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    marginBottom: 10,
+  },
+  grammarLinkText: {
+    flex: 1,
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 13,
+    color: colors.forestGreen,
+  },
+
   saveBtn: {
     backgroundColor: colors.forestGreen,
     paddingVertical: 12,

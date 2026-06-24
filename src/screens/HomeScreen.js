@@ -260,6 +260,20 @@ export default function HomeScreen({ navigation }) {
               </View>
             )}
             <DailyQuestsPanel quests={dailyQuests} weeklyQuest={weeklyQuest} />
+            <TouchableOpacity
+              style={styles.grammarCard}
+              onPress={() => navigation.navigate('Grammar')}
+              activeOpacity={0.82}
+            >
+              <View style={styles.grammarCardLeft}>
+                <Ionicons name="book-outline" size={20} color={colors.gold} />
+              </View>
+              <View style={styles.grammarCardBody}>
+                <Text style={styles.grammarCardTitle}>Грамматика</Text>
+                <Text style={styles.grammarCardDesc}>Модальные глаголы, предлоги, союзы, неправильные глаголы</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.gold} />
+            </TouchableOpacity>
             <Text style={styles.listHeader}>Свитки</Text>
           </>
         }
@@ -442,6 +456,42 @@ const styles = StyleSheet.create({
     color: colors.inkFaint,
     textAlign: 'center',
   },
+  grammarCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 12,
+    marginBottom: 10,
+    backgroundColor: colors.parchment,
+    borderWidth: 1,
+    borderColor: colors.goldFaint,
+    borderRadius: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 12,
+  },
+  grammarCardLeft: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: colors.gold + '50',
+    backgroundColor: colors.goldFaint,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  grammarCardBody: { flex: 1 },
+  grammarCardTitle: {
+    fontFamily: 'IMFellEnglish_400Regular',
+    fontSize: 15,
+    color: colors.ink,
+    marginBottom: 2,
+  },
+  grammarCardDesc: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 11,
+    color: colors.inkFaint,
+  },
+
   listHeader: {
     fontFamily: 'IMFellEnglish_400Regular',
     fontSize: 13,

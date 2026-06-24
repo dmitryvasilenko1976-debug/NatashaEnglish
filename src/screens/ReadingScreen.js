@@ -358,6 +358,10 @@ export default function ReadingScreen({ route, navigation }) {
         onSave={handleSaveWord}
         onClose={() => setDrawerVisible(false)}
         mastery={selectedWord ? (wordMastery[selectedWord] || 0) : 0}
+        onOpenGrammar={(categoryId) => {
+          setDrawerVisible(false);
+          navigation.navigate('Grammar', { expandedId: categoryId });
+        }}
       />
 
       {pendingAchievements.length > 0 && (
