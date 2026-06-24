@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
-import React from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, ActivityIndicator, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import {
@@ -38,6 +38,23 @@ import ClozeScreen from './src/screens/ClozeScreen';
 const Stack = createStackNavigator();
 
 export default function App() {
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    // Fix iOS Safari: browser toolbar overlaps content at bottom.
+    // -webkit-fill-available = viewport height excluding ALL browser chrome.
+    // 100svh = same on modern browsers (iOS 15.4+, Chrome 108+).
+    const style = document.createElement('style');
+    style.innerHTML = `
+      html { height: -webkit-fill-available; }
+      body { height: -webkit-fill-available; overflow: hidden; }
+      #root { height: -webkit-fill-available; display: flex; flex: 1; }
+      @supports (height: 100svh) {
+        html, body, #root { height: 100svh; }
+      }
+    `;
+    document.head.appendChild(style);
+  }, []);
+
   const [fontsLoaded, fontError] = useFonts({
     IMFellEnglish_400Regular,
     IMFellEnglish_400Regular_Italic,

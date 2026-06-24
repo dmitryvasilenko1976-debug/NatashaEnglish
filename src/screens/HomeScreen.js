@@ -45,9 +45,12 @@ export default function HomeScreen({ navigation }) {
   const xpAnimRef = useRef(null);
 
   useEffect(() => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      setViewportH(window.innerHeight);
-    }
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const getH = () => (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+    setViewportH(getH());
+    const onResize = () => setViewportH(getH());
+    window.visualViewport?.addEventListener('resize', onResize);
+    return () => window.visualViewport?.removeEventListener('resize', onResize);
   }, []);
 
   useFocusEffect(
