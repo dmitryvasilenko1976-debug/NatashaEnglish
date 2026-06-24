@@ -44,11 +44,13 @@ export function getLeagueTierName(tier) {
 
 export function generateLeague(userXP) {
   const names = shuffle(RIVAL_NAMES).slice(0, 9);
+  // Random rivals are bounded by user's actual XP so new players aren't immediately last
+  const randomCap = Math.max(userXP * 2 + 100, userXP + 150);
   return names.map((name, i) => {
     let xp;
-    if (i < 2)      xp = userXP + 50 + Math.floor(Math.random() * 100);         // 2 ahead
-    else if (i < 5) xp = Math.max(0, userXP - 20 - Math.floor(Math.random() * 180)); // 3 behind
-    else             xp = Math.floor(Math.random() * Math.max(userXP * 1.5 + 100, 600)); // 4 random
+    if (i < 2)      xp = userXP + 50 + Math.floor(Math.random() * 100);                // 2 ahead
+    else if (i < 5) xp = Math.max(0, userXP - 20 - Math.floor(Math.random() * 180));   // 3 behind
+    else             xp = Math.floor(Math.random() * randomCap);                        // 4 random (scaled)
     return { name, xp };
   });
 }

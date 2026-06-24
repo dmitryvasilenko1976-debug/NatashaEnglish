@@ -71,6 +71,7 @@ export default function StatsScreen({ navigation }) {
   const todayStr = new Date().toISOString().split('T')[0];
   const activities = days.map(d => ({ ...d, count: stats.dailyActivity?.[d.date] || 0 }));
   const maxCount = Math.max(...activities.map(a => a.count), 1);
+  const hasAnyActivity = activities.some(a => a.count > 0);
   const BAR_MAX = 80;
 
   const top5 = Object.entries(wordMastery)
@@ -96,25 +97,29 @@ export default function StatsScreen({ navigation }) {
         {/* 7-day activity chart */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Активность — 7 дней</Text>
-          <View style={styles.chartRow}>
-            {activities.map((a, i) => (
-              <View key={i} style={styles.barCol}>
-                <Text style={styles.barCount}>{a.count > 0 ? a.count : ''}</Text>
-                <View style={styles.barBg}>
-                  <View
-                    style={[
-                      styles.barFill,
-                      { height: Math.max(4, Math.round((a.count / maxCount) * BAR_MAX)) },
-                      a.date === todayStr && styles.barToday,
-                    ]}
-                  />
+          {hasAnyActivity ? (
+            <View style={styles.chartRow}>
+              {activities.map((a, i) => (
+                <View key={i} style={styles.barCol}>
+                  <Text style={styles.barCount}>{a.count > 0 ? a.count : ''}</Text>
+                  <View style={styles.barBg}>
+                    <View
+                      style={[
+                        styles.barFill,
+                        { height: Math.max(4, Math.round((a.count / maxCount) * BAR_MAX)) },
+                        a.date === todayStr && styles.barToday,
+                      ]}
+                    />
+                  </View>
+                  <Text style={[styles.barLabel, a.date === todayStr && styles.barLabelToday]}>
+                    {a.label}
+                  </Text>
                 </View>
-                <Text style={[styles.barLabel, a.date === todayStr && styles.barLabelToday]}>
-                  {a.label}
-                </Text>
-              </View>
-            ))}
-          </View>
+              ))}
+            </View>
+          ) : (
+            <Text style={styles.noActivity}>Начни читать — здесь появится твой прогресс</Text>
+          )}
         </View>
 
         <OrnamentDivider />
@@ -252,6 +257,14 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   barLabelToday: { color: colors.gold },
+
+  noActivity: {
+    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontSize: 13,
+    color: colors.inkFaint,
+    textAlign: 'center',
+    paddingVertical: 20,
+  },
 
   // Stats tiles
   tilesRow: {
