@@ -11,17 +11,18 @@ import { LOCATIONS, ZONES_META, OPENING_LETTER } from '../data/storyData';
 import { getGameData, getSavedWords, getArticles, getProgress } from '../services/storageService';
 import StoryModal, { LetterModal } from '../components/StoryModal';
 
-const { width: W } = Dimensions.get('window');
+// Map max-width so it looks good on desktop too
+const MAP_W = Math.min(Dimensions.get('window').width, 500);
 
 // Layout constants
 const NODE_R = 28;
-const V_STEP = 112;
+const V_STEP = 118;
 const ZONE_BANNER_H = 48;
 const ZONE_GAP = 64;
 const START_Y = 24;
 
-// Three column X positions
-const CX = { L: Math.round(W * 0.17), C: Math.round(W * 0.5), R: Math.round(W * 0.83) };
+// Three column X positions (relative to MAP_W)
+const CX = { L: Math.round(MAP_W * 0.18), C: Math.round(MAP_W * 0.5), R: Math.round(MAP_W * 0.82) };
 
 // Zigzag column pattern for 28 nodes
 const COLS = [
@@ -175,9 +176,12 @@ export default function MapScreen({ navigation }) {
       <ScrollView
         ref={scrollRef}
         style={styles.scroll}
-        contentContainerStyle={{ height: MAP_H }}
         showsVerticalScrollIndicator={false}
       >
+        {/* Center the fixed-width map on wide screens */}
+        <View style={styles.mapOuter}>
+          <View style={[styles.mapInner, { height: MAP_H }]}>
+
         {/* Zone backgrounds */}
         {ZONES_META.map((zone, zi) => {
           const startY = BANNER_Y[zone.id] ?? 0;
@@ -190,10 +194,10 @@ export default function MapScreen({ navigation }) {
 
         {/* Zone banners */}
         {ZONES_META.map(zone => (
-          <View key={`b${zone.id}`} style={[styles.zoneBanner, { top: BANNER_Y[zone.id] ?? 0, borderColor: zone.accent + '60' }]}>
-            <View style={[styles.zoneBannerLine, { backgroundColor: zone.accent + '50' }]} />
+          <View key={`b${zone.id}`} style={[styles.zoneBanner, { top: BANNER_Y[zone.id] ?? 0, borderColor: zone.accent + '80' }]}>
+            <View style={[styles.zoneBannerLine, { backgroundColor: zone.accent + '70' }]} />
             <Text style={[styles.zoneBannerText, { color: zone.accent }]}>⁕ {zone.name} ⁕</Text>
-            <View style={[styles.zoneBannerLine, { backgroundColor: zone.accent + '50' }]} />
+            <View style={[styles.zoneBannerLine, { backgroundColor: zone.accent + '70' }]} />
           </View>
         ))}
 
@@ -209,10 +213,10 @@ export default function MapScreen({ navigation }) {
               style={[
                 styles.pathDot,
                 {
-                  left: d.x - 4,
-                  top: d.y - 4,
-                  backgroundColor: completed ? colors.goldBright : colors.goldFaint,
-                  opacity: completed ? 0.7 : 0.35,
+                  left: d.x - 5,
+                  top: d.y - 5,
+                  backgroundColor: completed ? colors.goldBright : '#c8b890',
+                  opacity: completed ? 0.85 : 0.5,
                 },
               ]}
             />
@@ -290,10 +294,13 @@ export default function MapScreen({ navigation }) {
           );
         })}
 
-        {/* Fog overlay on locked zone (last 2 zones if not yet reached) */}
+        {/* Fog overlay on zones 5-6 if not yet reached */}
         {currentNodeIndex < 21 && (
           <View style={[styles.fogOverlay, { top: BANNER_Y[5] ?? MAP_H - 200 }]} pointerEvents="none" />
         )}
+
+          </View>{/* mapInner */}
+        </View>{/* mapOuter */}
       </ScrollView>
 
       {/* Letter modal */}
@@ -353,6 +360,16 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
+    backgroundColor: '#f0ebe0',
+  },
+  mapOuter: {
+    alignItems: 'center',
+    backgroundColor: '#f0ebe0',
+  },
+  mapInner: {
+    width: MAP_W,
+    position: 'relative',
+    overflow: 'hidden',
   },
 
   // Zone backgrounds (absolute)
@@ -389,9 +406,9 @@ const styles = StyleSheet.create({
   // Path
   pathDot: {
     position: 'absolute',
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
 
   // Nodes
