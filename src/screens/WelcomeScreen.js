@@ -5,7 +5,6 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import OrnamentDivider from '../components/OrnamentDivider';
 import {
   getArticles, getSavedWords, getProgress,
   getGameData, saveGameData, updateStreak,
@@ -64,8 +63,6 @@ export default function WelcomeScreen({ navigation }) {
           />
         </View>
 
-        <OrnamentDivider style={styles.divider} />
-
         {/* Map card — главный вход в историю */}
         <TouchableOpacity
           style={styles.mapCard}
@@ -82,8 +79,6 @@ export default function WelcomeScreen({ navigation }) {
           <Ionicons name="chevron-forward" size={16} color={colors.goldBright} />
         </TouchableOpacity>
 
-        <OrnamentDivider style={styles.divider} />
-
         {/* Nav cards */}
         <MenuCard
           icon="map-outline"
@@ -96,7 +91,7 @@ export default function WelcomeScreen({ navigation }) {
         <MenuCard
           icon="library-outline"
           label="Читать свитки"
-          desc={stats.totalArticles > 0 ? `${stats.totalArticles} статей · педиатрия` : 'Загрузка…'}
+          desc={stats.totalArticles > 0 ? `${stats.totalArticles} свитков · Свитки целителя` : 'Загрузка…'}
           tint={colors.forestGreen}
           onPress={() => navigation.navigate('Home')}
         />
@@ -107,14 +102,12 @@ export default function WelcomeScreen({ navigation }) {
           desc={
             stats.totalWords > 0
               ? `${stats.totalWords} заклинаний готово`
-              : 'Сохрани слова во время чтения'
+              : 'Собери заклинания, читая свитки'
           }
           tint="#7a3c10"
           disabled={stats.totalWords === 0}
           onPress={() => navigation.navigate('QuizSelect')}
         />
-
-        <OrnamentDivider style={styles.divider} />
 
         {/* Progress */}
         <View style={styles.progressSection}>
@@ -170,7 +163,7 @@ function MenuCard({ icon, label, desc, tint, onPress, disabled }) {
         <Text style={[styles.cardLabel, disabled && styles.cardLabelDim]}>{label}</Text>
         <Text style={styles.cardDesc}>{desc}</Text>
       </View>
-      <Ionicons name="chevron-forward" size={16} color={disabled ? '#ccc' : colors.gold} />
+      <Ionicons name={disabled ? 'lock-closed-outline' : 'chevron-forward'} size={18} color={disabled ? '#aaa' : colors.gold} />
     </TouchableOpacity>
   );
 }
@@ -186,21 +179,21 @@ function StatPill({ value, label }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.parchmentDark },
-  scroll: { paddingBottom: 8 },
+  scroll: { paddingBottom: 40 },
 
-  symbolWrap: { alignItems: 'center', marginTop: 16, marginBottom: 4 },
+  symbolWrap: { alignItems: 'center', marginTop: 16, marginBottom: 20 },
   logo: {
     width: 200,
     height: 200,
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-
-  divider: { marginVertical: 12 },
 
   mapCard: {
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 16,
-    marginBottom: 4,
+    marginBottom: 20,
     backgroundColor: colors.forestGreen,
     borderWidth: 1.5,
     borderColor: colors.goldBright + '80',
@@ -249,7 +242,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 14,
   },
-  cardDisabled: { opacity: 0.5 },
+  cardDisabled: { opacity: 0.65 },
   cardIconWrap: {
     width: 48,
     height: 48,
@@ -268,14 +261,14 @@ const styles = StyleSheet.create({
   },
   cardLabelDim: { color: '#aaa' },
   cardDesc: {
-    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontFamily: 'CrimsonText_400Regular',
     fontSize: 12,
     color: colors.inkFaint,
   },
 
   progressSection: {
     marginHorizontal: 16,
-    marginTop: 4,
+    marginTop: 24,
     backgroundColor: colors.parchment,
     borderWidth: 1,
     borderColor: colors.parchmentBorder,
@@ -288,7 +281,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   progressLabel: {
-    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontFamily: 'CrimsonText_400Regular',
     fontSize: 12,
     color: colors.inkFaint,
   },
@@ -331,7 +324,7 @@ const styles = StyleSheet.create({
     color: colors.ink,
   },
   statLabel: {
-    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontFamily: 'CrimsonText_400Regular',
     fontSize: 10,
     color: colors.inkFaint,
   },
@@ -350,7 +343,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   achievText: {
-    fontFamily: 'CrimsonText_400Regular_Italic',
+    fontFamily: 'CrimsonText_400Regular',
     fontSize: 12,
     color: colors.inkFaint,
   },
