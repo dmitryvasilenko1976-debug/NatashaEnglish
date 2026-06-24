@@ -247,6 +247,7 @@ export function getRestoredHearts(game) {
   const elapsed = Date.now() - quiz.lastHeartRestore;
   const restored = Math.floor(elapsed / RESTORE_MS);
   const newHearts = Math.min(3, quiz.hearts + restored);
+  if (newHearts >= 3) return { hearts: 3, minutesUntilNext: 0 };
   const msUntilNext = RESTORE_MS - (elapsed % RESTORE_MS);
   return { hearts: newHearts, minutesUntilNext: Math.ceil(msUntilNext / 60000) };
 }
