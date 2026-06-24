@@ -476,12 +476,12 @@ const styles = StyleSheet.create({
   },
   nodeLabel: {
     fontFamily: 'Almendra_400Regular',
-    fontSize: 12,
+    fontSize: 11,
     color: colors.ink,
     textAlign: 'center',
     marginTop: 6,
-    lineHeight: 16,
-    width: 96,
+    lineHeight: 15,
+    width: 112,
   },
   nodeLabelLocked: {
     color: '#7a6a50',
