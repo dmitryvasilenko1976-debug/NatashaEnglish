@@ -5,14 +5,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import {
   useFonts,
-  Almendra_400Regular,
-  Almendra_400Regular_Italic,
-  Almendra_700Bold,
-} from '@expo-google-fonts/almendra';
-import {
-  AlmendraDisplay_400Regular,
-} from '@expo-google-fonts/almendra-display';
-import {
   CrimsonText_400Regular,
   CrimsonText_400Regular_Italic,
   CrimsonText_600SemiBold,
@@ -56,13 +48,13 @@ export default function App() {
   }, []);
 
   const [fontsLoaded, fontError] = useFonts({
-    Almendra_400Regular,
-    Almendra_400Regular_Italic,
+    Almendra_400Regular: require('./assets/fonts/Almendra_400Regular.ttf'),
+    Almendra_400Regular_Italic: require('./assets/fonts/Almendra_400Regular_Italic.ttf'),
+    Almendra_700Bold: require('./assets/fonts/Almendra_700Bold.ttf'),
+    AlmendraDisplay_400Regular: require('./assets/fonts/AlmendraDisplay_400Regular.ttf'),
     CrimsonText_400Regular,
     CrimsonText_400Regular_Italic,
     CrimsonText_600SemiBold,
-    AlmendraDisplay_400Regular,
-    Almendra_700Bold,
   });
 
   if (!fontsLoaded && !fontError) {
