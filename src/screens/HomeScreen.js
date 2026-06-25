@@ -200,11 +200,16 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
         <Text style={styles.appTitle}>Свитки</Text>
         <View style={styles.topRight}>
-          <Image source={NATASHA_PORTRAIT} style={styles.natashaAvatar} resizeMode="cover" />
+          <View style={styles.natashaAvatarRing}>
+            <Image source={NATASHA_PORTRAIT} style={styles.natashaAvatar} resizeMode="cover" />
+          </View>
           {levelInfo && (
             <Text style={styles.levelText}>{levelInfo.title}</Text>
           )}
-          <Text style={styles.gemsText}>◈ {gems}</Text>
+          <View style={styles.gemsRow}>
+            <Image source={require('../../assets/icons/diamond-gem.png')} style={styles.gemIcon} resizeMode="contain" />
+            <Text style={styles.gemsText}>{gems}</Text>
+          </View>
           <Text style={styles.xpText}>✦ {xpDisplay} XP</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Stats')} style={styles.iconBtn}>
             <Icon name="bar-chart-outline" size={20} color="#c4a96a" />
@@ -449,12 +454,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
+  natashaAvatarRing: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#f9f4e7',
+    padding: 2,
+    borderWidth: 1.5,
+    borderColor: '#c4a96a',
+    overflow: 'hidden',
+  },
   natashaAvatar: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#c4a96a',
+  },
+  gemsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  gemIcon: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
   },
   xpText: {
     fontFamily: 'CrimsonText_400Regular',

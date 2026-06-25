@@ -1,5 +1,11 @@
 import React from 'react';
-import { Image, Platform } from 'react-native';
+import { Image, Platform, Text } from 'react-native';
+
+// Простые символы вместо иконок там где нужна чёткость на малых размерах
+const TEXT_ICONS = {
+  'chevron-back':    '‹',
+  'chevron-forward': '›',
+};
 
 const icons = {
   'alert-circle-outline':        require('../../assets/icons/alert-circle-outline.png'),
@@ -89,7 +95,14 @@ const aliases = {
   'restaurant-outline':  'flask-outline',
 };
 
-export default function Icon({ name, size = 24, blend = true, style }) {
+export default function Icon({ name, size = 24, blend = true, color, style }) {
+  if (TEXT_ICONS[name]) {
+    return (
+      <Text style={[{ fontSize: size * 1.4, lineHeight: size * 1.6, color: color || '#b8975a', fontWeight: '300' }, style]}>
+        {TEXT_ICONS[name]}
+      </Text>
+    );
+  }
   const resolvedName = aliases[name] || name;
   const source = icons[resolvedName];
   if (!source) return null;
@@ -97,7 +110,7 @@ export default function Icon({ name, size = 24, blend = true, style }) {
   return (
     <Image
       source={source}
-      style={[{ width: size, height: size }, blendStyle, style]}
+      style={[{ width: size, height: size, borderRadius: size / 2, overflow: 'hidden' }, blendStyle, style]}
       resizeMode="contain"
     />
   );
