@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, FlatList, StyleSheet,
   SafeAreaView, StatusBar, TouchableOpacity, Switch, Platform
@@ -183,6 +184,7 @@ export default function AchievementsScreen({ navigation }) {
   };
 
   return (
+    <ParchmentBackground>
     <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
 
@@ -250,11 +252,12 @@ export default function AchievementsScreen({ navigation }) {
         ListFooterComponent={<View style={{ height: 24 }} />}
       />
     </SafeAreaView>
+    </ParchmentBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.parchmentDark },
+  safe: { flex: 1, backgroundColor: 'transparent' },
   topBar: {
     backgroundColor: colors.forestGreen,
     borderBottomWidth: 2,

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
   Alert, ActivityIndicator, SafeAreaView, StatusBar, Platform, Modal, ScrollView,
@@ -183,6 +184,7 @@ export default function HomeScreen({ navigation }) {
     `${streak} дней подряд`;
 
   return (
+    <ParchmentBackground>
     <SafeAreaView style={[styles.safe, Platform.OS === 'web' && viewportH > 0 && { maxHeight: viewportH }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
 
@@ -417,14 +419,12 @@ export default function HomeScreen({ navigation }) {
         </View>
       </Modal>
     </SafeAreaView>
+    </ParchmentBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.parchmentDark,
-  },
+  safe: { flex: 1, backgroundColor: 'transparent' },
   topBar: {
     backgroundColor: colors.forestGreen,
     borderBottomWidth: 2,

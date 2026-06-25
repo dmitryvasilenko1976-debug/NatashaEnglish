@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, ScrollView, Platform, Image,
@@ -46,6 +47,7 @@ export default function WelcomeScreen({ navigation }) {
     : 0;
 
   return (
+    <ParchmentBackground>
     <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
 
@@ -146,6 +148,7 @@ export default function WelcomeScreen({ navigation }) {
         <View style={{ height: 24 }} />
       </ScrollView>
     </SafeAreaView>
+    </ParchmentBackground>
   );
 }
 
@@ -178,7 +181,7 @@ function StatPill({ value, label }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.parchmentDark },
+  safe: { flex: 1, backgroundColor: 'transparent' },
   scroll: { paddingBottom: 40 },
 
   symbolWrap: { alignItems: 'center', marginTop: 16, marginBottom: 20 },

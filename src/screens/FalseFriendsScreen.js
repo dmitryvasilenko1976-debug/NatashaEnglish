@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Animated, Platform
@@ -115,13 +116,15 @@ export default function FalseFriendsScreen({ navigation }) {
   if (showQuiz) {
     if (questions.length === 0) {
       return (
-        <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
+        <ParchmentBackground>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
           <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
           {topBar}
           <View style={styles.emptyWrap}>
             <Text style={styles.emptyText}>Загрузка...</Text>
           </View>
         </SafeAreaView>
+    </ParchmentBackground>
       );
     }
 
@@ -316,7 +319,7 @@ export default function FalseFriendsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.parchmentDark },
+  safe: { flex: 1, backgroundColor: 'transparent' },
 
   topBar: {
     backgroundColor: colors.forestGreen,

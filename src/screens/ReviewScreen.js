@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Animated, Platform
@@ -133,7 +134,8 @@ export default function ReviewScreen({ navigation }) {
   // ── Empty ──────────────────────────────────────────────────────────────────
   if (cards.length === 0 && !done) {
     return (
-      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
+      <ParchmentBackground>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.emptyWrap}>
@@ -150,6 +152,7 @@ export default function ReviewScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+    </ParchmentBackground>
     );
   }
 
@@ -273,7 +276,7 @@ export default function ReviewScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.parchmentDark },
+  safe: { flex: 1, backgroundColor: 'transparent' },
   topBar: {
     backgroundColor: colors.forestGreen,
     borderBottomWidth: 2,
