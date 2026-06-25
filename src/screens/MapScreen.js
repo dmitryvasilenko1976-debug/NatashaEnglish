@@ -18,7 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme/colors';
 import { LOCATIONS, ZONES_META, OPENING_LETTER } from '../data/storyData';
-import { startMusic, stopMusic, playSound, initAudio } from '../services/audioService';
+import { startMusic, stopMusic, playSound } from '../services/audioService';
 import { getGameData, getSavedWords, getArticles, getProgress } from '../services/storageService';
 import StoryModal, { LetterModal } from '../components/StoryModal';
 
@@ -108,7 +108,7 @@ export default function MapScreen({ navigation }) {
 
   useFocusEffect(useCallback(() => {
     loadData();
-    initAudio().then(() => startMusic('map'));
+    startMusic('map');
     return () => stopMusic();
   }, []));
 

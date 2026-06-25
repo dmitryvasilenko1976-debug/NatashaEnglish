@@ -27,10 +27,13 @@ import MorphologyQuizScreen from './src/screens/MorphologyQuizScreen';
 import FalseFriendsScreen from './src/screens/FalseFriendsScreen';
 import ClozeScreen from './src/screens/ClozeScreen';
 import MapScreen from './src/screens/MapScreen';
+import { initAudio } from './src/services/audioService';
 
 const Stack = createStackNavigator();
 
 export default function App() {
+  useEffect(() => { initAudio(); }, []);
+
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return;
     // Fix iOS Safari: browser toolbar overlaps content at bottom.

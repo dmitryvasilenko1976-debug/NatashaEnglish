@@ -38,10 +38,17 @@ export async function initAudio() {
 export async function playSound(name) {
   if (_muted) return;
   try {
-    const sound = _soundCache[name];
-    if (!sound) return;
-    await sound.setPositionAsync(0);
-    await sound.playAsync();
+    let sound = _soundCache[name];
+    if (sound) {
+      await sound.replayAsync();
+    } else {
+      // fallback: create on demand if preload didn't finish
+      const src = SOUNDS[name];
+      if (!src) return;
+      const { sound: s } = await Audio.Sound.createAsync(src, { volume: 0.7 });
+      _soundCache[name] = s;
+      await s.playAsync();
+    }
   } catch (_) {}
 }
 
