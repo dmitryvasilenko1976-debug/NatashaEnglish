@@ -15,11 +15,9 @@ const MUSIC = {
 let _music = null;
 let _muted = false;
 const _soundCache = {};
-let _initialized = false;
 
 export async function initAudio() {
-  if (_initialized) return;
-  _initialized = true;
+  if (Platform.OS === 'web') return;
   try {
     await Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
@@ -28,10 +26,22 @@ export async function initAudio() {
   } catch (_) {}
 }
 
-// Sounds are loaded lazily on first playSound() call — always inside a user gesture,
-// which is required by iOS Safari to allow audio playback.
+// On web/iOS Safari: use HTMLAudioElement directly — synchronous, works inside tap gesture.
+// On native: use expo-av with lazy load on first call.
 export async function playSound(name) {
   if (_muted) return;
+
+  if (Platform.OS === 'web') {
+    try {
+      const src = SOUNDS[name];
+      if (!src) return;
+      const audio = new window.Audio(src);
+      audio.volume = 0.7;
+      audio.play().catch(() => {});
+    } catch (_) {}
+    return;
+  }
+
   try {
     if (!_soundCache[name]) {
       const src = SOUNDS[name];
