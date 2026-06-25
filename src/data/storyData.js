@@ -1,11 +1,11 @@
 export const NATASHA_PORTRAIT = require('../../assets/portraits/natasha.png');
 
 export const CHARACTERS = {
-  'Наташа':   { image: NATASHA_PORTRAIT,        color: '#c0392b' },
-  'Корнелиус':{ icon: 'glasses-outline',        color: '#2c4a2e' },
-  'Лингва':   { icon: 'sparkles-outline',       color: '#b8975a' },
-  'Элеонора': { icon: 'ribbon-outline',         color: '#2471a3' },
-  'Голем':    { icon: 'cube-outline',           color: '#4a3728' },
+  'Наташа':   { image: require('../../assets/portraits/natasha.png'),   color: '#c0392b' },
+  'Корнелиус':{ image: require('../../assets/portraits/cornelius.png'), color: '#2c4a2e' },
+  'Лингва':   { image: require('../../assets/portraits/lingua.png'),    color: '#b8975a' },
+  'Элеонора': { image: require('../../assets/portraits/eleonora.png'),  color: '#2471a3' },
+  'Голем':    { image: require('../../assets/portraits/golem.png'),     color: '#4a3728' },
 };
 
 export const ZONES_META = [
