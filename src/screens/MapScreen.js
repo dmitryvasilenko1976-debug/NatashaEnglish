@@ -5,7 +5,14 @@ import {
 } from 'react-native';
 
 const NATASHA_PORTRAIT = require('../../assets/portraits/natasha.png');
-const MAP_IMAGE = require('../../assets/map-background.png');
+const MAP_SEGMENTS = [
+  require('../../assets/01.png'),
+  require('../../assets/02.png'),
+  require('../../assets/03.png'),
+  require('../../assets/04.png'),
+  require('../../assets/05.png'),
+  require('../../assets/06.png'),
+];
 import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -59,8 +66,8 @@ function buildLayout() {
 
 const { positions: NODE_POS, bannerY: BANNER_Y, totalH: MAP_H } = buildLayout();
 
-// Tile count for map background (image is square, so tile height = MAP_W)
-const MAP_TILE_COUNT = Math.ceil(MAP_H / MAP_W) + 1;
+// Each segment covers exactly 1/6 of MAP_H so all 6 fill the map on any screen width
+const MAP_SEG_H = Math.ceil(MAP_H / MAP_SEGMENTS.length);
 
 function dotsPath(x1, y1, x2, y2) {
   const sx = x1, sy = y1 + NODE_R + 4;
@@ -203,13 +210,13 @@ export default function MapScreen({ navigation }) {
         <View style={styles.mapOuter}>
           <View style={[styles.mapInner, { height: MAP_H }]}>
 
-        {/* Map background — tiled vertically (image is square 2048×2048) */}
-        {Array.from({ length: MAP_TILE_COUNT }).map((_, i) => (
+        {/* Map background — 6 segments stacked vertically */}
+        {MAP_SEGMENTS.map((src, i) => (
           <Image
-            key={`tile${i}`}
-            source={MAP_IMAGE}
-            style={[styles.mapBg, { top: i * MAP_W }]}
-            resizeMode="cover"
+            key={`seg${i}`}
+            source={src}
+            style={[styles.mapBg, { top: i * MAP_SEG_H, height: MAP_SEG_H }]}
+            resizeMode="stretch"
           />
         ))}
 
@@ -305,10 +312,6 @@ export default function MapScreen({ navigation }) {
           );
         })}
 
-        {/* Fog overlay on zones 5-6 if not yet reached */}
-        {currentNodeIndex < 21 && (
-          <View style={[styles.fogOverlay, { top: BANNER_Y[5] ?? MAP_H - 200 }]} pointerEvents="none" />
-        )}
 
           </View>{/* mapInner */}
         </View>{/* mapOuter */}
@@ -386,7 +389,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     width: MAP_W,
-    height: MAP_W,
   },
 
   // Zone banners
@@ -497,13 +499,5 @@ const styles = StyleSheet.create({
   topRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   natashaAvatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: '#c4a96a' },
 
-  // Fog
-  fogOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(240,235,220,0.55)',
-    pointerEvents: 'none',
-  },
+
 });
