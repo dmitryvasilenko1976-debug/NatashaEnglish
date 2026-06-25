@@ -25,29 +25,22 @@ export async function initAudio() {
       playsInSilentModeIOS: true,
       staysActiveInBackground: false,
     });
-    // Preload all sounds once
-    for (const [name, src] of Object.entries(SOUNDS)) {
-      try {
-        const { sound } = await Audio.Sound.createAsync(src, { volume: 0.7 });
-        _soundCache[name] = sound;
-      } catch (_) {}
-    }
   } catch (_) {}
 }
 
+// Sounds are loaded lazily on first playSound() call — always inside a user gesture,
+// which is required by iOS Safari to allow audio playback.
 export async function playSound(name) {
   if (_muted) return;
   try {
-    let sound = _soundCache[name];
-    if (sound) {
-      await sound.replayAsync();
-    } else {
-      // fallback: create on demand if preload didn't finish
+    if (!_soundCache[name]) {
       const src = SOUNDS[name];
       if (!src) return;
-      const { sound: s } = await Audio.Sound.createAsync(src, { volume: 0.7 });
-      _soundCache[name] = s;
-      await s.playAsync();
+      const { sound } = await Audio.Sound.createAsync(src, { volume: 0.7 });
+      _soundCache[name] = sound;
+      await sound.playAsync();
+    } else {
+      await _soundCache[name].replayAsync();
     }
   } catch (_) {}
 }
