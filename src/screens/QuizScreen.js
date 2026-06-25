@@ -10,6 +10,7 @@ import OrnamentDivider from '../components/OrnamentDivider';
 import AchievementModal from '../components/AchievementModal';
 import XPBurst from '../components/XPBurst';
 import { getSavedWords, getGameData, saveGameData, getRestoredHearts } from '../services/storageService';
+import { playSound } from '../services/audioService';
 import { addXP } from '../services/gamificationService';
 import { colors } from '../theme/colors';
 
@@ -112,11 +113,13 @@ export default function QuizScreen({ route, navigation }) {
     setAnswered(option);
 
     if (correct) {
+      playSound('correct');
       const result = await addXP(10, { quizCorrect: 1 });
       showBurst(10);
       if (result.newlyUnlocked.length > 0) setPendingAchievements(result.newlyUnlocked);
       setScore(s => s + 1);
     } else {
+      playSound('wrong');
       // Lose a heart
       const newHearts = hearts - 1;
       setHearts(newHearts);

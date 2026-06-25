@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Modal, View, Text, TouchableOpacity, StyleSheet,
-  Animated, ScrollView,
+  Animated, ScrollView, Image,
 } from 'react-native';
 import Icon from './Icon';
 import { colors } from '../theme/colors';
@@ -47,7 +47,9 @@ export default function StoryModal({ visible, dialogue, title, onDone, onClose, 
           {/* Character + dialogue */}
           <Animated.View style={[styles.dialogueRow, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <View style={[styles.portrait, { borderColor: char.color + '60', backgroundColor: char.color + '18' }]}>
-              <Icon name={char.icon} size={28} color={char.color} />
+              {char.image
+                ? <Image source={char.image} style={styles.portraitImage} resizeMode="cover" />
+                : <Icon name={char.icon} size={28} color={char.color} />}
             </View>
             <View style={styles.bubble}>
               <Text style={[styles.speakerName, { color: char.color }]}>{line.speaker}</Text>
@@ -154,6 +156,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
+    overflow: 'hidden',
+  },
+  portraitImage: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
   },
   bubble: {
     flex: 1,
