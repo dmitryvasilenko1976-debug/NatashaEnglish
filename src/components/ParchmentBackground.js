@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImageBackground, StyleSheet } from 'react-native';
+import { ImageBackground, Platform, StyleSheet } from 'react-native';
 
 export default function ParchmentBackground({ children, style }) {
   return (
@@ -16,5 +16,7 @@ export default function ParchmentBackground({ children, style }) {
 const styles = StyleSheet.create({
   bg: {
     flex: 1,
+    // На вебе ImageBackground не ограничивает высоту через flex — задаём явно
+    ...(Platform.OS === 'web' ? { height: '100vh' } : {}),
   },
 });
