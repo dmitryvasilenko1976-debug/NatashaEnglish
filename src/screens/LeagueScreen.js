@@ -2,8 +2,10 @@ import React, { useState, useCallback } from 'react';
 import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, FlatList, StyleSheet,
-  SafeAreaView, StatusBar, TouchableOpacity, Platform
+  SafeAreaView, StatusBar, TouchableOpacity, Platform, Image,
 } from 'react-native';
+
+const NATASHA_PORTRAIT = require('../../assets/portraits/natasha.png');
 import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -58,6 +60,9 @@ export default function LeagueScreen({ navigation }) {
             : <Text style={[styles.posNum, item.isUser && styles.posNumUser]}>{pos}</Text>
           }
         </View>
+        {item.isUser && (
+          <Image source={NATASHA_PORTRAIT} style={styles.leagueAvatar} resizeMode="cover" />
+        )}
         <Text style={[styles.name, item.isUser && styles.nameUser]} numberOfLines={1}>
           {item.name}
           {item.isUser ? ' (ты)' : ''}
@@ -166,6 +171,7 @@ const styles = StyleSheet.create({
     borderLeftColor: colors.forestGreen,
   },
   posCol: { width: 36, alignItems: 'center' },
+  leagueAvatar: { width: 28, height: 28, borderRadius: 14, marginRight: 6, borderWidth: 1, borderColor: '#b8975a' },
   medal: { fontSize: 20 },
   posNum: {
     fontFamily: 'AlmendraDisplay_400Regular',

@@ -1,8 +1,10 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, Dimensions, Animated, Platform,
+  SafeAreaView, StatusBar, Dimensions, Animated, Platform, Image,
 } from 'react-native';
+
+const NATASHA_PORTRAIT = require('../../assets/portraits/natasha.png');
 import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -180,7 +182,7 @@ export default function MapScreen({ navigation }) {
         </TouchableOpacity>
         <Text style={styles.topTitle}>Карта Путешествия</Text>
         <View style={styles.topRight}>
-          <Text style={styles.natashaAvatar}>👩‍⚕️</Text>
+          <Image source={NATASHA_PORTRAIT} style={styles.natashaAvatar} resizeMode="cover" />
           <View style={styles.xpPill}>
             <Icon name="star-outline" size={13} color={colors.goldBright} />
             <Text style={styles.xpText}>{xp} XP</Text>
@@ -490,7 +492,7 @@ const styles = StyleSheet.create({
 
   // Natasha in header
   topRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  natashaAvatar: { fontSize: 20 },
+  natashaAvatar: { width: 32, height: 32, borderRadius: 16, borderWidth: 1, borderColor: '#c4a96a' },
 
   // Fog
   fogOverlay: {

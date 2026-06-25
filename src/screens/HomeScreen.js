@@ -2,8 +2,10 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
-  Alert, ActivityIndicator, SafeAreaView, StatusBar, Platform, Modal, ScrollView,
+  Alert, ActivityIndicator, SafeAreaView, StatusBar, Platform, Modal, ScrollView, Image,
 } from 'react-native';
+
+const NATASHA_PORTRAIT = require('../../assets/portraits/natasha.png');
 import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -198,6 +200,7 @@ export default function HomeScreen({ navigation }) {
         </TouchableOpacity>
         <Text style={styles.appTitle}>Свитки</Text>
         <View style={styles.topRight}>
+          <Image source={NATASHA_PORTRAIT} style={styles.natashaAvatar} resizeMode="cover" />
           {levelInfo && (
             <Text style={styles.levelText}>{levelInfo.title}</Text>
           )}
@@ -445,6 +448,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  natashaAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#c4a96a',
   },
   xpText: {
     fontFamily: 'CrimsonText_400Regular',

@@ -55,13 +55,12 @@ export default function WelcomeScreen({ navigation }) {
         contentContainerStyle={styles.scroll}
         style={Platform.OS === 'web' ? { overflowY: 'scroll' } : undefined}
       >
-        {/* App logo */}
+        {/* Natasha portrait */}
         <View style={styles.symbolWrap}>
           <Image
-            source={require('../../assets/logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-            onError={() => {}}
+            source={require('../../assets/portraits/natasha.png')}
+            style={styles.natashaPortrait}
+            resizeMode="cover"
           />
         </View>
 
@@ -189,6 +188,14 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 16,
+    overflow: 'hidden',
+  },
+  natashaPortrait: {
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    borderWidth: 2,
+    borderColor: '#b8975a',
     overflow: 'hidden',
   },
 
