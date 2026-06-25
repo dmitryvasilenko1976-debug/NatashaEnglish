@@ -14,26 +14,34 @@ const MUSIC = {
 
 let _music = null;
 let _muted = false;
+const _soundCache = {};
+let _initialized = false;
 
 export async function initAudio() {
+  if (_initialized) return;
+  _initialized = true;
   try {
     await Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
       staysActiveInBackground: false,
     });
+    // Preload all sounds once
+    for (const [name, src] of Object.entries(SOUNDS)) {
+      try {
+        const { sound } = await Audio.Sound.createAsync(src, { volume: 0.7 });
+        _soundCache[name] = sound;
+      } catch (_) {}
+    }
   } catch (_) {}
 }
 
 export async function playSound(name) {
   if (_muted) return;
   try {
-    const src = SOUNDS[name];
-    if (!src) return;
-    const { sound } = await Audio.Sound.createAsync(src, { volume: 0.7 });
+    const sound = _soundCache[name];
+    if (!sound) return;
+    await sound.setPositionAsync(0);
     await sound.playAsync();
-    sound.setOnPlaybackStatusUpdate(status => {
-      if (status.didJustFinish) sound.unloadAsync();
-    });
   } catch (_) {}
 }
 
