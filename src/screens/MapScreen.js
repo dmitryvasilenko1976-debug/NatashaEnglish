@@ -59,6 +59,9 @@ function buildLayout() {
 
 const { positions: NODE_POS, bannerY: BANNER_Y, totalH: MAP_H } = buildLayout();
 
+// Tile count for map background (image is square, so tile height = MAP_W)
+const MAP_TILE_COUNT = Math.ceil(MAP_H / MAP_W) + 1;
+
 function dotsPath(x1, y1, x2, y2) {
   const sx = x1, sy = y1 + NODE_R + 4;
   const ex = x2, ey = y2 - NODE_R - 4;
@@ -200,12 +203,15 @@ export default function MapScreen({ navigation }) {
         <View style={styles.mapOuter}>
           <View style={[styles.mapInner, { height: MAP_H }]}>
 
-        {/* Map background image */}
-        <Image
-          source={MAP_IMAGE}
-          style={styles.mapBg}
-          resizeMode="stretch"
-        />
+        {/* Map background — tiled vertically (image is square 2048×2048) */}
+        {Array.from({ length: MAP_TILE_COUNT }).map((_, i) => (
+          <Image
+            key={`tile${i}`}
+            source={MAP_IMAGE}
+            style={[styles.mapBg, { top: i * MAP_W }]}
+            resizeMode="cover"
+          />
+        ))}
 
         {/* Zone banners */}
         {ZONES_META.map(zone => (
@@ -378,10 +384,9 @@ const styles = StyleSheet.create({
   },
   mapBg: {
     position: 'absolute',
-    top: 0,
     left: 0,
     width: MAP_W,
-    height: MAP_H,
+    height: MAP_W,
   },
 
   // Zone banners
