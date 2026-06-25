@@ -68,6 +68,8 @@ export default function QuizScreen({ route, navigation }) {
   const [gems, setGems]                     = useState(0);
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
+  const mountedRef = useRef(true);
+  useEffect(() => { return () => { mountedRef.current = false; }; }, []);
 
   useEffect(() => { loadWords(); }, [articleId]);
 
@@ -142,6 +144,7 @@ export default function QuizScreen({ route, navigation }) {
     }
 
     setTimeout(async () => {
+      if (!mountedRef.current) return;
       if (current < questions.length - 1) {
         setCurrent(c => c + 1);
         setAnswered(null);

@@ -290,3 +290,16 @@ export function updateStreakWithInfo(gameData) {
   const game = updateStreak(gameData);
   return { game, streakBroken, previousStreak };
 }
+
+export async function resetAllProgress() {
+  const keys = await AsyncStorage.getAllKeys();
+  const gameKeys = keys.filter(k =>
+    k === 'articles' ||
+    k === 'gamification' ||
+    k === 'word_mastery' ||
+    k === 'story_letter_seen' ||
+    k.startsWith('words_') ||
+    k.startsWith('progress_')
+  );
+  if (gameKeys.length > 0) await AsyncStorage.multiRemove(gameKeys);
+}

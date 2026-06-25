@@ -2,13 +2,13 @@ import React, { useState, useCallback } from 'react';
 import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, ScrollView, Platform, Image,
+  SafeAreaView, StatusBar, ScrollView, Platform, Image, Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import Icon from '../components/Icon';
 import {
   getArticles, getSavedWords, getProgress,
-  getGameData, saveGameData, updateStreak,
+  getGameData, saveGameData, updateStreak, resetAllProgress,
 } from '../services/storageService';
 import { colors } from '../theme/colors';
 
@@ -55,14 +55,34 @@ export default function WelcomeScreen({ navigation }) {
         contentContainerStyle={styles.scroll}
         style={Platform.OS === 'web' ? { overflowY: 'scroll' } : undefined}
       >
-        {/* App logo */}
-        <View style={styles.symbolWrap}>
+        {/* App logo — long press to reset all progress */}
+        <TouchableOpacity
+          style={styles.symbolWrap}
+          activeOpacity={1}
+          onLongPress={() => {
+            Alert.alert(
+              'Сбросить прогресс?',
+              'Всё будет удалено: XP, достижения, слова, прогресс статей. Это нельзя отменить.',
+              [
+                { text: 'Отмена', style: 'cancel' },
+                {
+                  text: 'Сбросить', style: 'destructive',
+                  onPress: async () => {
+                    await resetAllProgress();
+                    await loadStats();
+                  },
+                },
+              ]
+            );
+          }}
+          delayLongPress={1500}
+        >
           <Image
             source={require('../../assets/logo-welcome.png')}
             style={styles.welcomeLogo}
             resizeMode="contain"
           />
-        </View>
+        </TouchableOpacity>
 
         {/* Map card — главный вход в историю */}
         <TouchableOpacity
