@@ -194,7 +194,7 @@ export default function MapScreen({ navigation }) {
 
       {/* Top bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
+        <TouchableOpacity onPress={() => { playSound('click'); navigation.goBack(); }} style={styles.iconBtn}>
           <Icon name="chevron-back" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.topTitle}>Карта Путешествия</Text>

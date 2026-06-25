@@ -20,6 +20,7 @@ import {
 } from '../services/storageService';
 import { explainWord, extractContext as deriveContext } from '../services/anthropicService';
 import { addXP, addGems } from '../services/gamificationService';
+import { startMusic, stopMusic, playSound } from '../services/audioService';
 import { colors } from '../theme/colors';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -88,6 +89,11 @@ export default function ReadingScreen({ route, navigation }) {
       else if (dx > 60) handleBackRef.current?.();
     },
   })).current;
+
+  useEffect(() => {
+    startMusic('ambient');
+    return () => stopMusic();
+  }, []);
 
   useEffect(() => { loadArticle(); }, [articleId]);
 

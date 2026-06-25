@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import Icon from './Icon';
 import { colors } from '../theme/colors';
+import { playSound } from '../services/audioService';
 import { CHARACTERS } from '../data/storyData';
 
 export default function StoryModal({ visible, dialogue, title, onDone, onClose, actionLabel = 'Продолжить' }) {
@@ -37,7 +38,7 @@ export default function StoryModal({ visible, dialogue, title, onDone, onClose, 
       <View style={styles.overlay}>
         <View style={styles.box}>
           {/* Close button */}
-          <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.closeBtn} onPress={() => { playSound('click'); onClose && onClose(); }} activeOpacity={0.7}>
             <Icon name="close" size={18} color={colors.inkFaint} />
           </TouchableOpacity>
 
@@ -70,6 +71,7 @@ export default function StoryModal({ visible, dialogue, title, onDone, onClose, 
           <TouchableOpacity
             style={[styles.btn, isLast && styles.btnPrimary]}
             onPress={() => {
+              playSound('click');
               if (isLast) { onDone && onDone(); }
               else setLineIndex(i => i + 1);
             }}
