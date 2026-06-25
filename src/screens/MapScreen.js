@@ -268,6 +268,7 @@ export default function MapScreen({ navigation }) {
                 <Icon
                   name={loc.icon}
                   size={20}
+                  blend={false}
                   color={isLocked ? '#c0b89a' : isCurrent ? '#fff' : accent}
                 />
               </TouchableOpacity>

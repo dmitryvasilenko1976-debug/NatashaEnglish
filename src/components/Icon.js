@@ -77,11 +77,23 @@ const icons = {
 };
 
 // На web mix-blend-mode:multiply делает пергаментный фон иконки прозрачным
-const blendStyle = Platform.OS === 'web' ? { mixBlendMode: 'multiply' } : {};
+const aliases = {
+  'hand-left-outline':   'bulb-outline',
+  'battery-half-outline':'flash-outline',
+  'business-outline':    'library-outline',
+  'ellipse-outline':     'planet-outline',
+  'git-commit-outline':  'git-branch-outline',
+  'git-merge-outline':   'git-branch-outline',
+  'git-network-outline': 'git-branch-outline',
+  'leaf-outline':        'leaf',
+  'restaurant-outline':  'flask-outline',
+};
 
-export default function Icon({ name, size = 24, style }) {
-  const source = icons[name];
+export default function Icon({ name, size = 24, blend = true, style }) {
+  const resolvedName = aliases[name] || name;
+  const source = icons[resolvedName];
   if (!source) return null;
+  const blendStyle = blend && Platform.OS === 'web' ? { mixBlendMode: 'multiply' } : {};
   return (
     <Image
       source={source}
