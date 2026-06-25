@@ -4,7 +4,7 @@ import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Animated, Platform
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import OrnamentDivider from '../components/OrnamentDivider';
 import XPBurst from '../components/XPBurst';
 import { getArticles, getSavedWords } from '../services/storageService';
@@ -123,7 +123,7 @@ export default function ClozeScreen({ navigation }) {
   const topBar = (
     <View style={styles.topBar}>
       <TouchableOpacity onPress={goHome} style={styles.iconBtn}>
-        <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+        <Icon name="chevron-back" size={22} color="#c4a96a" />
       </TouchableOpacity>
       <Text style={styles.topTitle}>В контексте</Text>
       <View style={styles.iconBtn} />
@@ -151,7 +151,7 @@ export default function ClozeScreen({ navigation }) {
         {topBar}
         <View style={styles.emptyWrap}>
           <OrnamentDivider />
-          <Ionicons name="book-outline" size={40} color={colors.inkFaint} style={{ marginBottom: 16 }} />
+          <Icon name="book-outline" size={40} color={colors.inkFaint} style={{ marginBottom: 16 }} />
           <Text style={styles.emptyText}>
             Сохрани слова во время чтения — они появятся здесь как упражнения
           </Text>

@@ -4,7 +4,7 @@ import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Platform
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import OrnamentDivider from '../components/OrnamentDivider';
 import { GRAMMAR_CATEGORIES } from '../data/grammarLessons';
 import commonWords from '../data/commonWords';
@@ -38,7 +38,7 @@ export default function GrammarScreen({ route, navigation }) {
 
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
-          <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          <Icon name="chevron-back" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.topTitle}>Грамматика</Text>
         <View style={styles.iconBtn} />
@@ -64,7 +64,7 @@ export default function GrammarScreen({ route, navigation }) {
                 activeOpacity={0.8}
               >
                 <View style={[styles.iconWrap, isOpen && styles.iconWrapOpen]}>
-                  <Ionicons
+                  <Icon
                     name={cat.icon}
                     size={22}
                     color={isOpen ? '#f0e6c8' : colors.forestGreen}
@@ -76,7 +76,7 @@ export default function GrammarScreen({ route, navigation }) {
                   </Text>
                   <Text style={styles.cardSubtitle}>{cat.subtitle}</Text>
                 </View>
-                <Ionicons
+                <Icon
                   name={isOpen ? 'chevron-up' : 'chevron-down'}
                   size={16}
                   color={isOpen ? colors.gold : colors.inkFaint}
@@ -136,7 +136,7 @@ export default function GrammarScreen({ route, navigation }) {
                     onPress={() => navigation.navigate('GrammarQuiz', { categoryId: cat.id })}
                     activeOpacity={0.85}
                   >
-                    <Ionicons name="help-circle-outline" size={16} color="#f0e6c8" />
+                    <Icon name="help-circle-outline" size={16} color="#f0e6c8" />
                     <Text style={styles.quizBtnText}>Пройти тест по разделу</Text>
                   </TouchableOpacity>
                 </View>
@@ -152,7 +152,7 @@ export default function GrammarScreen({ route, navigation }) {
           onPress={() => navigation.navigate('GrammarQuiz', {})}
           activeOpacity={0.85}
         >
-          <Ionicons name="flash-outline" size={18} color="#f0e6c8" />
+          <Icon name="flash-outline" size={18} color="#f0e6c8" />
           <Text style={styles.fullQuizText}>Тест по всем разделам</Text>
         </TouchableOpacity>
 

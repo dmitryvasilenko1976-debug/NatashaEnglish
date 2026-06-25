@@ -5,7 +5,7 @@ import {
   SafeAreaView, StatusBar, Platform, ActivityIndicator,
   Animated, PanResponder, Dimensions,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 
 import SentenceBlock from '../components/SentenceBlock';
 import WordDrawer from '../components/WordDrawer';
@@ -254,7 +254,7 @@ export default function ReadingScreen({ route, navigation }) {
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         <View style={styles.topBar}>
           <TouchableOpacity onPress={handleGoBack} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+            <Icon name="chevron-back" size={22} color="#c4a96a" />
           </TouchableOpacity>
           <Text style={styles.topTitle}>Загрузка…</Text>
           <View style={{ width: 44 }} />
@@ -274,7 +274,7 @@ export default function ReadingScreen({ route, navigation }) {
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         <View style={styles.topBar}>
           <TouchableOpacity onPress={handleGoBack} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+            <Icon name="chevron-back" size={22} color="#c4a96a" />
           </TouchableOpacity>
           <Text style={styles.topTitle}>{article.title}</Text>
           <View style={{ width: 44 }} />
@@ -296,7 +296,7 @@ export default function ReadingScreen({ route, navigation }) {
       {/* Top bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={handleGoBack} style={styles.iconBtn}>
-          <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          <Icon name="chevron-back" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.topTitle} numberOfLines={1}>{article.title}</Text>
         <TouchableOpacity
@@ -363,7 +363,7 @@ export default function ReadingScreen({ route, navigation }) {
               onPress={() => speakSentence(sentence)}
               activeOpacity={0.7}
             >
-              <Ionicons name="volume-medium-outline" size={22} color={colors.gold} />
+              <Icon name="volume-medium-outline" size={22} color={colors.gold} />
               <Text style={styles.speakBtnLabel}>Слушать</Text>
             </TouchableOpacity>
           )}

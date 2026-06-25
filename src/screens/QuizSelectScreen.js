@@ -5,7 +5,7 @@ import {
   SafeAreaView, StatusBar, Platform,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import OrnamentDivider from '../components/OrnamentDivider';
 import { getArticles, getSavedWords } from '../services/storageService';
 import { colors } from '../theme/colors';
@@ -38,7 +38,7 @@ export default function QuizSelectScreen({ navigation }) {
 
       <View style={styles.topBar}>
         <TouchableOpacity onPress={handleGoBack} style={styles.iconBtn}>
-          <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          <Icon name="chevron-back" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.topTitle}>Выбери свиток для испытания</Text>
         <View style={styles.iconBtn} />

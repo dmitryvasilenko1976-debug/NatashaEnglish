@@ -3,7 +3,7 @@ import {
   Modal, View, Text, TouchableOpacity, StyleSheet,
   Animated, ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from './Icon';
 import { colors } from '../theme/colors';
 import { CHARACTERS } from '../data/storyData';
 
@@ -38,7 +38,7 @@ export default function StoryModal({ visible, dialogue, title, onDone, onClose, 
         <View style={styles.box}>
           {/* Close button */}
           <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.7}>
-            <Ionicons name="close" size={18} color={colors.inkFaint} />
+            <Icon name="close" size={18} color={colors.inkFaint} />
           </TouchableOpacity>
 
           {/* Location title */}
@@ -47,7 +47,7 @@ export default function StoryModal({ visible, dialogue, title, onDone, onClose, 
           {/* Character + dialogue */}
           <Animated.View style={[styles.dialogueRow, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
             <View style={[styles.portrait, { borderColor: char.color + '60', backgroundColor: char.color + '18' }]}>
-              <Ionicons name={char.icon} size={28} color={char.color} />
+              <Icon name={char.icon} size={28} color={char.color} />
             </View>
             <View style={styles.bubble}>
               <Text style={[styles.speakerName, { color: char.color }]}>{line.speaker}</Text>
@@ -90,7 +90,7 @@ export function LetterModal({ visible, text, onClose }) {
       <View style={styles.overlay}>
         <View style={styles.letterBox}>
           <View style={styles.sealRow}>
-            <Ionicons name="mail-outline" size={28} color={colors.goldBright} />
+            <Icon name="mail-outline" size={28} color={colors.goldBright} />
             <Text style={styles.sealText}>Международный Совет Целителей</Text>
           </View>
           <View style={styles.letterDivider} />

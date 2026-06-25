@@ -3,7 +3,7 @@ import {
   Modal, View, Text, TouchableOpacity, ScrollView,
   StyleSheet, Animated, ActivityIndicator, TouchableWithoutFeedback, Platform,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from './Icon';
 import OrnamentDivider from './OrnamentDivider';
 import { WORD_CATEGORY_MAP, getCategoryById } from '../data/grammarLessons';
 import { colors } from '../theme/colors';
@@ -72,7 +72,7 @@ export default function WordDrawer({ visible, wordData, word, loading, isSaved, 
                     style={styles.speakBtn}
                     activeOpacity={0.7}
                   >
-                    <Ionicons name="volume-medium-outline" size={20} color={colors.forestGreen} />
+                    <Icon name="volume-medium-outline" size={20} color={colors.forestGreen} />
                   </TouchableOpacity>
                 )}
               </View>
@@ -131,11 +131,11 @@ export default function WordDrawer({ visible, wordData, word, loading, isSaved, 
                     onPress={() => { onClose(); onOpenGrammar(catId); }}
                     activeOpacity={0.8}
                   >
-                    <Ionicons name="book-outline" size={14} color={colors.forestGreen} />
+                    <Icon name="book-outline" size={14} color={colors.forestGreen} />
                     <Text style={styles.grammarLinkText}>
                       Раздел: {cat.title}
                     </Text>
-                    <Ionicons name="chevron-forward" size={13} color={colors.forestGreen} />
+                    <Icon name="chevron-forward" size={13} color={colors.forestGreen} />
                   </TouchableOpacity>
                 );
               })()}
@@ -152,7 +152,7 @@ export default function WordDrawer({ visible, wordData, word, loading, isSaved, 
             </>
           ) : (
             <View style={styles.errorWrap}>
-              <Ionicons name="book-outline" size={32} color={colors.inkFaint} />
+              <Icon name="book-outline" size={32} color={colors.inkFaint} />
               <Text style={styles.errorText}>Слово не найдено в свитке</Text>
               <Text style={styles.errorSubtext}>Словарь содержит ~2300 медицинских терминов</Text>
             </View>

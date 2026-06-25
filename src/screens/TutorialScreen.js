@@ -4,7 +4,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Platform,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import OrnamentDivider from '../components/OrnamentDivider';
 import { colors } from '../theme/colors';
 
@@ -65,7 +65,7 @@ export default function TutorialScreen({ navigation }) {
       {/* Top bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={finish} style={styles.iconBtn}>
-          <Ionicons name="close" size={22} color="#c4a96a" />
+          <Icon name="close" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.topTitle}>Туториал</Text>
         <View style={styles.iconBtn} />
@@ -81,7 +81,7 @@ export default function TutorialScreen({ navigation }) {
       <View style={styles.body}>
         {/* Icon */}
         <View style={[styles.iconCircle, { borderColor: s.tint + '60', backgroundColor: s.tint + '18' }]}>
-          <Ionicons name={s.icon} size={40} color={s.tint} />
+          <Icon name={s.icon} size={40} color={s.tint} />
         </View>
 
         <OrnamentDivider style={styles.divider} />
@@ -92,7 +92,7 @@ export default function TutorialScreen({ navigation }) {
 
         {/* Hint box */}
         <View style={styles.hintBox}>
-          <Ionicons name="bulb-outline" size={14} color={colors.gold} />
+          <Icon name="bulb-outline" size={14} color={colors.gold} />
           <Text style={styles.hintText}> {s.hint}</Text>
         </View>
 

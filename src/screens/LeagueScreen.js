@@ -4,7 +4,7 @@ import {
   View, Text, FlatList, StyleSheet,
   SafeAreaView, StatusBar, TouchableOpacity, Platform
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 
 import OrnamentDivider from '../components/OrnamentDivider';
@@ -76,7 +76,7 @@ export default function LeagueScreen({ navigation }) {
 
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
-          <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          <Icon name="chevron-back" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.topTitle}>{tierName || 'Лига'}</Text>
         <View style={styles.iconBtn} />

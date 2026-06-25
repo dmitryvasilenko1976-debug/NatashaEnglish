@@ -4,7 +4,7 @@ import {
   View, Text, ScrollView, StyleSheet,
   SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator, Platform
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 
 import OrnamentDivider from '../components/OrnamentDivider';
@@ -28,7 +28,7 @@ function getLast7Days() {
 function StatTile({ icon, value, label }) {
   return (
     <View style={styles.tile}>
-      <Ionicons name={icon} size={20} color={colors.forestGreen} />
+      <Icon name={icon} size={20} color={colors.forestGreen} />
       <Text style={styles.tileValue}>{value}</Text>
       <Text style={styles.tileLabel}>{label}</Text>
     </View>
@@ -56,7 +56,7 @@ export default function StatsScreen({ navigation }) {
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         <View style={styles.topBar}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
-            <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+            <Icon name="chevron-back" size={22} color="#c4a96a" />
           </TouchableOpacity>
           <Text style={styles.topTitle}>Путь Мастера</Text>
           <View style={styles.iconBtn} />
@@ -89,7 +89,7 @@ export default function StatsScreen({ navigation }) {
 
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
-          <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          <Icon name="chevron-back" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.topTitle}>Путь Мастера</Text>
         <View style={styles.iconBtn} />
@@ -164,7 +164,7 @@ export default function StatsScreen({ navigation }) {
           <Text style={styles.sectionTitle}>Личные рекорды</Text>
           {records.bestDaySentences ? (
             <View style={styles.recordRow}>
-              <Ionicons name="trophy-outline" size={22} color={colors.gold} />
+              <Icon name="trophy-outline" size={22} color={colors.gold} />
               <View style={{ flex: 1, marginLeft: 12 }}>
                 <Text style={styles.recordValue}>
                   {records.bestDaySentences.count} предложений

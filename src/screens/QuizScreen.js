@@ -4,7 +4,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, ScrollView, Alert, Animated, Platform
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 
 import OrnamentDivider from '../components/OrnamentDivider';
 import AchievementModal from '../components/AchievementModal';
@@ -190,7 +190,7 @@ export default function QuizScreen({ route, navigation }) {
   const topBar = (
     <View style={styles.topBar}>
       <TouchableOpacity onPress={goBack} style={styles.iconBtn}>
-        <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+        <Icon name="chevron-back" size={22} color="#c4a96a" />
       </TouchableOpacity>
       <Text style={styles.topTitle}>
         {sageChallenge ? 'Испытание Мудреца' : recallMode ? 'Вспоминание' : 'Испытание в таверне'}

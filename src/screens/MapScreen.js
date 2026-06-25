@@ -3,7 +3,7 @@ import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Dimensions, Animated, Platform,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../theme/colors';
@@ -176,13 +176,13 @@ export default function MapScreen({ navigation }) {
       {/* Top bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
-          <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          <Icon name="chevron-back" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.topTitle}>Карта Путешествия</Text>
         <View style={styles.topRight}>
           <Text style={styles.natashaAvatar}>👩‍⚕️</Text>
           <View style={styles.xpPill}>
-            <Ionicons name="star-outline" size={13} color={colors.goldBright} />
+            <Icon name="star-outline" size={13} color={colors.goldBright} />
             <Text style={styles.xpText}>{xp} XP</Text>
           </View>
         </View>
@@ -265,7 +265,7 @@ export default function MapScreen({ navigation }) {
                   isLocked && styles.nodeLocked,
                 ]}
               >
-                <Ionicons
+                <Icon
                   name={loc.icon}
                   size={20}
                   color={isLocked ? '#c0b89a' : isCurrent ? '#fff' : accent}
@@ -275,14 +275,14 @@ export default function MapScreen({ navigation }) {
               {/* Checkmark badge */}
               {isCompleted && (
                 <View style={[styles.checkBadge, { backgroundColor: accent }]}>
-                  <Ionicons name="checkmark" size={8} color="#fff" />
+                  <Icon name="checkmark" size={8} color="#fff" />
                 </View>
               )}
 
               {/* Lock badge */}
               {isLocked && (
                 <View style={styles.lockBadge}>
-                  <Ionicons name="lock-closed" size={8} color="#b0a080" />
+                  <Icon name="lock-closed" size={8} color="#b0a080" />
                 </View>
               )}
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from './Icon';
 import OrnamentDivider from './OrnamentDivider';
 import { colors } from '../theme/colors';
 
@@ -26,7 +26,7 @@ export default function AchievementModal({ achievements, onClose }) {
           <OrnamentDivider />
           <Text style={styles.label}>Новое достижение!</Text>
 
-          <Ionicons name={current.icon} size={40} color={colors.gold} style={styles.icon} />
+          <Icon name={current.icon} size={40} color={colors.gold} style={styles.icon} />
 
           <Text style={styles.name}>{current.name}</Text>
           <Text style={styles.desc}>{current.description}</Text>

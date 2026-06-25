@@ -4,7 +4,7 @@ import {
   View, Text, FlatList, StyleSheet,
   SafeAreaView, StatusBar, TouchableOpacity, Switch, Platform
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 
 import OrnamentDivider from '../components/OrnamentDivider';
@@ -174,7 +174,7 @@ export default function AchievementsScreen({ navigation }) {
     const isUnlocked = !!unlockedMap[item.id];
     return (
       <View style={[styles.tile, isUnlocked && styles.tileUnlocked, !isUnlocked && styles.tileLocked]}>
-        <Ionicons name={item.icon} size={28} color={isUnlocked ? colors.gold : '#ccc'} />
+        <Icon name={item.icon} size={28} color={isUnlocked ? colors.gold : '#ccc'} />
         <Text style={[styles.tileName, !isUnlocked && styles.tileNameLocked]} numberOfLines={2}>
           {isUnlocked ? item.name : '?????'}
         </Text>
@@ -190,7 +190,7 @@ export default function AchievementsScreen({ navigation }) {
 
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
-          <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          <Icon name="chevron-back" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.topTitle}>Орден Хранителей</Text>
         <View style={styles.iconBtn} />

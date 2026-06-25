@@ -4,7 +4,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Animated, Platform
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 
 import OrnamentDivider from '../components/OrnamentDivider';
 import XPBurst from '../components/XPBurst';
@@ -121,7 +121,7 @@ export default function ReviewScreen({ navigation }) {
   const topBar = (
     <View style={styles.topBar}>
       <TouchableOpacity onPress={goBack} style={styles.iconBtn}>
-        <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+        <Icon name="chevron-back" size={22} color="#c4a96a" />
       </TouchableOpacity>
       <Text style={styles.topTitle}>Свиток Памяти</Text>
       {!done && cards.length > 0 && (

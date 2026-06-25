@@ -4,7 +4,7 @@ import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Animated, Platform
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import OrnamentDivider from '../components/OrnamentDivider';
 import XPBurst from '../components/XPBurst';
 import { FALSE_FRIENDS } from '../data/falseFriends';
@@ -103,7 +103,7 @@ export default function FalseFriendsScreen({ navigation }) {
         onPress={() => { if (showQuiz) setShowQuiz(false); else goBack(); }}
         style={styles.iconBtn}
       >
-        <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+        <Icon name="chevron-back" size={22} color="#c4a96a" />
       </TouchableOpacity>
       <Text style={styles.topTitle}>
         {showQuiz ? 'Тест: Слова-ловушки' : 'Слова-ловушки ⚡'}
@@ -207,7 +207,7 @@ export default function FalseFriendsScreen({ navigation }) {
           {answered !== null && (
             <View style={styles.dangerInfoBox}>
               <View style={styles.dangerRow}>
-                <Ionicons name="warning-outline" size={16} color="#7a1f1f" style={{ marginRight: 6 }} />
+                <Icon name="warning-outline" size={16} color="#7a1f1f" style={{ marginRight: 6 }} />
                 <Text style={styles.dangerText}>{q.item.danger}</Text>
               </View>
               <Text style={styles.exampleText}>{q.item.example}</Text>
@@ -242,7 +242,7 @@ export default function FalseFriendsScreen({ navigation }) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.warningIntro}>
-          <Ionicons name="warning-outline" size={18} color={colors.gold} style={{ marginRight: 8 }} />
+          <Icon name="warning-outline" size={18} color={colors.gold} style={{ marginRight: 8 }} />
           <Text style={styles.warningIntroText}>
             15 слов, которые обманывают русских врачей
           </Text>
@@ -262,7 +262,7 @@ export default function FalseFriendsScreen({ navigation }) {
                 <Text style={styles.cardRuWord}>{item.ruWord}</Text>
                 <Text style={styles.cardSep}> ⚡ </Text>
                 <Text style={styles.cardEnWord}>{item.enWord}</Text>
-                <Ionicons
+                <Icon
                   name={isOpen ? 'chevron-up' : 'chevron-down'}
                   size={16}
                   color={isOpen ? colors.gold : colors.inkFaint}
@@ -286,7 +286,7 @@ export default function FalseFriendsScreen({ navigation }) {
 
                   <View style={styles.dangerBox}>
                     <View style={styles.dangerRow}>
-                      <Ionicons name="alert-circle-outline" size={16} color="#7a1f1f" style={{ marginRight: 6, flexShrink: 0 }} />
+                      <Icon name="alert-circle-outline" size={16} color="#7a1f1f" style={{ marginRight: 6, flexShrink: 0 }} />
                       <Text style={styles.dangerBoxText}>{item.danger}</Text>
                     </View>
                   </View>
@@ -308,7 +308,7 @@ export default function FalseFriendsScreen({ navigation }) {
           onPress={startQuiz}
           activeOpacity={0.85}
         >
-          <Ionicons name="flash-outline" size={18} color="#f0e6c8" />
+          <Icon name="flash-outline" size={18} color="#f0e6c8" />
           <Text style={styles.quizStartText}>Тест по ложным словам</Text>
         </TouchableOpacity>
 

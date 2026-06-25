@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from './Icon';
 import { colors } from '../theme/colors';
 
 function getTimeUntilMidnight() {
@@ -74,7 +74,7 @@ function WeeklyQuestCard({ quest }) {
         }
       </View>
       <View style={wq.bodyRow}>
-        <Ionicons name={done ? 'checkmark-circle' : quest.icon} size={18} color={done ? colors.gold : colors.forestGreen} />
+        <Icon name={done ? 'checkmark-circle' : quest.icon} size={18} color={done ? colors.gold : colors.forestGreen} />
         <Text style={[wq.label, done && wq.labelDone]} numberOfLines={1}>{quest.label}</Text>
       </View>
       <View style={wq.bar}>
@@ -96,7 +96,7 @@ function QuestCard({ quest }) {
 
   return (
     <View style={[styles.card, done && styles.cardDone]}>
-      <Ionicons
+      <Icon
         name={done ? 'checkmark-circle' : quest.icon}
         size={18}
         color={done ? colors.gold : colors.forestGreen}

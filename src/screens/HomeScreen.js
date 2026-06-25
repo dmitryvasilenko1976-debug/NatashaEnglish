@@ -4,7 +4,7 @@ import {
   View, Text, FlatList, TouchableOpacity, StyleSheet,
   Alert, ActivityIndicator, SafeAreaView, StatusBar, Platform, Modal, ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 
 import ArticleCard from '../components/ArticleCard';
@@ -194,7 +194,7 @@ export default function HomeScreen({ navigation }) {
           onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Welcome')}
           style={styles.iconBtn}
         >
-          <Ionicons name="chevron-back" size={22} color="#c4a96a" />
+          <Icon name="chevron-back" size={22} color="#c4a96a" />
         </TouchableOpacity>
         <Text style={styles.appTitle}>Свитки</Text>
         <View style={styles.topRight}>
@@ -204,17 +204,17 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.gemsText}>◈ {gems}</Text>
           <Text style={styles.xpText}>✦ {xpDisplay} XP</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Stats')} style={styles.iconBtn}>
-            <Ionicons name="bar-chart-outline" size={20} color="#c4a96a" />
+            <Icon name="bar-chart-outline" size={20} color="#c4a96a" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('Achievements')} style={styles.iconBtn}>
-            <Ionicons name="trophy-outline" size={20} color="#c4a96a" />
+            <Icon name="trophy-outline" size={20} color="#c4a96a" />
           </TouchableOpacity>
         </View>
       </View>
 
       {streak > 0 && (
         <View style={styles.streakRow}>
-          <Ionicons name="flame" size={14} color={streak >= 7 ? '#e05a00' : colors.gold} />
+          <Icon name="flame" size={14} color={streak >= 7 ? '#e05a00' : colors.gold} />
           <Text style={styles.streakText}> {streakLabel}</Text>
           {shieldActive
             ? <Text style={styles.shieldActive}> 🛡</Text>
@@ -241,7 +241,7 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.reviewBannerText}>
             📚 {reviewCount} слов к повторению · Свиток Памяти
           </Text>
-          <Ionicons name="chevron-forward" size={14} color={colors.gold} />
+          <Icon name="chevron-forward" size={14} color={colors.gold} />
         </TouchableOpacity>
       )}
 
@@ -282,46 +282,46 @@ export default function HomeScreen({ navigation }) {
               activeOpacity={0.82}
             >
               <View style={styles.grammarCardLeft}>
-                <Ionicons name="book-outline" size={20} color={colors.gold} />
+                <Icon name="book-outline" size={20} color={colors.gold} />
               </View>
               <View style={styles.grammarCardBody}>
                 <Text style={styles.grammarCardTitle}>Грамматика</Text>
                 <Text style={styles.grammarCardDesc}>Модальные глаголы, предлоги, союзы, неправильные глаголы</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.gold} />
+              <Icon name="chevron-forward" size={16} color={colors.gold} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.grammarCard} onPress={() => navigation.navigate('Morphology')} activeOpacity={0.82}>
               <View style={styles.grammarCardLeft}>
-                <Ionicons name="construct-outline" size={20} color={colors.gold} />
+                <Icon name="construct-outline" size={20} color={colors.gold} />
               </View>
               <View style={styles.grammarCardBody}>
                 <Text style={styles.grammarCardTitle}>Морфология</Text>
                 <Text style={styles.grammarCardDesc}>Приставки, корни, суффиксы — ключ к тысячам терминов</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.gold} />
+              <Icon name="chevron-forward" size={16} color={colors.gold} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.grammarCard} onPress={() => navigation.navigate('FalseFriends')} activeOpacity={0.82}>
               <View style={styles.grammarCardLeft}>
-                <Ionicons name="warning-outline" size={20} color={colors.gold} />
+                <Icon name="warning-outline" size={20} color={colors.gold} />
               </View>
               <View style={styles.grammarCardBody}>
                 <Text style={styles.grammarCardTitle}>Слова-ловушки</Text>
                 <Text style={styles.grammarCardDesc}>15 слов, которые обманывают русских врачей</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.gold} />
+              <Icon name="chevron-forward" size={16} color={colors.gold} />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.grammarCard} onPress={() => navigation.navigate('Cloze')} activeOpacity={0.82}>
               <View style={styles.grammarCardLeft}>
-                <Ionicons name="pencil-outline" size={20} color={colors.gold} />
+                <Icon name="pencil-outline" size={20} color={colors.gold} />
               </View>
               <View style={styles.grammarCardBody}>
                 <Text style={styles.grammarCardTitle}>В контексте</Text>
                 <Text style={styles.grammarCardDesc}>Угадай слово по его роли в медицинском предложении</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color={colors.gold} />
+              <Icon name="chevron-forward" size={16} color={colors.gold} />
             </TouchableOpacity>
 
             <Text style={styles.listHeader}>Свитки</Text>

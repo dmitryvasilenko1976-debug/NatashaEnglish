@@ -5,7 +5,7 @@ import {
   SafeAreaView, StatusBar, ScrollView, Platform, Image,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import Icon from '../components/Icon';
 import {
   getArticles, getSavedWords, getProgress,
   getGameData, saveGameData, updateStreak,
@@ -72,13 +72,13 @@ export default function WelcomeScreen({ navigation }) {
           activeOpacity={0.82}
         >
           <View style={styles.mapCardLeft}>
-            <Ionicons name="compass-outline" size={26} color={colors.goldBright} />
+            <Icon name="compass-outline" size={26} color={colors.goldBright} />
           </View>
           <View style={styles.mapCardBody}>
             <Text style={styles.mapCardTitle}>Волшебная Карта</Text>
             <Text style={styles.mapCardDesc}>Путешествие Наташи · 28 локаций · 6 зон</Text>
           </View>
-          <Ionicons name="chevron-forward" size={16} color={colors.goldBright} />
+          <Icon name="chevron-forward" size={16} color={colors.goldBright} />
         </TouchableOpacity>
 
         {/* Nav cards */}
@@ -140,9 +140,9 @@ export default function WelcomeScreen({ navigation }) {
           style={styles.achievRow}
           onPress={() => navigation.navigate('Achievements')}
         >
-          <Ionicons name="trophy-outline" size={13} color={colors.inkFaint} />
+          <Icon name="trophy-outline" size={13} color={colors.inkFaint} />
           <Text style={styles.achievText}>Достижения</Text>
-          <Ionicons name="chevron-forward" size={13} color={colors.inkFaint} />
+          <Icon name="chevron-forward" size={13} color={colors.inkFaint} />
         </TouchableOpacity>
 
         <View style={{ height: 24 }} />
@@ -160,13 +160,13 @@ function MenuCard({ icon, label, desc, tint, onPress, disabled }) {
       activeOpacity={disabled ? 1 : 0.82}
     >
       <View style={[styles.cardIconWrap, { borderColor: tint + '50', backgroundColor: tint + '18' }]}>
-        <Ionicons name={icon} size={24} color={disabled ? '#bbb' : tint} />
+        <Icon name={icon} size={24} color={disabled ? '#bbb' : tint} />
       </View>
       <View style={styles.cardBody}>
         <Text style={[styles.cardLabel, disabled && styles.cardLabelDim]}>{label}</Text>
         <Text style={styles.cardDesc}>{desc}</Text>
       </View>
-      <Ionicons name={disabled ? 'lock-closed-outline' : 'chevron-forward'} size={18} color={disabled ? '#aaa' : colors.gold} />
+      <Icon name={disabled ? 'lock-closed-outline' : 'chevron-forward'} size={18} color={disabled ? '#aaa' : colors.gold} />
     </TouchableOpacity>
   );
 }
