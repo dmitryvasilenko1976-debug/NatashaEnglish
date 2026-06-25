@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Platform
@@ -31,6 +32,7 @@ export default function GrammarScreen({ route, navigation }) {
   const expandedCategory = GRAMMAR_CATEGORIES.find(c => c.id === expandedId);
 
   return (
+    <ParchmentBackground>
     <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
 
@@ -157,11 +159,12 @@ export default function GrammarScreen({ route, navigation }) {
         <View style={{ height: 32 }} />
       </ScrollView>
     </SafeAreaView>
+    </ParchmentBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.parchmentDark },
+  safe: { flex: 1, backgroundColor: 'transparent' },
 
   topBar: {
     backgroundColor: colors.forestGreen,

@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, ScrollView, StyleSheet,
   SafeAreaView, StatusBar, TouchableOpacity, ActivityIndicator, Platform
@@ -50,7 +51,8 @@ export default function StatsScreen({ navigation }) {
 
   if (!game) {
     return (
-      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
+      <ParchmentBackground>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         <View style={styles.topBar}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn}>
@@ -63,6 +65,7 @@ export default function StatsScreen({ navigation }) {
           <ActivityIndicator color={colors.gold} size="large" />
         </View>
       </SafeAreaView>
+    </ParchmentBackground>
     );
   }
 
@@ -184,7 +187,7 @@ export default function StatsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.parchmentDark },
+  safe: { flex: 1, backgroundColor: 'transparent' },
   topBar: {
     backgroundColor: colors.forestGreen,
     borderBottomWidth: 2,

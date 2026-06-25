@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, ScrollView, Animated, Platform
@@ -130,7 +131,8 @@ export default function GrammarQuizScreen({ route, navigation }) {
 
   if (questions.length === 0) {
     return (
-      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
+      <ParchmentBackground>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.emptyWrap}>
@@ -144,6 +146,7 @@ export default function GrammarQuizScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+    </ParchmentBackground>
     );
   }
 
@@ -249,7 +252,7 @@ export default function GrammarQuizScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.parchmentDark },
+  safe: { flex: 1, backgroundColor: 'transparent' },
 
   topBar: {
     backgroundColor: colors.forestGreen,

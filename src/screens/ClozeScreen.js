@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Animated, Platform
@@ -131,13 +132,15 @@ export default function ClozeScreen({ navigation }) {
 
   if (loading) {
     return (
-      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
+      <ParchmentBackground>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         {topBar}
         <View style={styles.emptyWrap}>
           <Text style={styles.emptyText}>Загрузка слов...</Text>
         </View>
       </SafeAreaView>
+    </ParchmentBackground>
     );
   }
 
@@ -276,7 +279,7 @@ export default function ClozeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.parchmentDark },
+  safe: { flex: 1, backgroundColor: 'transparent' },
 
   topBar: {
     backgroundColor: colors.forestGreen,

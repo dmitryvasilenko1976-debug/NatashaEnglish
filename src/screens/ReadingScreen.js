@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Platform, ActivityIndicator,
@@ -248,7 +249,8 @@ export default function ReadingScreen({ route, navigation }) {
 
   if (!article) {
     return (
-      <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
+      <ParchmentBackground>
+    <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
         <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
         <View style={styles.topBar}>
           <TouchableOpacity onPress={handleGoBack} style={styles.iconBtn}>
@@ -261,6 +263,7 @@ export default function ReadingScreen({ route, navigation }) {
           <ActivityIndicator color={colors.gold} size="large" />
         </View>
       </SafeAreaView>
+    </ParchmentBackground>
     );
   }
 
@@ -414,10 +417,7 @@ export default function ReadingScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.parchment,
-  },
+  safe: { flex: 1, backgroundColor: 'transparent' },
   topBar: {
     backgroundColor: colors.forestGreen,
     borderBottomWidth: 2,

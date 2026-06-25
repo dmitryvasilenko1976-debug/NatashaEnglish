@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ParchmentBackground from '../components/ParchmentBackground';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   SafeAreaView, StatusBar, Platform,
@@ -57,6 +58,7 @@ export default function TutorialScreen({ navigation }) {
   }
 
   return (
+    <ParchmentBackground>
     <SafeAreaView style={[styles.safe, Platform.OS === 'web' && { height: '100vh' }]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.forestGreen} />
 
@@ -114,11 +116,12 @@ export default function TutorialScreen({ navigation }) {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
+    </ParchmentBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.parchmentDark },
+  safe: { flex: 1, backgroundColor: 'transparent' },
 
   topBar: {
     backgroundColor: colors.forestGreen,
