@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    backgroundColor: 'rgba(240,235,220,0.55)',
+    backgroundColor: 'rgba(20,14,6,0.38)',
   },
   zoneBannerLine: {
     flex: 1,
@@ -491,14 +491,23 @@ const styles = StyleSheet.create({
   nodeLabel: {
     fontFamily: 'Almendra_400Regular',
     fontSize: 11,
-    color: colors.ink,
+    color: '#fff',
     textAlign: 'center',
-    marginTop: 6,
+    marginTop: 5,
     lineHeight: 15,
     width: 112,
+    backgroundColor: 'rgba(20,14,6,0.52)',
+    borderRadius: 6,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    overflow: 'hidden',
+    textShadowColor: 'rgba(0,0,0,0.8)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   nodeLabelLocked: {
-    color: '#7a6a50',
+    color: '#d4c9b0',
+    backgroundColor: 'rgba(20,14,6,0.35)',
   },
 
   // Natasha in header
