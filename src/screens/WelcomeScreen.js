@@ -55,12 +55,12 @@ export default function WelcomeScreen({ navigation }) {
         contentContainerStyle={styles.scroll}
         style={Platform.OS === 'web' ? { overflowY: 'scroll' } : undefined}
       >
-        {/* Natasha portrait */}
+        {/* App logo */}
         <View style={styles.symbolWrap}>
           <Image
-            source={require('../../assets/portraits/natasha.png')}
-            style={styles.natashaPortrait}
-            resizeMode="cover"
+            source={require('../../assets/logo-welcome.png')}
+            style={styles.welcomeLogo}
+            resizeMode="contain"
           />
         </View>
 
@@ -183,19 +183,17 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: 'transparent' },
   scroll: { paddingBottom: 40 },
 
-  symbolWrap: { alignItems: 'center', marginTop: 16, marginBottom: 20 },
+  symbolWrap: { alignItems: 'center', marginTop: 8, marginBottom: 12 },
   logo: {
     width: 200,
     height: 200,
     borderRadius: 16,
     overflow: 'hidden',
   },
-  natashaPortrait: {
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    borderWidth: 2,
-    borderColor: '#b8975a',
+  welcomeLogo: {
+    width: 300,
+    height: 372,
+    borderRadius: 12,
     overflow: 'hidden',
   },
 
