@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 
 const NATASHA_PORTRAIT = require('../../assets/portraits/natasha.png');
+const MAP_IMAGE = require('../../assets/map-background.png');
 import Icon from '../components/Icon';
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -199,15 +200,12 @@ export default function MapScreen({ navigation }) {
         <View style={styles.mapOuter}>
           <View style={[styles.mapInner, { height: MAP_H }]}>
 
-        {/* Zone backgrounds */}
-        {ZONES_META.map((zone, zi) => {
-          const startY = BANNER_Y[zone.id] ?? 0;
-          const nextZone = ZONES_META[zi + 1];
-          const endY = nextZone ? (BANNER_Y[nextZone.id] ?? MAP_H) : MAP_H;
-          return (
-            <View key={zone.id} style={[styles.zoneBg, { top: startY, height: endY - startY, backgroundColor: zone.bg }]} />
-          );
-        })}
+        {/* Map background image */}
+        <Image
+          source={MAP_IMAGE}
+          style={styles.mapBg}
+          resizeMode="stretch"
+        />
 
         {/* Zone banners */}
         {ZONES_META.map(zone => (
@@ -367,23 +365,23 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
-    backgroundColor: '#f0ebe0',
+    backgroundColor: '#2a1f0e',
   },
   mapOuter: {
     alignItems: 'center',
-    backgroundColor: '#f0ebe0',
+    backgroundColor: '#2a1f0e',
   },
   mapInner: {
     width: MAP_W,
     position: 'relative',
     overflow: 'hidden',
   },
-
-  // Zone backgrounds (absolute)
-  zoneBg: {
+  mapBg: {
     position: 'absolute',
+    top: 0,
     left: 0,
-    right: 0,
+    width: MAP_W,
+    height: MAP_H,
   },
 
   // Zone banners
@@ -398,7 +396,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(240,235,220,0.55)',
   },
   zoneBannerLine: {
     flex: 1,
