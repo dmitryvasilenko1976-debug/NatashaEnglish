@@ -59,6 +59,7 @@ export default function WelcomeScreen({ navigation }) {
         <TouchableOpacity
           style={styles.symbolWrap}
           activeOpacity={1}
+          onContextMenu={(e) => e.preventDefault?.()}
           onLongPress={() => {
             Alert.alert(
               'Сбросить прогресс?',
@@ -75,11 +76,14 @@ export default function WelcomeScreen({ navigation }) {
               ]
             );
           }}
-          delayLongPress={1500}
+          delayLongPress={800}
         >
           <Image
             source={require('../../assets/logo-welcome.png')}
-            style={styles.welcomeLogo}
+            style={[
+              styles.welcomeLogo,
+              Platform.OS === 'web' && { WebkitTouchCallout: 'none', userSelect: 'none' },
+            ]}
             resizeMode="contain"
           />
         </TouchableOpacity>
