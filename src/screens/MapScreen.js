@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    backgroundColor: 'rgba(20,14,6,0.38)',
+    backgroundColor: 'transparent',
   },
   zoneBannerLine: {
     flex: 1,
@@ -501,9 +501,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 2,
     overflow: 'hidden',
-    textShadowColor: 'rgba(0,0,0,0.8)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
   nodeLabelLocked: {
     color: '#d4c9b0',
